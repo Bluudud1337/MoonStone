@@ -812,9 +812,9 @@ main {
 /* Temporary embedded browser */
 .browser-action{height:36px;padding:0 12px;border:1px solid var(--border);border-radius:10px;background:var(--panel);color:var(--text);font-size:12px;cursor:pointer;white-space:nowrap}
 .browser-action:hover{border-color:var(--accent)}
-#tempBrowser{position:fixed;top:58px;left:12px;right:12px;bottom:12px;z-index:40;display:none;padding:0}
+#tempBrowser{position:fixed;top:58px;left:0;right:0;bottom:0;z-index:40;display:none;padding:0}
 #tempBrowser.open{display:flex}
-.temp-browser-window{width:100%;height:100%;background:var(--bg);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 90px #0009}
+.temp-browser-window{width:100%;height:100%;min-height:0;background:var(--bg);border:0;border-radius:0;overflow:hidden;display:flex;flex-direction:column;box-shadow:none}
 .temp-browser-head{display:flex;align-items:center;gap:8px;padding:10px;border-bottom:1px solid var(--border);background:var(--panel)}
 .temp-browser-head input{display:none}
 .temp-browser-head button,.temp-browser-settings button{border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text);padding:9px 11px;cursor:pointer}
@@ -824,7 +824,7 @@ main {
 .sidebar-push{position:fixed;left:22px;top:calc(50% + 185px);z-index:6;width:32px;height:27px;border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text);cursor:pointer;transition:top .25s,transform .25s}
 body.sidebar-pushed .sidebar{top:calc(100% + 150px)}
 body.sidebar-pushed .sidebar-push{top:auto;bottom:12px;transform:rotate(180deg)}
-@media(max-width:520px){#tempBrowser{top:52px;left:6px;right:6px;bottom:6px}.sidebar-push{left:20px;top:calc(50% + 175px)}}
+@media(max-width:520px){#tempBrowser{top:52px;left:0;right:0;bottom:0}.sidebar-push{left:20px;top:calc(50% + 175px)}}
 .temp-browser-note{padding:8px 14px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
 @media(max-width:600px){.browser-action{padding:0 8px;font-size:11px}.temp-browser-head{flex-wrap:wrap}.temp-browser-head input{flex-basis:55%}}
 
@@ -879,11 +879,11 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   <div class="browser-dots" aria-hidden="true"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span></div>
   <div class="browser-address-wrap"><span class="browser-lock" aria-hidden="true">◈</span><input id="moonstoneAddress" type="text" aria-label="Paste a URL or enter a MoonStone page" placeholder="Search or enter address" spellcheck="false" autocomplete="off"></div>
   <button class="browser-action" id="tempGo" type="button">Go</button>
-  <button class="browser-action" id="tempBookmark" type="button" title="Bookmark the current address">＋</button>
-  <button class="browser-action" id="closeTempBrowser" type="button" title="Close embedded browser" aria-label="Close browser">×</button>
-  <button class="browser-action" id="tempReload" type="button" title="Reload">↻</button>
-  <button class="browser-action" id="tempBrowserSettings" type="button" title="Sandbox settings">⚙</button>
-  <button class="browser-action" id="sidebarPush" type="button" title="Push sidebar down" aria-label="Push sidebar down">↓</button>
+  <button class="browser-action" id="tempBookmark" type="button" title="Bookmark the current address">Bookmark</button>
+  <button class="browser-action" id="closeTempBrowser" type="button" title="Close embedded browser" aria-label="Close browser">Close</button>
+  <button class="browser-action" id="tempReload" type="button" title="Reload">Reload</button>
+  <button class="browser-action" id="tempBrowserSettings" type="button" title="Sandbox settings">Settings</button>
+  <button class="browser-action" id="sidebarPush" type="button" title="Push sidebar down" aria-label="Push sidebar down">Hide sidebar</button>
 </div>
 
 <div id="tempBrowser" role="region" aria-label="Embedded browser">
@@ -1779,7 +1779,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       status.textContent = "Bookmark saved to this browser. Close the temporary browser and refresh the homepage to see it.";
     } catch { status.textContent = "Couldn't save the bookmark in this browser."; }
   });
-  document.getElementById("sidebarPush").addEventListener("click", () => { const pushed=document.body.classList.toggle("sidebar-pushed"); const b=document.getElementById("sidebarPush"); b.textContent=pushed?"↑":"↓"; b.title=pushed?"Bring sidebar back up":"Push sidebar down"; b.setAttribute("aria-label",b.title); });
+  document.getElementById("sidebarPush").addEventListener("click", () => { const pushed=document.body.classList.toggle("sidebar-pushed"); const b=document.getElementById("sidebarPush"); b.textContent=pushed?"Show sidebar":"Hide sidebar"; b.title=pushed?"Bring sidebar back up":"Push sidebar down"; b.setAttribute("aria-label",b.title); });
   document.getElementById("tempBrowserSettings").addEventListener("click", () => { status.textContent = redirects.checked ? "Redirects enabled. This reduces sandbox protection." : "Sandbox is on. Top-level redirects are blocked. Sites may still refuse iframe embedding."; });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && modal.classList.contains("open")) { modal.classList.remove("open"); frame.src = "about:blank"; } });
 })();
