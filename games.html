@@ -101,9 +101,11 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
 #gameSearch{height:58px;border:0;border-radius:26px;background:#101010;padding-left:44px;font-size:14px}
 .game-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
 .game-card{aspect-ratio:1 / 1.05;border:0;border-radius:11px;overflow:hidden;position:relative;background:#171717;cursor:pointer}
-.card-art{position:absolute;inset:0;height:auto;border:0;background:#171717}
+.card-art{position:absolute;inset:0;height:auto;border:0;background:#171717;display:flex;align-items:center;justify-content:center;padding:12px}
 .card-art:before,.card-art:after{display:none}
 .art-symbol{display:none}
+.game-card{display:block;width:100%;padding:0;text-align:left;color:inherit;font:inherit}
+.game-icon{display:block;position:relative;z-index:1;width:76%;height:76%;object-fit:contain;object-position:center;border-radius:8px}
 .card-info{position:absolute;left:0;right:0;bottom:0;padding:28px 8px 8px;background:linear-gradient(transparent,rgba(0,0,0,.82));}
 .card-title-row{display:block}
 .card-title{font-size:11px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -111,7 +113,7 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
 .empty-state{display:none}
 @media(max-width:1100px){.game-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
 @media(max-width:800px){.game-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(max-width:520px){main{padding:18px 10px 100px}.toolbar{margin-bottom:26px}#gameSearch{height:52px}.game-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.game-card{border-radius:8px}}
+@media(max-width:520px){main{padding:18px 10px 100px}.toolbar{margin-bottom:26px}#gameSearch{height:52px}.game-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.game-card{border-radius:8px}.game-icon{width:82%;height:82%}}
 </style>
 </head>
 <body>
@@ -188,23 +190,22 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
     grid.innerHTML = "";
     games.filter(game => String(game.Title || "").toLowerCase().includes(query))
       .forEach(game => {
-        const card = document.createElement("a");
+        const card = document.createElement("button");
+        card.type = "button";
         card.className = "game-card";
-        card.href = game.Link || "#";
-        card.setAttribute("aria-label", game.Title || "Untitled game");
-        if (game.Link) {
-          card.target = "_blank";
-          card.rel = "noopener noreferrer";
-        } else {
-          card.addEventListener("click", event => event.preventDefault());
-        }
+        card.setAttribute("aria-label", "Play " + (game.Title || "Untitled game"));
+        card.addEventListener("click", () => openSiteGame(game));
 
         const art = document.createElement("div");
         art.className = "card-art";
         if (game.Img) {
-          art.style.backgroundImage = "url(" + JSON.stringify(game.Img).slice(1, -1) + ")";
-          art.style.backgroundSize = "cover";
-          art.style.backgroundPosition = "center";
+          const image = document.createElement("img");
+          image.className = "game-icon";
+          image.src = game.Img;
+          image.alt = "";
+          image.loading = "lazy";
+          image.onerror = () => { image.style.display = "none"; };
+          art.appendChild(image);
         }
 
         const info = document.createElement("div");
@@ -219,6 +220,23 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
         card.append(art, info);
         grid.appendChild(card);
       });
+  }
+
+  function openSiteGame(game){
+    if (!game.Link) return;
+    activeGame = game;
+    $("#activeGameTitle").textContent = game.Title || "Game";
+    $("#gameStage").innerHTML = "";
+    const frame = document.createElement("iframe");
+    frame.src = game.Link;
+    frame.title = (game.Title || "Game") + " game";
+    frame.allow = "fullscreen; autoplay; gamepad";
+    frame.allowFullscreen = true;
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
+    $("#gameStage").appendChild(frame);
+    $("#gameOverlay").classList.add("open");
+    document.body.style.overflow = "hidden";
+    $("#closeGame").focus();
   }
 
   function markRecent(id){recent=[id,...recent.filter(x=>x!==id)].slice(0,8);save("moonstone-games-recent",recent);}
