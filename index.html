@@ -40,8 +40,8 @@ body {
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: var(--text);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--site-font, Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif);
   overflow-x: hidden;
   transition: background .3s ease, color .3s ease;
 }
@@ -878,6 +878,10 @@ body.dock-span-full.dock-right.sidebar-pushed .sidebar{left:auto!important;right
 .settings-status{font-size:9px;letter-spacing:.08em;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:5px 7px;white-space:nowrap}
 .settings-action{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--text);font-size:11px;cursor:pointer;white-space:nowrap}
 .settings-action:hover{background:var(--hover);border-color:var(--accent)}
+.font-custom-controls{display:flex;align-items:center;gap:7px;min-width:0;width:min(100%,330px)}
+.font-custom-controls .field{margin:0;min-width:0;flex:1;padding:9px;font-size:11px}
+#fontStatus{margin-top:9px;font-size:11px}
+@media(max-width:620px){.font-custom-controls{width:100%}}
 .data-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px;margin-bottom:9px;border:1px solid var(--border);border-radius:12px;background:var(--panel)}
 .data-card>div{display:flex;flex-direction:column;gap:5px;min-width:0}
 .data-card strong{font-size:12px;font-weight:550}.data-card span{font-size:11px;line-height:1.5;color:var(--muted)}
@@ -1004,6 +1008,10 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
         <section class="settings-panel active" data-settings-panel="appearance">
           <p class="settings-kicker">MAKE IT YOURS</p><h3>Appearance</h3><p class="settings-intro">Tune the look and feel of MoonStone.</p>
           <div class="section-label">Color theme</div><div class="theme-list" id="themeList"></div>
+          <div class="section-label">Site font</div>
+          <div class="setting-row"><div class="setting-description"><strong>Font preset</strong><span>Choose a built-in font family for the whole site.</span></div><select class="settings-action" id="siteFontSelect" aria-label="Site font"><option value="default">MoonStone default</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Lato">Lato</option><option value="Montserrat">Montserrat</option><option value="Poppins">Poppins</option><option value="Nunito">Nunito</option><option value="Roboto Mono">Roboto Mono</option><option value="Georgia">Georgia</option><option value="Arial">Arial</option><option value="Verdana">Verdana</option><option value="Trebuchet MS">Trebuchet MS</option><option value="Courier New">Courier New</option></select></div>
+          <div class="setting-row"><div class="setting-description"><strong>Custom font name</strong><span>Type a font name, including a Google Font such as Space Grotesk.</span></div><div class="font-custom-controls"><input class="field" id="customFontName" type="text" maxlength="60" placeholder="e.g. Space Grotesk" aria-label="Custom font name" autocomplete="off"><button class="settings-action" id="applyCustomFont" type="button">Apply</button></div></div>
+          <p class="settings-intro" id="fontStatus">Google Fonts load from Google Fonts. Other fonts must be installed on the device.</p>
           <div class="section-label">Dock layout</div>
           <div class="setting-row"><div class="setting-description"><strong>Dock position</strong><span>Choose which screen edge holds the navigation dock.</span></div><select class="settings-action" id="dockPositionSelect" aria-label="Dock position"><option value="left">Left</option><option value="right">Right</option><option value="bottom">Bottom</option></select></div>
           <div class="setting-row"><div class="setting-description"><strong>Dock span</strong><span>Use a compact floating dock or stretch it along the full edge.</span></div><select class="settings-action" id="dockSpanSelect" aria-label="Dock span"><option value="compact">Compact</option><option value="full">Full edge</option></select></div>
@@ -1140,7 +1148,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     cancelLeave: savedSettings.cancelLeave === true,
     compactBookmarks: savedSettings.compactBookmarks === true,
     dockPosition: ["left","right","bottom"].includes(savedSettings.dockPosition) ? savedSettings.dockPosition : "left",
-    dockSpan: savedSettings.dockSpan === "full" ? "full" : "compact"
+    dockSpan: savedSettings.dockSpan === "full" ? "full" : "compact",
+    siteFont: typeof savedSettings.siteFont === "string" ? savedSettings.siteFont.slice(0, 60) : ""
   };
 
   let bookmarks = loadJSON("moonstone-bookmarks", defaultBookmarks);
@@ -1235,8 +1244,37 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     localStorage.setItem("moonstone-bookmarks", JSON.stringify(bookmarks));
   }
 
+  function applySiteFont(fontName) {
+    const cleanName = typeof fontName === "string" ? fontName.trim().slice(0, 60) : "";
+    const safeName = /^[a-zA-Z0-9 _-]*$/.test(cleanName) ? cleanName : "";
+    const oldLink = document.getElementById("moonstoneGoogleFont");
+    if (oldLink) oldLink.remove();
+
+    if (!safeName || safeName.toLowerCase() === "default") {
+      document.documentElement.style.removeProperty("--site-font");
+      return;
+    }
+
+    const fallback = '"' + safeName.replace(/"/g, "") + '"';
+    document.documentElement.style.setProperty("--site-font", fallback + ', Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif');
+
+    const systemFonts = ["Arial","Verdana","Georgia","Trebuchet MS","Courier New"];
+    if (!systemFonts.some(name => name.toLowerCase() === safeName.toLowerCase())) {
+      const link = document.createElement("link");
+      link.id = "moonstoneGoogleFont";
+      link.rel = "stylesheet";
+      link.href = "https://fonts.googleapis.com/css2?family=" + encodeURIComponent(safeName).replace(/%20/g, "+") + ":wght@400;500;600;700&display=swap";
+      link.onerror = () => {
+        const status = document.getElementById("fontStatus");
+        if (status) status.textContent = "Couldn't load that Google Font. If it's a local font, make sure it's installed on this device.";
+      };
+      document.head.appendChild(link);
+    }
+  }
+
   function applySettings() {
     document.body.dataset.theme = settings.theme;
+    applySiteFont(settings.siteFont);
     document.body.classList.toggle("no-animations", !settings.animations);
     $("#particleToggle").setAttribute("aria-checked", settings.particles);
     $("#animationToggle").setAttribute("aria-checked", settings.animations);
@@ -1517,6 +1555,44 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   });
   $("#dockSpanSelect").addEventListener("change", event => {
     settings.dockSpan = event.target.value === "full" ? "full" : "compact";
+    saveSettings();
+    applySettings();
+  });
+  const siteFontSelect = $("#siteFontSelect");
+  const customFontName = $("#customFontName");
+  const fontStatus = $("#fontStatus");
+  if (siteFontSelect) {
+    siteFontSelect.value = settings.siteFont || "default";
+    siteFontSelect.addEventListener("change", event => {
+      settings.siteFont = event.target.value === "default" ? "" : event.target.value;
+      if (customFontName) customFontName.value = "";
+      if (fontStatus) fontStatus.textContent = settings.siteFont ? "Applied: " + settings.siteFont : "Using MoonStone's default font.";
+      saveSettings();
+      applySettings();
+    });
+  }
+  if (customFontName) {
+    customFontName.value = settings.siteFont && !Array.from(siteFontSelect?.options || []).some(option => option.value === settings.siteFont) ? settings.siteFont : "";
+    customFontName.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        $("#applyCustomFont").click();
+      }
+    });
+  }
+  $("#applyCustomFont").addEventListener("click", () => {
+    const name = customFontName.value.trim();
+    if (!name) {
+      settings.siteFont = "";
+      if (fontStatus) fontStatus.textContent = "Using MoonStone's default font.";
+    } else if (!/^[a-zA-Z0-9 _-]{1,60}$/.test(name)) {
+      if (fontStatus) fontStatus.textContent = "Use letters, numbers, spaces, and hyphens in the font name.";
+      return;
+    } else {
+      settings.siteFont = name;
+      if (fontStatus) fontStatus.textContent = "Applied: " + name + ". If it doesn't appear, check the font name or your connection.";
+    }
+    if (siteFontSelect) siteFontSelect.value = Array.from(siteFontSelect.options).some(option => option.value === settings.siteFont) ? settings.siteFont : "default";
     saveSettings();
     applySettings();
   });
