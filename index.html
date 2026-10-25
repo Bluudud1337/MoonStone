@@ -826,6 +826,22 @@ main {
       <button class="toggle" id="animationToggle" role="switch" aria-checked="true" aria-label="Animations"></button>
     </div>
 
+    <div class="setting-row">
+      <div class="setting-description">
+        <strong>Confirm leaving</strong>
+        <span>Ask before opening another page</span>
+      </div>
+      <button class="toggle" id="confirmLeaveToggle" role="switch" aria-checked="true" aria-label="Confirm leaving"></button>
+    </div>
+
+    <div class="setting-row">
+      <div class="setting-description">
+        <strong>Cancel leaving automatically</strong>
+        <span>Block page navigation while enabled</span>
+      </div>
+      <button class="toggle" id="cancelLeaveToggle" role="switch" aria-checked="false" aria-label="Cancel leaving automatically"></button>
+    </div>
+
     <p class="modal-note">Your preferences are saved automatically on this device.</p>
   </section>
 </div>
@@ -904,7 +920,9 @@ main {
     theme: themes.some(t => t.id === savedSettings.theme)
       ? savedSettings.theme : "moonstone",
     particles: savedSettings.particles !== false,
-    animations: savedSettings.animations !== false
+    animations: savedSettings.animations !== false,
+    confirmLeave: savedSettings.confirmLeave !== false,
+    cancelLeave: savedSettings.cancelLeave === true
   };
 
   let bookmarks = loadJSON("moonstone-bookmarks", defaultBookmarks);
@@ -934,6 +952,8 @@ main {
     document.body.classList.toggle("no-animations", !settings.animations);
     $("#particleToggle").setAttribute("aria-checked", settings.particles);
     $("#animationToggle").setAttribute("aria-checked", settings.animations);
+    $("#confirmLeaveToggle").setAttribute("aria-checked", settings.confirmLeave);
+    $("#cancelLeaveToggle").setAttribute("aria-checked", settings.cancelLeave);
     $("#themeList").querySelectorAll(".theme-option").forEach(button => {
       const selected = button.dataset.theme === settings.theme;
       button.classList.toggle("selected", selected);
@@ -968,6 +988,14 @@ main {
         applySettings();
       });
     });
+  }
+
+  function shouldAllowNavigation() {
+    if (settings.cancelLeave) return false;
+    if (settings.confirmLeave && !window.confirm("Are you sure you want to leave Moonstone?")) {
+      return false;
+    }
+    return true;
   }
 
   function safeUrl(rawUrl) {
@@ -1019,10 +1047,16 @@ main {
       link.addEventListener("click", event => {
         if (link.href.endsWith("#") || !safeUrl(bookmark.url)) {
           event.preventDefault();
+          return;
         }
         if (container.classList.contains("editing")) {
           event.preventDefault();
           beginEdit(index);
+          return;
+        }
+        if (settings.cancelLeave || settings.confirmLeave) {
+          event.preventDefault();
+          if (shouldAllowNavigation()) location.href = link.href;
         }
       });
 
@@ -1158,6 +1192,18 @@ main {
     applySettings();
   });
 
+  $("#confirmLeaveToggle").addEventListener("click", () => {
+    settings.confirmLeave = !settings.confirmLeave;
+    saveSettings();
+    applySettings();
+  });
+
+  $("#cancelLeaveToggle").addEventListener("click", () => {
+    settings.cancelLeave = !settings.cancelLeave;
+    saveSettings();
+    applySettings();
+  });
+
   /* Search */
 
   $("#searchMode").addEventListener("click", () => {
@@ -1174,7 +1220,8 @@ main {
     if (!query) return;
 
     if (searchMode === "web") {
-      location.href = "https://www.google.com/search?q=" + encodeURIComponent(query);
+      const destination = "https://www.google.com/search?q=" + encodeURIComponent(query);
+      if (shouldAllowNavigation()) location.href = destination;
       return;
     }
 
@@ -1184,7 +1231,8 @@ main {
     );
 
     if (matches.length === 1) {
-      location.href = safeUrl(matches[0].url) || "#";
+      const destination = safeUrl(matches[0].url);
+      if (destination && shouldAllowNavigation()) location.href = destination;
     } else if (matches.length > 1) {
       $("#bookmarks").innerHTML = "";
       matches.forEach(bookmark => {
@@ -1198,6 +1246,16 @@ main {
         icon.className = "bookmark-icon";
         icon.innerHTML = iconSVG[bookmark.icon] || iconSVG.link;
         link.append(icon, name);
+        link.addEventListener("click", clickEvent => {
+          if (!safeUrl(bookmark.url)) {
+            clickEvent.preventDefault();
+            return;
+          }
+          if (settings.cancelLeave || settings.confirmLeave) {
+            clickEvent.preventDefault();
+            if (shouldAllowNavigation()) location.href = link.href;
+          }
+        });
         $("#bookmarks").appendChild(link);
       });
     } else {
