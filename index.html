@@ -1698,7 +1698,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       try {
         const url = new URL(target);
         if (url.origin !== window.location.origin) {
-          address.value = window.location.pathname + window.location.search + window.location.hash;
+          // External URLs are handled by the temporary embedded browser above.
           return;
         }
         target = url.pathname + url.search + url.hash;
