@@ -237,6 +237,33 @@ main {
   text-indent: .24em;
 }
 
+/* Random MoonStone message */
+.brand-message {
+  min-height: 18px;
+  max-width: 100%;
+  margin: -3px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: .025em;
+  text-align: center;
+}
+.brand-message-cursor {
+  display: inline-block;
+  width: 1px;
+  height: .9em;
+  margin-left: 2px;
+  vertical-align: -1px;
+  background: var(--accent);
+  animation: messageBlink .85s steps(2, start) infinite;
+}
+@keyframes messageBlink {
+  to { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-message-cursor { animation: none; }
+}
+
 .search {
   display: flex;
   align-items: center;
@@ -858,6 +885,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
         </svg>
       </div>
       <h1>MOONSTONE</h1>
+      <p class="brand-message" id="brandMessage" aria-live="polite"><span id="brandMessageText">A little corner of the internet.</span><span class="brand-message-cursor" aria-hidden="true"></span></p>
     </div>
 
     <form class="search" id="searchForm">
@@ -1017,6 +1045,61 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     chat: '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 8.7 4a8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg>',
     link: '<svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.1 0l3-3A5 5 0 0 0 13 2.9l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.1 0l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"/></svg>'
   };
+
+  /* Random homepage messages with a subtle typing effect */
+  const brandMessageText = $("#brandMessageText");
+  const messageLines = [
+    "A little corner of the internet.",
+    "Take a moment. Explore a little.",
+    "Somewhere between here and elsewhere.",
+    "The internet, at your own pace.",
+    "A quiet place to find something new.",
+    "Lost in the tabs, found in the moment.",
+    "There's always something out there.",
+    "Make yourself at home.",
+    "A small window to a much bigger world.",
+    "Stay curious. Wander a little.",
+    "Nothing to rush. Plenty to discover.",
+    "Welcome back to your corner of the web."
+  ];
+  let currentMessage = brandMessageText ? brandMessageText.textContent : "";
+  let messageTimer;
+
+  function typeRandomMessage() {
+    if (!brandMessageText) return;
+    const available = messageLines.filter(message => message !== currentMessage);
+    const nextMessage = available[Math.floor(Math.random() * available.length)] || messageLines[0];
+    currentMessage = nextMessage;
+
+    if (reducedMotion.matches || !settings.animations) {
+      brandMessageText.textContent = nextMessage;
+      messageTimer = window.setTimeout(typeRandomMessage, 6500);
+      return;
+    }
+
+    let position = brandMessageText.textContent.length;
+    const erase = () => {
+      if (position > 0) {
+        brandMessageText.textContent = brandMessageText.textContent.slice(0, -1);
+        position--;
+        messageTimer = window.setTimeout(erase, 13);
+      } else {
+        let typed = 0;
+        const type = () => {
+          if (typed < nextMessage.length) {
+            brandMessageText.textContent += nextMessage.charAt(typed++);
+            messageTimer = window.setTimeout(type, 28);
+          } else {
+            messageTimer = window.setTimeout(typeRandomMessage, 5200);
+          }
+        };
+        type();
+      }
+    };
+    messageTimer = window.setTimeout(erase, 20);
+  }
+
+  window.setTimeout(typeRandomMessage, 1800);
 
   function saveSettings() {
     localStorage.setItem("moonstone-settings", JSON.stringify(settings));
