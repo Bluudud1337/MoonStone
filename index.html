@@ -814,6 +814,14 @@ main {
 .browser-action:hover{border-color:var(--accent)}
 #tempBrowser{position:fixed;top:58px;left:0;right:0;bottom:0;z-index:40;display:none;padding:0;background:var(--bg,#090909)}
 #tempBrowser.open{display:flex}
+.temp-tabs{display:flex;align-items:center;gap:5px;min-height:38px;padding:5px 8px;background:var(--panel);border-bottom:1px solid var(--border);overflow-x:auto}
+.temp-tab{display:flex;align-items:center;gap:10px;max-width:220px;min-width:90px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);font-size:11px;cursor:pointer;white-space:nowrap}
+.temp-tab.active{background:var(--hover);color:var(--text);border-color:var(--accent)}
+.temp-tab-title{overflow:hidden;text-overflow:ellipsis}.temp-tab-close{font-size:14px;line-height:1}
+.temp-tab-add{flex:0 0 auto;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text);cursor:pointer}
+.temp-settings-panel{display:none;align-items:center;gap:10px;padding:9px 12px;background:var(--panel);border-bottom:1px solid var(--border);font-size:12px;color:var(--text)}
+.temp-settings-panel.open{display:flex}.temp-settings-panel input{display:inline-block!important}
+.temp-browser-head input{display:inline-block}
 .temp-browser-window{width:100%;height:100%;min-height:0;background:var(--bg);border:0;border-radius:0;overflow:hidden;display:flex;flex-direction:column;box-shadow:none}
 #tempBrowserFrame{display:block;flex:1 1 auto;min-height:0;width:100%;border:0;background:#fff}
 #tempBrowserStatus{flex:0 0 auto;max-height:34px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -901,6 +909,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
 <div id="tempBrowser" role="region" aria-label="Embedded browser">
   <div class="temp-browser-window">
+    <div class="temp-tabs" id="tempBrowserTabs" role="tablist" aria-label="Browser tabs"></div>
+    <div class="temp-settings-panel" id="tempSettingsPanel"><label><input id="tempAllowRedirects" type="checkbox"> Allow top-level redirects (less secure)</label><span>Some websites block iframe embedding regardless of this setting.</span></div>
     <div class="temp-browser-head">
       <button id="tempBack" type="button" title="Back">← Back</button>
       <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)"><input id="tempAllowRedirects" type="checkbox"> Allow redirects</label>
@@ -1565,17 +1575,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     if (!query) return;
 
     if (searchMode === "web") {
-      const destination = "https://www.google.com/search?igu=1&q=" + encodeURIComponent(query);
-      const browser = document.getElementById("tempBrowser");
-      const frame = document.getElementById("tempBrowserFrame");
-      const status = document.getElementById("tempBrowserStatus");
-      if (browser && frame) {
-        browser.classList.add("open");
-        frame.src = destination;
-        const address = document.getElementById("moonstoneAddress");
-        if (address) address.value = destination;
-        if (status) status.textContent = "Searching Google inside MoonStone. Some search pages may block embedded viewing.";
-      }
+      if (typeof window.moonstoneOpenSearch === "function") window.moonstoneOpenSearch(query);
       return;
     }
 
@@ -1740,94 +1740,31 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
 <script>
 (() => {
-  const modal = document.getElementById("tempBrowser");
-  const urlInput = document.getElementById("moonstoneAddress");
-  const frame = document.getElementById("tempBrowserFrame");
-  const status = document.getElementById("tempBrowserStatus");
-  const redirects = document.getElementById("tempAllowRedirects");
-  const openBtn = document.getElementById("tempGo");
-  if (!modal || !urlInput || !frame) return;
-  let history = [];
-  let historyIndex = -1;
-  const normalizeUrl = value => {
-    let raw = value.trim();
-    if (!raw) return null;
-    if (!/^https?:\/\//i.test(raw)) raw = "https://" + raw;
-    try {
-      const url = new URL(raw);
-      if (url.protocol !== "https:" && url.protocol !== "http:") return null;
-      return url.href;
-    } catch { return null; }
-  };
-  function setSandbox() {
-    frame.setAttribute("sandbox", "allow-scripts allow-forms allow-same-origin allow-popups" + (redirects.checked ? " allow-top-navigation-by-user-activation" : ""));
-  }
-  function navigate(value, addHistory=true) {
-    const url = normalizeUrl(value);
-    if (!url) { status.textContent = "Paste a valid http:// or https:// website address."; return; }
-    urlInput.value = url;
-    setSandbox();
-    frame.src = url;
-    status.textContent = "Trying to load " + new URL(url).hostname + ". If the site blocks embedding, it cannot be displayed here.";
-    if (addHistory) {
-      history = history.slice(0, historyIndex + 1);
-      history.push(url);
-      historyIndex = history.length - 1;
-    }
-  }
-  function openAddressOrSearch(value) {
-    const entered = value.trim();
-    if (!entered) { modal.classList.toggle("open"); return; }
-    const looksLikeUrl = /^https?:\/\//i.test(entered) || /^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered) || entered.startsWith("/");
-    if (looksLikeUrl) {
-      if (entered.startsWith("/")) {
-        const localUrl = new URL(entered, window.location.origin);
-        if (localUrl.origin === window.location.origin) {
-          modal.classList.remove("open");
-          window.location.href = localUrl.href;
-          return;
-        }
-      }
-      modal.classList.add("open");
-      navigate(entered);
-      return;
-    }
-    const destination = "https://www.google.com/search?igu=1&q=" + encodeURIComponent(entered);
-    modal.classList.add("open");
-    navigate(destination);
-  }
-  openBtn.addEventListener("click", () => openAddressOrSearch(urlInput.value));
-  document.getElementById("closeTempBrowser").addEventListener("click", () => { modal.classList.remove("open"); frame.src = "about:blank"; });
-  modal.addEventListener("click", e => { if (e.target === modal) { modal.classList.remove("open"); frame.src = "about:blank"; } });
-  urlInput.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); openAddressOrSearch(urlInput.value); } });
-  document.getElementById("tempReload").addEventListener("click", () => { if (historyIndex >= 0) navigate(history[historyIndex], false); });
-  document.getElementById("tempBack").addEventListener("click", () => {
-    if (historyIndex > 0) { historyIndex--; navigate(history[historyIndex], false); }
-    else status.textContent = "No previous page in this temporary browser session.";
-  });
-  redirects.addEventListener("change", setSandbox);
-  document.getElementById("tempBrowserSettings").addEventListener("click", () => {
-    status.textContent = redirects.checked
-      ? "Redirects enabled: the embedded page may navigate the top-level tab after a user action. Keep in mind this reduces sandbox protection."
-      : "Sandbox is on. Top-level redirects are blocked; popups and scripts may still work. Sites can still refuse embedding, and this tool cannot bypass their restrictions.";
-  });
-  document.getElementById("tempBookmark").addEventListener("click", () => {
-    const url = normalizeUrl(urlInput.value);
-    if (!url) { status.textContent = "Paste a valid website link first."; return; }
-    try {
-      const saved = JSON.parse(localStorage.getItem("moonstone-bookmarks") || "[]");
-      const name = prompt("Name this bookmark:", new URL(url).hostname.replace(/^www\./, ""));
-      if (!name || !name.trim()) return;
-      saved.push({name:name.trim().slice(0,30),url,icon:"link"});
-      localStorage.setItem("moonstone-bookmarks", JSON.stringify(saved));
-      status.textContent = "Bookmark saved to this browser. Close the temporary browser and refresh the homepage to see it.";
-    } catch { status.textContent = "Couldn't save the bookmark in this browser."; }
-  });
-  document.getElementById("sidebarPush").addEventListener("click", () => { const hidden=document.body.classList.toggle("sidebar-pushed"); const b=document.getElementById("sidebarPush"); b.textContent=hidden?"Show sidebar":"Hide sidebar"; b.title=hidden?"Show sidebar":"Hide sidebar"; b.setAttribute("aria-label",b.title); });
-  document.getElementById("tempBrowserSettings").addEventListener("click", () => { status.textContent = redirects.checked ? "Redirects enabled. This reduces sandbox protection." : "Sandbox is on. Top-level redirects are blocked. Sites may still refuse iframe embedding."; });
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && modal.classList.contains("open")) { modal.classList.remove("open"); frame.src = "about:blank"; } });
-})();
-</script>
+  const modal=document.getElementById("tempBrowser"), urlInput=document.getElementById("moonstoneAddress"), frame=document.getElementById("tempBrowserFrame"), status=document.getElementById("tempBrowserStatus"), redirects=document.getElementById("tempAllowRedirects"), tabsEl=document.getElementById("tempBrowserTabs"), settingsPanel=document.getElementById("tempSettingsPanel");
+  if(!modal||!urlInput||!frame||!tabsEl)return;
+  let tabs=[],activeId=null,nextId=1;
+  const active=()=>tabs.find(t=>t.id===activeId);
+  function normalize(value){let raw=value.trim();if(!raw)return null;if(!/^https?:\/\//i.test(raw))raw="https://"+raw;try{const u=new URL(raw);return ["http:","https:"].includes(u.protocol)?u.href:null}catch{return null}}
+  function sandbox(){frame.setAttribute("sandbox","allow-scripts allow-forms allow-same-origin allow-popups"+(redirects.checked?" allow-top-navigation-by-user-activation":""))}
+  function render(){tabsEl.replaceChildren();tabs.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="temp-tab"+(t.id===activeId?" active":"");b.setAttribute("role","tab");b.setAttribute("aria-selected",String(t.id===activeId));const title=document.createElement("span");title.className="temp-tab-title";title.textContent=t.title;const close=document.createElement("span");close.className="temp-tab-close";close.textContent="×";close.setAttribute("aria-label","Close tab");b.append(title,close);b.addEventListener("click",e=>e.target===close?closeTab(t.id):switchTab(t.id));tabsEl.append(b)});const add=document.createElement("button");add.type="button";add.className="temp-tab-add";add.textContent="+";add.title="New tab";add.addEventListener("click",()=>createTab());tabsEl.append(add)}
+  function setTitle(t,url){t.url=url;try{t.title=new URL(url).hostname.replace(/^www\./,"")||"New tab"}catch{t.title="New tab"}}
+  function switchTab(id){const t=tabs.find(x=>x.id===id);if(!t)return;activeId=id;modal.classList.add("open");urlInput.value=t.url||"";frame.src=t.url||"about:blank";render();status.textContent=t.url?"Loading "+t.title+". Some websites block embedded viewing.":"New tab: enter a search or website address."}
+  function createTab(){const t={id:nextId++,url:"",title:"New tab",history:[],index:-1};tabs.push(t);activeId=t.id;modal.classList.add("open");frame.src="about:blank";urlInput.value="";render();status.textContent="New tab: enter a search or website address.";urlInput.focus();return t}
+  function closeTab(id){const i=tabs.findIndex(t=>t.id===id);if(i<0)return;const wasActive=activeId===id;tabs.splice(i,1);if(!tabs.length){activeId=null;frame.src="about:blank";modal.classList.remove("open");settingsPanel.classList.remove("open");urlInput.value=window.location.pathname+window.location.search+window.location.hash||"/";render();return}if(wasActive)activeId=tabs[Math.max(0,i-1)].id;switchTab(activeId)}
+  function navigate(value,addHistory=true){const entered=value.trim();if(!entered){status.textContent="Enter a search or website address.";return}let url;if(/^https?:\/\//i.test(entered)||/^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered))url=normalize(entered);else url="https://www.google.com/search?igu=1&q="+encodeURIComponent(entered);if(!url){status.textContent="Enter a valid http:// or https:// address.";return}let t=active()||createTab();setTitle(t,url);if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}sandbox();frame.src=url;urlInput.value=url;modal.classList.add("open");status.textContent="Loading "+t.title+". Sites may block iframe embedding.";render()}
+  document.getElementById("tempGo").addEventListener("click",()=>navigate(urlInput.value));
+  urlInput.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();navigate(urlInput.value)}});
+  document.getElementById("closeTempBrowser").addEventListener("click",()=>{if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")});
+  document.getElementById("tempReload").addEventListener("click",()=>{const t=active();if(t&&t.url){sandbox();frame.src=t.url}});
+  document.getElementById("tempBack").addEventListener("click",()=>{const t=active();if(!t||t.index<=0){status.textContent="No previous page in this tab.";return}t.index--;setTitle(t,t.history[t.index]);frame.src=t.url;urlInput.value=t.url;render()});
+  redirects.addEventListener("change",sandbox);
+  document.getElementById("tempBrowserSettings").addEventListener("click",()=>settingsPanel.classList.toggle("open"));
+  document.getElementById("tempBookmark").addEventListener("click",()=>{const url=normalize(urlInput.value);if(!url){status.textContent="Enter a valid website address first.";return}try{const saved=JSON.parse(localStorage.getItem("moonstone-bookmarks")||"[]");const name=prompt("Name this bookmark:",new URL(url).hostname.replace(/^www\./,""));if(!name||!name.trim())return;saved.push({name:name.trim().slice(0,30),url,icon:"link"});localStorage.setItem("moonstone-bookmarks",JSON.stringify(saved));status.textContent="Bookmark saved. Refresh the homepage to see it."}catch{status.textContent="Couldn't save the bookmark."}});
+  document.getElementById("sidebarPush").addEventListener("click",()=>{const hidden=document.body.classList.toggle("sidebar-pushed"),b=document.getElementById("sidebarPush");b.textContent=hidden?"Show sidebar":"Hide sidebar";b.title=b.textContent;b.setAttribute("aria-label",b.textContent)});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&modal.classList.contains("open")){if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")}});
+  window.moonstoneOpenSearch=query=>{if(activeId===null)createTab();navigate(query)};
+  render();
+})();</script>
 
 </body>
 </html>
