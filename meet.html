@@ -62,9 +62,10 @@ main{width:min(1120px,100%);margin:0 auto;padding:56px 24px 40px}.eyebrow{font-s
   }
 
   function endCall() {
-    if (api) {
-      try { api.dispose(); } catch {}
-      api = null;
+    const activeApi = api;
+    api = null;
+    if (activeApi) {
+      try { activeApi.dispose(); } catch {}
     }
     mount.replaceChildren();
     call.classList.remove("active");
