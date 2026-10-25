@@ -9,7 +9,7 @@
 <style>
 :root{color-scheme:dark;--bg:#090909;--panel:#111110;--hover:#1b1b19;--text:#eeeade;--muted:#85847d;--border:#292925;--accent:#d9d3bd;--particle:#d9d3bd}
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+html,body{margin:0;min-height:100%;background-color:var(--bg);background-image:var(--wallpaper,none);background-size:cover;background-position:center center;background-attachment:fixed;background-repeat:no-repeat;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 body{overflow-x:hidden}
 button,input{font:inherit}button{color:inherit}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
@@ -179,7 +179,8 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
     moonlight: {bg:"#0c0e15",panel:"#131621",hover:"#202435",text:"#e4e9f5",muted:"#8c94a8",border:"#292e40",accent:"#c5d2f3",particle:"#b8c9ff"},
     terminal: {bg:"#080d09",panel:"#0e1510",hover:"#19241b",text:"#cde7cf",muted:"#829985",border:"#26382a",accent:"#a8e6b0",particle:"#a8e6b0"},
     garnet: {bg:"#100709",panel:"#1a0d12",hover:"#2b121b",text:"#f5e8eb",muted:"#b28b96",border:"#47202d",accent:"#e16b88",particle:"#e16b88"},
-    paper: {bg:"#eeeade",panel:"#e4e0d2",hover:"#d9d4c4",text:"#171714",muted:"#777469",border:"#d0cbbb",accent:"#24241f",particle:"#777469"}
+    paper: {bg:"#eeeade",panel:"#e4e0d2",hover:"#d9d4c4",text:"#171714",muted:"#777469",border:"#d0cbbb",accent:"#24241f",particle:"#777469"},
+    flowery: {bg:"#17120d",panel:"#211a13",hover:"#33271a",text:"#fff3d3",muted:"#d5b99a",border:"#675033",accent:"#f4d34e",particle:"#f4d34e",wallpaper:'linear-gradient(rgba(15,11,9,.48),rgba(15,11,9,.68)),url("https://i.redd.it/sarn4u1tl3ah1.png")'}
   };
   function applySharedTheme(){
     let settings = safeLoad("moonstone-settings", {});
@@ -187,6 +188,7 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
     const vars = themeVars[theme];
     const root = document.documentElement;
     Object.entries(vars).forEach(([key,value]) => root.style.setProperty("--"+key,value));
+    root.style.setProperty("--wallpaper", vars.wallpaper ? vars.wallpaper : "none");
     document.body.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme === "paper" ? "light" : "dark";
   }
