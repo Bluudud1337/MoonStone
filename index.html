@@ -860,6 +860,13 @@ body.dock-span-full.dock-right.sidebar-pushed .sidebar{left:auto!important;right
 
 
 
+/* Site-wide cursor options */
+body[data-cursor="cream"],body[data-cursor="cream"] *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 2 L5 25 L11 19 L16 29 L21 26 L16 17 L25 17 Z' fill='%23f3eedf' stroke='%23101010' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 5 2,auto}
+body[data-cursor="black"],body[data-cursor="black"] *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 2 L5 25 L11 19 L16 29 L21 26 L16 17 L25 17 Z' fill='%23101010' stroke='%23f3eedf' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 5 2,auto}
+body[data-cursor="crosshair"],body[data-cursor="crosshair"] *{cursor:crosshair}
+body[data-cursor="pixel"],body[data-cursor="pixel"] *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M4 2h4v4h4v4h4v4h4v4h4v4h-8v-4h-4v-4h-4v-4H4z' fill='%23f3eedf' stroke='%23101010' stroke-width='2'/%3E%3C/svg%3E") 4 2,auto}
+body[data-cursor="custom"],body[data-cursor="custom"] *{cursor:var(--moonstone-custom-cursor,auto)}
+body[data-cursor="custom"] button,body[data-cursor="custom"] a,body[data-cursor="custom"] select,body[data-cursor="custom"] label,body[data-cursor="custom"] [role="button"],body[data-cursor="custom"] input[type="submit"]{cursor:var(--moonstone-custom-cursor,pointer)}
 /* Search field refresh: wide, soft, rounded like the supplied reference. */
 .home{width:min(1035px,calc(100% - 48px));}
 .search{height:72px;gap:18px;padding:0 28px;border-radius:999px;background:color-mix(in srgb,var(--panel) 78%,#080808);border:1px solid color-mix(in srgb,var(--border) 70%,transparent);box-shadow:0 12px 42px rgba(0,0,0,.22),18px 0 45px color-mix(in srgb,var(--accent) 5%,transparent);transition:border-color .22s ease,box-shadow .22s ease,background .22s ease}
@@ -1061,6 +1068,10 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           <div class="setting-row"><div class="setting-description"><strong>Font preset</strong><span>Choose a built-in font family for the whole site.</span></div><select class="settings-action" id="siteFontSelect" aria-label="Site font"><option value="default">MoonStone default</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Lato">Lato</option><option value="Montserrat">Montserrat</option><option value="Poppins">Poppins</option><option value="Nunito">Nunito</option><option value="Roboto Mono">Roboto Mono</option><option value="Georgia">Georgia</option><option value="Arial">Arial</option><option value="Verdana">Verdana</option><option value="Trebuchet MS">Trebuchet MS</option><option value="Courier New">Courier New</option></select></div>
           <div class="setting-row"><div class="setting-description"><strong>Custom font name</strong><span>Type a font name, including a Google Font such as Space Grotesk.</span></div><div class="font-custom-controls"><input class="field" id="customFontName" type="text" maxlength="60" placeholder="e.g. Space Grotesk" aria-label="Custom font name" autocomplete="off"><button class="settings-action" id="applyCustomFont" type="button">Apply</button></div></div>
           <p class="settings-intro" id="fontStatus">Google Fonts load from Google Fonts. Other fonts must be installed on the device.</p>
+          <div class="section-label">Cursor</div>
+          <div class="setting-row"><div class="setting-description"><strong>Cursor style</strong><span>Change the pointer across MoonStone, including links, buttons, menus, and browser controls.</span></div><select class="settings-action" id="cursorStyleSelect" aria-label="Cursor style"><option value="default">System default</option><option value="cream">Cream pointer</option><option value="black">Black pointer</option><option value="crosshair">Crosshair</option><option value="pixel">Pixel arrow</option><option value="custom">Custom image</option></select></div>
+          <div class="setting-row"><div class="setting-description"><strong>Upload cursor image</strong><span>Choose a small PNG, GIF, or CUR file. PNG works best.</span></div><div class="font-custom-controls"><label class="settings-action" for="cursorImageUpload">Choose image</label><input id="cursorImageUpload" type="file" accept="image/png,image/gif,image/x-icon,.cur" hidden><button class="settings-action" id="clearCursorImage" type="button">Remove</button></div></div>
+          <p class="settings-intro" id="cursorStatus" role="status">Choose a style or upload your own cursor image.</p>
           <div class="section-label">Dock layout</div>
           <div class="setting-row"><div class="setting-description"><strong>Dock position</strong><span>Choose which screen edge holds the navigation dock.</span></div><select class="settings-action" id="dockPositionSelect" aria-label="Dock position"><option value="left">Left</option><option value="right">Right</option><option value="bottom">Bottom</option></select></div>
           <div class="setting-row"><div class="setting-description"><strong>Dock span</strong><span>Use a compact floating dock or stretch it along the full edge.</span></div><select class="settings-action" id="dockSpanSelect" aria-label="Dock span"><option value="compact">Compact</option><option value="full">Full edge</option></select></div>
@@ -1199,7 +1210,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     dockPosition: ["left","right","bottom"].includes(savedSettings.dockPosition) ? savedSettings.dockPosition : "left",
     dockSpan: savedSettings.dockSpan === "full" ? "full" : "compact",
     siteFont: typeof savedSettings.siteFont === "string" ? savedSettings.siteFont.slice(0, 60) : "",
-    layout: savedSettings.layout === "browser" ? "browser" : "classic"
+    layout: savedSettings.layout === "browser" ? "browser" : "classic",
+    cursorStyle: ["default","cream","black","crosshair","pixel","custom"].includes(savedSettings.cursorStyle) ? savedSettings.cursorStyle : "default",
+    cursorImage: typeof savedSettings.cursorImage === "string" && savedSettings.cursorImage.startsWith("data:image/") && savedSettings.cursorImage.length < 180000 ? savedSettings.cursorImage : ""
   };
 
   let bookmarks = loadJSON("moonstone-bookmarks", defaultBookmarks);
@@ -1325,7 +1338,67 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   function applySettings() {
     document.body.dataset.theme = settings.theme;
     document.body.classList.toggle("layout-browser", settings.layout === "browser");
-    document.querySelectorAll("[data-layout-choice]").forEach(button => {
+    document.body.dataset.cursor = settings.cursorStyle === "custom" && !settings.cursorImage ? "default" : settings.cursorStyle;
+    if (settings.cursorStyle === "custom" && settings.cursorImage) {
+      document.body.style.setProperty("--moonstone-custom-cursor", 'url("' + settings.cursorImage + '") 2 2, auto');
+    } else {
+      document.body.style.removeProperty("--moonstone-custom-cursor");
+    }
+    const cursorSelect = $("#cursorStyleSelect");
+    if (cursorSelect) cursorSelect.value = settings.cursorStyle === "custom" && !settings.cursorImage ? "default" : settings.cursorStyle;
+    const cursorStatus = $("#cursorStatus");
+    if (cursorStatus) cursorStatus.textContent = settings.cursorStyle === "custom" && settings.cursorImage ? "Custom cursor active across MoonStone." : settings.cursorStyle === "custom" ? "Upload an image to activate your custom cursor." : settings.cursorStyle === "default" ? "Using the system cursor." : "Applied: " + settings.cursorStyle + " cursor.";
+    const clearCursorButton = $("#clearCursorImage");
+    if (clearCursorButton) clearCursorButton.disabled = !settings.cursorImage;
+    const cursorStyleSelect = $("#cursorStyleSelect");
+  const cursorImageUpload = $("#cursorImageUpload");
+  const clearCursorImage = $("#clearCursorImage");
+  if (cursorStyleSelect) cursorStyleSelect.addEventListener("change", () => {
+    settings.cursorStyle = cursorStyleSelect.value;
+    saveSettings();
+    applySettings();
+  });
+  if (cursorImageUpload) cursorImageUpload.addEventListener("change", () => {
+    const file = cursorImageUpload.files && cursorImageUpload.files[0];
+    if (!file) return;
+    if (!/^image\/(png|gif|x-icon|vnd\.microsoft\.icon)$/.test(file.type) && !/\.cur$/i.test(file.name)) {
+      $("#cursorStatus").textContent = "Please choose a PNG, GIF, or CUR cursor image.";
+      cursorImageUpload.value = "";
+      return;
+    }
+    if (file.size > 120 * 1024) {
+      $("#cursorStatus").textContent = "Please choose a cursor image under 120 KB.";
+      cursorImageUpload.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== "string" || !reader.result.startsWith("data:image/")) {
+        $("#cursorStatus").textContent = "Couldn't read that cursor image.";
+        return;
+      }
+      settings.cursorImage = reader.result;
+      settings.cursorStyle = "custom";
+      try { saveSettings(); applySettings(); }
+      catch {
+        settings.cursorImage = "";
+        settings.cursorStyle = "default";
+        $("#cursorStatus").textContent = "Couldn't save that image. Try a smaller file.";
+        applySettings();
+      }
+    };
+    reader.onerror = () => { $("#cursorStatus").textContent = "Couldn't read that cursor image."; };
+    reader.readAsDataURL(file);
+    cursorImageUpload.value = "";
+  });
+  if (clearCursorImage) clearCursorImage.addEventListener("click", () => {
+    settings.cursorImage = "";
+    if (settings.cursorStyle === "custom") settings.cursorStyle = "default";
+    saveSettings();
+    applySettings();
+  });
+
+  document.querySelectorAll("[data-layout-choice]").forEach(button => {
       const selected = button.dataset.layoutChoice === settings.layout;
       button.classList.toggle("selected", selected);
       button.setAttribute("aria-pressed", String(selected));
@@ -1723,7 +1796,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
   $("#resetSettingsButton").addEventListener("click", () => {
     if (!window.confirm("Reset MoonStone preferences to their defaults? Your bookmarks will be kept.")) return;
-    settings = {theme:"moonstone",particles:true,animations:true,confirmLeave:true,cancelLeave:false,compactBookmarks:false,dockPosition:"left",dockSpan:"compact",siteFont:"",layout:"classic"};
+    settings = {theme:"moonstone",particles:true,animations:true,confirmLeave:true,cancelLeave:false,compactBookmarks:false,dockPosition:"left",dockSpan:"compact",siteFont:"",layout:"classic",cursorStyle:"default",cursorImage:""};
     saveSettings();
     applySettings();
     $("#settingsDataStatus").textContent = "Preferences reset. Your bookmarks are unchanged.";
