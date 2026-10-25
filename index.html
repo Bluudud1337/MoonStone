@@ -839,11 +839,6 @@ body.dock-span-full.dock-right.sidebar-pushed .sidebar{left:auto!important;right
 .temp-browser-head{display:flex;align-items:center;gap:8px;padding:10px;border-bottom:1px solid var(--border);background:var(--panel)}
 .temp-browser-head input{display:none}
 .temp-browser-head button,.temp-browser-settings button{border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text);padding:9px 11px;cursor:pointer}
-body.browser-fullscreen #tempBrowser{inset:0!important;top:0!important;z-index:100!important}
-body.browser-fullscreen .site-browser{display:none!important}
-body.browser-fullscreen .temp-browser-window{height:100dvh!important}
-body.browser-fullscreen .temp-browser-head{padding:8px 12px}
-body.browser-fullscreen .sidebar{display:none!important}
 .temp-browser-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)}
 .temp-browser-settings label{display:flex;align-items:center;gap:7px}
 #tempBrowserFrame{flex:1;width:100%;border:0;background:#fff}
@@ -916,7 +911,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       <span style="flex:1"></span>
       <button id="tempFullscreen" type="button" title="Toggle browser fullscreen" aria-pressed="false">Fullscreen</button>
     </div>
-    <iframe id="tempBrowserFrame" title="Embedded website" sandbox="allow-scripts allow-forms allow-same-origin allow-popups" referrerpolicy="no-referrer"></iframe>
+    <iframe id="tempBrowserFrame" title="Embedded website" sandbox="allow-scripts allow-forms allow-same-origin allow-popups" allow="fullscreen" referrerpolicy="no-referrer"></iframe>
     <div class="temp-browser-note" id="tempBrowserStatus">Only sites that permit embedding will load. Some sites block iframes; this browser cannot bypass those restrictions.</div>
   </div>
 </div>
@@ -1018,7 +1013,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
         </section>
         <section class="settings-panel" data-settings-panel="browser">
           <p class="settings-kicker">BROWSING</p><h3>Browser</h3><p class="settings-intro">Control how the built-in browser opens websites and uses fullscreen.</p>
-          <div class="setting-row"><div class="setting-description"><strong>Allow top-level redirects</strong><span>Lets embedded pages request navigation of the top-level page. Only enable this for sites you trust.</span></div><button class="toggle" id="settingsBrowserAllowRedirects" role="switch" aria-checked="false" aria-label="Allow top-level redirects"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Disable browser sandbox</strong><span>Allows sites to redirect the main page and removes iframe sandbox restrictions. Only enable for sites you trust.</span></div><button class="toggle" id="settingsBrowserAllowRedirects" role="switch" aria-checked="false" aria-label="Disable browser sandbox"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Browser fullscreen</strong><span>Use the Fullscreen button in the browser toolbar to expand tabs and the page to the entire screen.</span></div><span class="settings-status">IN TOOLBAR</span></div>
         </section>
         <section class="settings-panel" data-settings-panel="data">
@@ -1756,7 +1751,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   function setFullscreen(on){document.body.classList.toggle("browser-fullscreen",on);const b=document.getElementById("tempFullscreen");if(b){b.textContent=on?"Exit fullscreen":"Fullscreen";b.setAttribute("aria-pressed",String(on))}}
   const active=()=>tabs.find(t=>t.id===activeId);
   function normalize(value){let raw=value.trim();if(!raw)return null;if(!/^https?:\/\//i.test(raw))raw="https://"+raw;try{const u=new URL(raw);return ["http:","https:"].includes(u.protocol)?u.href:null}catch{return null}}
-  function sandbox(){frame.setAttribute("sandbox","allow-scripts allow-forms allow-same-origin allow-popups"+(allowRedirects?" allow-top-navigation-by-user-activation":""))}
+  function sandbox(){if(allowRedirects){frame.removeAttribute("sandbox")}else{frame.setAttribute("sandbox","allow-scripts allow-forms allow-same-origin allow-popups")} frame.setAttribute("allow","fullscreen")}
   function render(){tabsEl.replaceChildren();tabs.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="temp-tab"+(t.id===activeId?" active":"");b.setAttribute("role","tab");b.setAttribute("aria-selected",String(t.id===activeId));const title=document.createElement("span");title.className="temp-tab-title";title.textContent=t.title;const close=document.createElement("span");close.className="temp-tab-close";close.textContent="×";close.setAttribute("aria-label","Close tab");b.append(title,close);b.addEventListener("click",e=>e.target===close?closeTab(t.id):switchTab(t.id));tabsEl.append(b)});const add=document.createElement("button");add.type="button";add.className="temp-tab-add";add.textContent="+";add.title="New tab";add.addEventListener("click",()=>createTab());tabsEl.append(add)}
   function setTitle(t,url){t.url=url;try{t.title=new URL(url).hostname.replace(/^www\./,"")||"New tab"}catch{t.title="New tab"}}
   function switchTab(id){const t=tabs.find(x=>x.id===id);if(!t)return;activeId=id;modal.classList.add("open");urlInput.value=t.url||"";frame.src=t.url||"about:blank";render();status.textContent=t.url?"Loading "+t.title+". Some websites block embedded viewing.":"New tab: enter a search or website address."}
@@ -1768,7 +1763,14 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   document.getElementById("closeTempBrowser").addEventListener("click",()=>{if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")});
   document.getElementById("tempReload").addEventListener("click",()=>{const t=active();if(t&&t.url){sandbox();frame.src=t.url}});
   document.getElementById("tempBack").addEventListener("click",()=>{const t=active();if(!t||t.index<=0){status.textContent="No previous page in this tab.";return}t.index--;setTitle(t,t.history[t.index]);frame.src=t.url;urlInput.value=t.url;render()});
-  document.getElementById("tempFullscreen").addEventListener("click",()=>setFullscreen(!document.body.classList.contains("browser-fullscreen")));
+  document.getElementById("tempFullscreen").addEventListener("click",async()=>{
+    try{
+      if(document.fullscreenElement){await document.exitFullscreen();return}
+      if(frame.requestFullscreen){await frame.requestFullscreen();status.textContent="Website fullscreen. Press Esc to return to the browser."}
+      else{status.textContent="Fullscreen is not supported by this browser."}
+    }catch{status.textContent="This website or browser does not allow fullscreen."}
+  });
+  document.addEventListener("fullscreenchange",()=>{const b=document.getElementById("tempFullscreen");if(b){const on=document.fullscreenElement===frame;b.textContent=on?"Exit fullscreen":"Fullscreen";b.setAttribute("aria-pressed",String(on))}});
   document.getElementById("tempBookmark").addEventListener("click",()=>{const url=normalize(urlInput.value);if(!url){status.textContent="Enter a valid website address first.";return}try{const saved=JSON.parse(localStorage.getItem("moonstone-bookmarks")||"[]");const name=prompt("Name this bookmark:",new URL(url).hostname.replace(/^www\./,""));if(!name||!name.trim())return;saved.push({name:name.trim().slice(0,30),url,icon:"link"});localStorage.setItem("moonstone-bookmarks",JSON.stringify(saved));status.textContent="Bookmark saved. Refresh the homepage to see it."}catch{status.textContent="Couldn't save the bookmark."}});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.body.classList.contains("browser-fullscreen")){setFullscreen(false);e.stopPropagation();return}if(e.key==="Escape"&&modal.classList.contains("open")){if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")}});
   window.moonstoneOpenSearch=query=>{if(activeId===null)createTab();navigate(query)};
