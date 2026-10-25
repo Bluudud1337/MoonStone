@@ -107,6 +107,12 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
 .game-card{display:block;width:100%;padding:0;text-align:left;color:inherit;font:inherit}
 .game-icon{display:block;position:relative;z-index:1;width:76%;height:76%;object-fit:contain;object-position:center;border-radius:8px}
 .card-info{position:absolute;left:0;right:0;bottom:0;padding:28px 8px 8px;background:linear-gradient(transparent,rgba(0,0,0,.82));}
+.game-card{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center}
+.card-art{position:relative;inset:auto;width:100%;height:auto;aspect-ratio:1/1;flex:1 1 auto;min-height:0;padding:12px;display:flex;align-items:center;justify-content:center}
+.game-icon{width:76%;height:76%;object-fit:contain;object-position:center}
+.card-info{position:relative;inset:auto;width:100%;flex:0 0 auto;padding:7px 5px 9px;background:transparent}
+.card-title-row{display:block;text-align:center}
+.card-title{text-align:center;width:100%;font-size:11px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-title-row{display:block}
 .card-title{font-size:11px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .favorite,.card-description,.card-bottom{display:none!important}
