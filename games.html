@@ -165,7 +165,10 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
   window.addEventListener("storage", event => {
     if (event.key === "moonstone-settings" || event.key === null) applySharedTheme();
   });
-  const games = []; // Add your own game entries here.
+  // Add games here. Each object needs only a title, link, and image.
+  const games = [
+    // { Title: "Example Game", Link: "https://example.com", Img: "https://example.com/cover.jpg" },
+  ];
   let favorites = safeLoad("moonstone-games-favorites", []);
   let recent = safeLoad("moonstone-games-recent", []);
   let filter = "all";
@@ -181,40 +184,43 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
   function save(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }
   function render(){
     const query = $("#gameSearch").value.trim().toLowerCase();
-    let visible = games.filter(g => {
-      const matches = (g.title+" "+g.description+" "+g.category).toLowerCase().includes(query);
-      const matchesFilter = filter === "all" || (filter === "favorite" && favorites.includes(g.id)) || (filter === "recent" && recent.includes(g.id));
-      return matches && matchesFilter;
-    });
-    if(filter === "recent") visible.sort((a,b)=>recent.indexOf(a.id)-recent.indexOf(b.id));
-    $("#gameCount").textContent = games.length+" games";
-    $("#favoriteCount").textContent = favorites.length;
-    $("#sectionTitle").textContent = filter === "favorite" ? "Your favorites" : filter === "recent" ? "Recently played" : query ? "Search results" : "All games";
-    $("#sectionHint").textContent = filter === "favorite" ? "Your saved picks." : filter === "recent" ? "Jump back in." : "Pick something and play.";
-    $("#gameGrid").innerHTML = "";
-    if(!visible.length){
-      if(games.length === 0) return;
-      const empty = document.createElement("div"); empty.className="empty-state";
-      empty.textContent = filter === "favorite" ? "No favorites yet. Tap the ☆ on a game to save it." : filter === "recent" ? "Your recent games will show up here after you play." : "No games match that search.";
-      $("#gameGrid").appendChild(empty); return;
-    }
-    visible.forEach(game=>{
-      const card=document.createElement("article"); card.className="game-card";
-      const art=document.createElement("div"); art.className="card-art "+game.art;
-      const symbol=document.createElement("span"); symbol.className="art-symbol"; symbol.textContent=game.symbol; art.appendChild(symbol);
-      const info=document.createElement("div"); info.className="card-info";
-      const row=document.createElement("div"); row.className="card-title-row";
-      const title=document.createElement("h3"); title.className="card-title"; title.textContent=game.title;
-      const fav=document.createElement("button"); fav.className="favorite"+(favorites.includes(game.id)?" is-favorite":""); fav.type="button"; fav.textContent=favorites.includes(game.id)?"★":"☆"; fav.title=favorites.includes(game.id)?"Remove favorite":"Add favorite"; fav.setAttribute("aria-label",fav.title);
-      fav.addEventListener("click",()=>{favorites=favorites.includes(game.id)?favorites.filter(id=>id!==game.id):[...favorites,game.id];save("moonstone-games-favorites",favorites);render();});
-      row.append(title,fav);
-      const desc=document.createElement("p");desc.className="card-description";desc.textContent=game.description;
-      const bottom=document.createElement("div");bottom.className="card-bottom";
-      const tag=document.createElement("span");tag.className="tag";tag.textContent=game.category;
-      const play=document.createElement("button");play.className="play-button";play.type="button";play.textContent=game.kind==="external"?"Visit site ↗":"Play game →";play.addEventListener("click",()=>launch(game));
-      bottom.append(tag,play);info.append(row,desc,bottom);card.append(art,info);$("#gameGrid").appendChild(card);
-    });
+    const grid = $("#gameGrid");
+    grid.innerHTML = "";
+    games.filter(game => String(game.Title || "").toLowerCase().includes(query))
+      .forEach(game => {
+        const card = document.createElement("a");
+        card.className = "game-card";
+        card.href = game.Link || "#";
+        card.setAttribute("aria-label", game.Title || "Untitled game");
+        if (game.Link) {
+          card.target = "_blank";
+          card.rel = "noopener noreferrer";
+        } else {
+          card.addEventListener("click", event => event.preventDefault());
+        }
+
+        const art = document.createElement("div");
+        art.className = "card-art";
+        if (game.Img) {
+          art.style.backgroundImage = "url(" + JSON.stringify(game.Img).slice(1, -1) + ")";
+          art.style.backgroundSize = "cover";
+          art.style.backgroundPosition = "center";
+        }
+
+        const info = document.createElement("div");
+        info.className = "card-info";
+        const row = document.createElement("div");
+        row.className = "card-title-row";
+        const title = document.createElement("h3");
+        title.className = "card-title";
+        title.textContent = game.Title || "Untitled";
+        row.appendChild(title);
+        info.appendChild(row);
+        card.append(art, info);
+        grid.appendChild(card);
+      });
   }
+
   function markRecent(id){recent=[id,...recent.filter(x=>x!==id)].slice(0,8);save("moonstone-games-recent",recent);}
 
   function launch(game){
@@ -282,7 +288,7 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
   function drawParticles(t){if(reducedMotion.matches)return;const c=$("#particles"),ctx=c.getContext("2d");ctx.clearRect(0,0,innerWidth,innerHeight);ctx.fillStyle="#d9d3bd";particles.forEach(p=>{p.p+=.006;p.y-=.08;if(p.y<0)p.y=innerHeight;ctx.globalAlpha=p.a*(.7+Math.sin(p.p)*.3);ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();});ctx.globalAlpha=1;frame=requestAnimationFrame(drawParticles);}
   window.addEventListener("resize",resizeParticles);
   resizeParticles();if(!reducedMotion.matches)frame=requestAnimationFrame(drawParticles);
-  render();
+  $("#gameSearch").addEventListener("input", render);\n  render();
 })();
 </script>
 </body>
