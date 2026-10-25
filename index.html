@@ -812,9 +812,24 @@ main {
 /* Temporary embedded browser */
 .browser-action{height:36px;padding:0 12px;border:1px solid var(--border);border-radius:10px;background:var(--panel);color:var(--text);font-size:12px;cursor:pointer;white-space:nowrap}
 .browser-action:hover{border-color:var(--accent)}
-#tempBrowser{position:fixed;top:58px;left:0;right:0;bottom:0;z-index:40;display:none;padding:0}
+#tempBrowser{position:fixed;top:58px;left:0;right:0;bottom:0;z-index:40;display:none;padding:0;background:var(--bg,#090909)}
 #tempBrowser.open{display:flex}
 .temp-browser-window{width:100%;height:100%;min-height:0;background:var(--bg);border:0;border-radius:0;overflow:hidden;display:flex;flex-direction:column;box-shadow:none}
+#tempBrowserFrame{display:block;flex:1 1 auto;min-height:0;width:100%;border:0;background:#fff}
+#tempBrowserStatus{flex:0 0 auto;max-height:34px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#sidebarPush{position:fixed;top:62px;left:18px;z-index:70;height:28px;padding:0 10px;border:1px solid var(--border);border-radius:0 0 8px 8px;background:var(--panel);color:var(--text);font-size:11px;cursor:pointer;box-shadow:0 4px 12px #0002}
+body.sidebar-pushed .sidebar{left:-120px!important;transform:translate(-150%,-50%)!important;pointer-events:none}
+body.sidebar-pushed #sidebarPush{left:18px}
+body.dock-left .sidebar{left:17px;right:auto;top:50%;bottom:auto;transform:translateY(-50%);flex-direction:column}
+body.dock-right .sidebar{left:auto;right:17px;top:50%;bottom:auto;transform:translateY(-50%);flex-direction:column}
+body.dock-bottom .sidebar{left:50%;right:auto;top:auto;bottom:13px;transform:translateX(-50%);flex-direction:row}
+body.dock-span-full.dock-left .sidebar,body.dock-span-full.dock-right .sidebar{top:0;bottom:0;transform:none;height:100vh;justify-content:center;border-radius:0;padding:10px 7px}
+body.dock-span-full.dock-left .sidebar{left:0}
+body.dock-span-full.dock-right .sidebar{right:0}
+body.dock-span-full.dock-bottom .sidebar{left:0;right:0;bottom:0;top:auto;transform:none;width:100%;height:auto;justify-content:center;border-radius:0;flex-direction:row;padding:7px 10px}
+body.dock-span-full.sidebar-pushed .sidebar{left:-140px!important;right:auto!important;transform:translateX(-150%)!important}
+body.dock-span-full.dock-right.sidebar-pushed .sidebar{left:auto!important;right:-140px!important;transform:translateX(150%)!important}
+@media(max-width:520px){#tempBrowser{top:52px;left:0;right:0;bottom:0} #sidebarPush{top:56px;left:8px}}
 .temp-browser-head{display:flex;align-items:center;gap:8px;padding:10px;border-bottom:1px solid var(--border);background:var(--panel)}
 .temp-browser-head input{display:none}
 .temp-browser-head button,.temp-browser-settings button{border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text);padding:9px 11px;cursor:pointer}
@@ -883,7 +898,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   <button class="browser-action" id="closeTempBrowser" type="button" title="Close embedded browser" aria-label="Close browser">Close</button>
   <button class="browser-action" id="tempReload" type="button" title="Reload">Reload</button>
   <button class="browser-action" id="tempBrowserSettings" type="button" title="Sandbox settings">Settings</button>
-  <button class="browser-action" id="sidebarPush" type="button" title="Push sidebar down" aria-label="Push sidebar down">Hide sidebar</button>
+  <button class="browser-action" id="sidebarPush" type="button" title="Hide sidebar" aria-label="Hide sidebar">Hide sidebar</button>
 </div>
 
 <div id="tempBrowser" role="region" aria-label="Embedded browser">
@@ -974,6 +989,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
         <section class="settings-panel active" data-settings-panel="appearance">
           <p class="settings-kicker">MAKE IT YOURS</p><h3>Appearance</h3><p class="settings-intro">Tune the look and feel of MoonStone.</p>
           <div class="section-label">Color theme</div><div class="theme-list" id="themeList"></div>
+          <div class="section-label">Dock layout</div>
+          <div class="setting-row"><div class="setting-description"><strong>Dock position</strong><span>Choose which screen edge holds the navigation dock.</span></div><select class="settings-action" id="dockPositionSelect" aria-label="Dock position"><option value="left">Left</option><option value="right">Right</option><option value="bottom">Bottom</option></select></div>
+          <div class="setting-row"><div class="setting-description"><strong>Dock span</strong><span>Use a compact floating dock or stretch it along the full edge.</span></div><select class="settings-action" id="dockSpanSelect" aria-label="Dock span"><option value="compact">Compact</option><option value="full">Full edge</option></select></div>
           <div class="section-label">Visual effects</div>
           <div class="setting-row"><div class="setting-description"><strong>Particle background</strong><span>Floating ambient particles</span></div><button class="toggle" id="particleToggle" role="switch" aria-checked="true" aria-label="Particle background"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Animations</strong><span>Hover and transition effects</span></div><button class="toggle" id="animationToggle" role="switch" aria-checked="true" aria-label="Animations"></button></div>
@@ -1093,7 +1111,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     animations: savedSettings.animations !== false,
     confirmLeave: savedSettings.confirmLeave !== false,
     cancelLeave: savedSettings.cancelLeave === true,
-    compactBookmarks: savedSettings.compactBookmarks === true
+    compactBookmarks: savedSettings.compactBookmarks === true,
+    dockPosition: ["left","right","bottom"].includes(savedSettings.dockPosition) ? savedSettings.dockPosition : "left",
+    dockSpan: savedSettings.dockSpan === "full" ? "full" : "compact"
   };
 
   let bookmarks = loadJSON("moonstone-bookmarks", defaultBookmarks);
@@ -1192,6 +1212,13 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     $("#cancelLeaveToggle").setAttribute("aria-checked", settings.cancelLeave);
     $("#compactToggle").setAttribute("aria-checked", settings.compactBookmarks);
     document.body.classList.toggle("compact-bookmarks", settings.compactBookmarks);
+    document.body.classList.remove("dock-left","dock-right","dock-bottom");
+    document.body.classList.add("dock-" + settings.dockPosition);
+    document.body.classList.toggle("dock-span-full", settings.dockSpan === "full");
+    const dockPositionSelect = $("#dockPositionSelect");
+    const dockSpanSelect = $("#dockSpanSelect");
+    if (dockPositionSelect) dockPositionSelect.value = settings.dockPosition;
+    if (dockSpanSelect) dockSpanSelect.value = settings.dockSpan;
     $("#themeList").querySelectorAll(".theme-option").forEach(button => {
       const selected = button.dataset.theme === settings.theme;
       button.classList.toggle("selected", selected);
@@ -1447,6 +1474,16 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     saveSettings();
     applySettings();
   });
+  $("#dockPositionSelect").addEventListener("change", event => {
+    settings.dockPosition = ["left","right","bottom"].includes(event.target.value) ? event.target.value : "left";
+    saveSettings();
+    applySettings();
+  });
+  $("#dockSpanSelect").addEventListener("change", event => {
+    settings.dockSpan = event.target.value === "full" ? "full" : "compact";
+    saveSettings();
+    applySettings();
+  });
 
   document.querySelectorAll("[data-settings-tab]").forEach(button => {
     button.addEventListener("click", () => {
@@ -1488,7 +1525,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
         animations: backup.settings.animations !== false,
         confirmLeave: backup.settings.confirmLeave !== false,
         cancelLeave: backup.settings.cancelLeave === true,
-        compactBookmarks: backup.settings.compactBookmarks === true
+        compactBookmarks: backup.settings.compactBookmarks === true,
+        dockPosition: ["left","right","bottom"].includes(backup.settings.dockPosition) ? backup.settings.dockPosition : "left",
+        dockSpan: backup.settings.dockSpan === "full" ? "full" : "compact"
       };
       bookmarks = backup.bookmarks.filter(item => item && typeof item.name === "string" && typeof item.url === "string").map(item => ({name:item.name.slice(0,30),url:item.url,icon:iconSVG[item.icon] ? item.icon : "link"}));
       saveSettings();
@@ -1506,7 +1545,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
   $("#resetSettingsButton").addEventListener("click", () => {
     if (!window.confirm("Reset MoonStone preferences to their defaults? Your bookmarks will be kept.")) return;
-    settings = {theme:"moonstone",particles:true,animations:true,confirmLeave:true,cancelLeave:false,compactBookmarks:false};
+    settings = {theme:"moonstone",particles:true,animations:true,confirmLeave:true,cancelLeave:false,compactBookmarks:false,dockPosition:"left",dockSpan:"compact"};
     saveSettings();
     applySettings();
     $("#settingsDataStatus").textContent = "Preferences reset. Your bookmarks are unchanged.";
@@ -1779,7 +1818,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       status.textContent = "Bookmark saved to this browser. Close the temporary browser and refresh the homepage to see it.";
     } catch { status.textContent = "Couldn't save the bookmark in this browser."; }
   });
-  document.getElementById("sidebarPush").addEventListener("click", () => { const pushed=document.body.classList.toggle("sidebar-pushed"); const b=document.getElementById("sidebarPush"); b.textContent=pushed?"Show sidebar":"Hide sidebar"; b.title=pushed?"Bring sidebar back up":"Push sidebar down"; b.setAttribute("aria-label",b.title); });
+  document.getElementById("sidebarPush").addEventListener("click", () => { const hidden=document.body.classList.toggle("sidebar-pushed"); const b=document.getElementById("sidebarPush"); b.textContent=hidden?"Show sidebar":"Hide sidebar"; b.title=hidden?"Show sidebar":"Hide sidebar"; b.setAttribute("aria-label",b.title); });
   document.getElementById("tempBrowserSettings").addEventListener("click", () => { status.textContent = redirects.checked ? "Redirects enabled. This reduces sandbox protection." : "Sandbox is on. Top-level redirects are blocked. Sites may still refuse iframe embedding."; });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && modal.classList.contains("open")) { modal.classList.remove("open"); frame.src = "about:blank"; } });
 })();
