@@ -1094,8 +1094,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
         </section>
         <section class="settings-panel" data-settings-panel="behavior">
           <p class="settings-kicker">YOUR EXPERIENCE</p><h3>Behavior</h3><p class="settings-intro">Choose how MoonStone responds to your actions.</p>
-          <div class="setting-row"><div class="setting-description"><strong>Confirm leaving</strong><span>Use your browser’s warning when leaving, refreshing, or closing this page</span></div><button class="toggle" id="confirmLeaveToggle" role="switch" aria-checked="true" aria-label="Confirm leaving"></button></div>
-          <div class="setting-row"><div class="setting-description"><strong>Cancel leaving automatically</strong><span>Block navigation while enabled. This overrides confirmation.</span></div><button class="toggle" id="cancelLeaveToggle" role="switch" aria-checked="false" aria-label="Cancel leaving automatically"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Confirm closing tab</strong><span>Ask for confirmation only when closing or reloading this tab. Opening bookmarks will not trigger the warning.</span></div><button class="toggle" id="confirmLeaveToggle" role="switch" aria-checked="true" aria-label="Confirm leaving"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Keep this page open</strong><span>Block MoonStone bookmark navigation while enabled. This does not prevent closing the tab.</span></div><button class="toggle" id="cancelLeaveToggle" role="switch" aria-checked="false" aria-label="Cancel leaving automatically"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Compact bookmarks</strong><span>Use smaller shortcut tiles on the homepage</span></div><button class="toggle" id="compactToggle" role="switch" aria-checked="false" aria-label="Compact bookmarks"></button></div>
         </section>
         <section class="settings-panel" data-settings-panel="privacy">
@@ -1499,8 +1499,10 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   }
 
   // Use the browser-native leave warning. The browser controls its wording and when it appears.
+  // Browsers only show their native confirmation dialog for a real unload (close, reload, or navigation away).
+  // Do not attach this behavior to bookmark clicks or other in-page actions.
   window.addEventListener("beforeunload", event => {
-    if (!settings.confirmLeave || settings.cancelLeave) return;
+    if (!settings.confirmLeave) return;
     event.preventDefault();
     event.returnValue = "";
   });
@@ -1566,6 +1568,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           beginEdit(index);
           return;
         }
+        // Bookmarks navigate normally unless "Keep this page open" is enabled.
         if (settings.cancelLeave) {
           event.preventDefault();
           return;
@@ -1890,9 +1893,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
             clickEvent.preventDefault();
             return;
           }
-          if (settings.cancelLeave) {
-            clickEvent.preventDefault();
-          }
+          // Only the explicit "Keep this page open" option blocks bookmark navigation.
+          if (settings.cancelLeave) clickEvent.preventDefault();
         });
         $("#bookmarks").appendChild(link);
       });
