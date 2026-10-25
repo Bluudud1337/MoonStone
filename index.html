@@ -1566,7 +1566,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
     if (searchMode === "web") {
       const destination = "https://www.google.com/search?q=" + encodeURIComponent(query);
-      if (shouldAllowNavigation()) location.href = destination;
+      // Web searches should not count as leaving MoonStone. Keep the homepage open.
+      window.open(destination, "_blank", "noopener,noreferrer");
       return;
     }
 
