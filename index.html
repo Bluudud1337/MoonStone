@@ -749,10 +749,30 @@ main {
     transition-duration: .01ms !important;
   }
 }
+
+/* MoonStone in-site browser bar */
+.site-browser{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;padding:10px 16px;background:color-mix(in srgb,var(--bg,#090909) 88%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid var(--border,#292925)}
+.browser-dots{display:flex;gap:6px;flex:0 0 auto}
+.browser-dot{width:10px;height:10px;border-radius:50%;background:#777}
+.browser-dot:nth-child(1){background:#ff6259}.browser-dot:nth-child(2){background:#ffc044}.browser-dot:nth-child(3){background:#35c96b}
+.browser-address-wrap{min-width:0;flex:1;display:flex;align-items:center;gap:9px;height:36px;padding:0 12px;border:1px solid var(--border,#292925);border-radius:11px;background:var(--panel,#111110)}
+.browser-lock{font-size:13px;color:var(--muted,#85847d)}
+#moonstoneAddress{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--text,#eeeade);font:12px ui-monospace,SFMono-Regular,Consolas,monospace}
+#moonstoneAddress:focus{outline:0}
+.browser-brand{font-size:12px;font-weight:650;letter-spacing:.02em;color:var(--muted,#85847d);white-space:nowrap}
+@media(max-width:520px){.site-browser{padding:8px 10px;gap:8px}.browser-brand{display:none}.browser-address-wrap{height:34px}}
+
 </style>
 </head>
 
 <body data-theme="moonstone">
+
+<div class="site-browser" role="region" aria-label="MoonStone browser bar">
+  <div class="browser-dots" aria-hidden="true"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span></div>
+  <div class="browser-address-wrap"><span class="browser-lock" aria-hidden="true">◈</span><input id="moonstoneAddress" type="text" aria-label="Page address" spellcheck="false" autocomplete="off"></div>
+  <span class="browser-brand">MOONSTONE</span>
+</div>
+
 
 <canvas id="particles" aria-hidden="true"></canvas>
 
@@ -1389,5 +1409,36 @@ main {
   applySettings();
 })();
 </script>
+
+<script>
+(() => {
+  const address = document.getElementById("moonstoneAddress");
+  if (!address) return;
+  const updateAddress = () => {
+    const current = window.location.pathname + window.location.search + window.location.hash;
+    address.value = current || "/";
+  };
+  updateAddress();
+  window.addEventListener("popstate", updateAddress);
+  address.addEventListener("keydown", event => {
+    if (event.key !== "Enter") return;
+    let target = address.value.trim();
+    if (!target) return;
+    if (/^https?:\/\//i.test(target)) {
+      try {
+        const url = new URL(target);
+        if (url.origin !== window.location.origin) {
+          address.value = window.location.pathname + window.location.search + window.location.hash;
+          return;
+        }
+        target = url.pathname + url.search + url.hash;
+      } catch { return; }
+    }
+    if (!target.startsWith("/")) target = "/" + target;
+    window.location.href = target;
+  });
+})();
+</script>
+
 </body>
 </html>
