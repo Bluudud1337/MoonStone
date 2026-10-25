@@ -809,6 +809,22 @@ main {
 .browser-brand{font-size:12px;font-weight:650;letter-spacing:.02em;color:var(--muted,#85847d);white-space:nowrap}
 @media(max-width:520px){.site-browser{padding:8px 10px;gap:8px}.browser-brand{display:none}.browser-address-wrap{height:34px}}
 
+/* Temporary embedded browser */
+.browser-action{height:36px;padding:0 12px;border:1px solid var(--border);border-radius:10px;background:var(--panel);color:var(--text);font-size:12px;cursor:pointer;white-space:nowrap}
+.browser-action:hover{border-color:var(--accent)}
+#tempBrowser{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.78);backdrop-filter:blur(12px);display:none;padding:clamp(8px,2vw,24px)}
+#tempBrowser.open{display:flex}
+.temp-browser-window{width:min(1200px,100%);height:min(900px,100%);margin:auto;background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 90px #0009}
+.temp-browser-head{display:flex;align-items:center;gap:8px;padding:12px;border-bottom:1px solid var(--border);background:var(--panel)}
+.temp-browser-head input{min-width:0;flex:1;height:38px;padding:0 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text)}
+.temp-browser-head button,.temp-browser-settings button{border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text);padding:9px 11px;cursor:pointer}
+.temp-browser-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)}
+.temp-browser-settings label{display:flex;align-items:center;gap:7px}
+#tempBrowserFrame{flex:1;width:100%;border:0;background:#fff}
+.temp-browser-note{padding:8px 14px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
+@media(max-width:600px){.browser-action{padding:0 8px;font-size:11px}.temp-browser-head{flex-wrap:wrap}.temp-browser-head input{flex-basis:55%}}
+
+
 
 /* Settings redesign */
 #settingsModal .modal{width:min(880px,100%);max-height:min(88svh,760px);padding:0;overflow:hidden;display:flex;flex-direction:column}
@@ -859,6 +875,27 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   <div class="browser-dots" aria-hidden="true"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span></div>
   <div class="browser-address-wrap"><span class="browser-lock" aria-hidden="true">◈</span><input id="moonstoneAddress" type="text" aria-label="Page address" spellcheck="false" autocomplete="off"></div>
   <span class="browser-brand">MOONSTONE</span>
+  <button class="browser-action" id="openTempBrowser" type="button">Open browser</button>
+</div>
+
+<div id="tempBrowser" role="dialog" aria-modal="true" aria-label="Temporary embedded browser">
+  <div class="temp-browser-window">
+    <div class="temp-browser-head">
+      <button id="tempBack" type="button" title="Back">←</button>
+      <button id="tempReload" type="button" title="Reload">↻</button>
+      <input id="tempBrowserUrl" type="url" placeholder="Paste a link (https://...)" aria-label="Website URL" spellcheck="false">
+      <button id="tempGo" type="button">Go</button>
+      <button id="tempBookmark" type="button">＋ Bookmark</button>
+      <button id="closeTempBrowser" type="button" aria-label="Close browser">✕</button>
+    </div>
+    <div class="temp-browser-settings">
+      <strong>Temporary browser</strong>
+      <label><input id="tempAllowRedirects" type="checkbox"> Allow redirects to other sites</label>
+      <button id="tempBrowserSettings" type="button">Sandbox info</button>
+    </div>
+    <iframe id="tempBrowserFrame" title="Embedded website" sandbox="allow-scripts allow-forms allow-same-origin allow-popups" referrerpolicy="no-referrer"></iframe>
+    <div class="temp-browser-note" id="tempBrowserStatus">Only sites that permit embedding will load. Some sites block iframes; this browser cannot bypass those restrictions.</div>
+  </div>
 </div>
 
 
@@ -1670,6 +1707,80 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     if (!target.startsWith("/")) target = "/" + target;
     window.location.href = target;
   });
+})();
+</script>
+
+<script>
+(() => {
+  const modal = document.getElementById("tempBrowser");
+  const urlInput = document.getElementById("tempBrowserUrl");
+  const frame = document.getElementById("tempBrowserFrame");
+  const status = document.getElementById("tempBrowserStatus");
+  const redirects = document.getElementById("tempAllowRedirects");
+  const openBtn = document.getElementById("openTempBrowser");
+  if (!modal || !urlInput || !frame) return;
+  let history = [];
+  let historyIndex = -1;
+  const normalizeUrl = value => {
+    let raw = value.trim();
+    if (!raw) return null;
+    if (!/^https?:\/\//i.test(raw)) raw = "https://" + raw;
+    try {
+      const url = new URL(raw);
+      if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+      return url.href;
+    } catch { return null; }
+  };
+  function setSandbox() {
+    frame.setAttribute("sandbox", "allow-scripts allow-forms allow-same-origin allow-popups" + (redirects.checked ? " allow-top-navigation-by-user-activation" : ""));
+  }
+  function navigate(value, addHistory=true) {
+    const url = normalizeUrl(value);
+    if (!url) { status.textContent = "Paste a valid http:// or https:// website address."; return; }
+    urlInput.value = url;
+    setSandbox();
+    frame.src = url;
+    status.textContent = "Trying to load " + new URL(url).hostname + ". If the site blocks embedding, it cannot be displayed here.";
+    if (addHistory) {
+      history = history.slice(0, historyIndex + 1);
+      history.push(url);
+      historyIndex = history.length - 1;
+    }
+  }
+  openBtn.addEventListener("click", () => {
+    modal.classList.add("open");
+    const address = document.getElementById("moonstoneAddress");
+    if (address && /^https?:\/\//i.test(address.value.trim())) urlInput.value = address.value.trim();
+    urlInput.focus();
+  });
+  document.getElementById("closeTempBrowser").addEventListener("click", () => { modal.classList.remove("open"); frame.src = "about:blank"; });
+  modal.addEventListener("click", e => { if (e.target === modal) { modal.classList.remove("open"); frame.src = "about:blank"; } });
+  document.getElementById("tempGo").addEventListener("click", () => navigate(urlInput.value));
+  urlInput.addEventListener("keydown", e => { if (e.key === "Enter") navigate(urlInput.value); });
+  document.getElementById("tempReload").addEventListener("click", () => { if (historyIndex >= 0) navigate(history[historyIndex], false); });
+  document.getElementById("tempBack").addEventListener("click", () => {
+    if (historyIndex > 0) { historyIndex--; navigate(history[historyIndex], false); }
+    else status.textContent = "No previous page in this temporary browser session.";
+  });
+  redirects.addEventListener("change", setSandbox);
+  document.getElementById("tempBrowserSettings").addEventListener("click", () => {
+    status.textContent = redirects.checked
+      ? "Redirects enabled: the embedded page may navigate the top-level tab after a user action. Keep in mind this reduces sandbox protection."
+      : "Sandbox is on. Top-level redirects are blocked; popups and scripts may still work. Sites can still refuse embedding, and this tool cannot bypass their restrictions.";
+  });
+  document.getElementById("tempBookmark").addEventListener("click", () => {
+    const url = normalizeUrl(urlInput.value);
+    if (!url) { status.textContent = "Paste a valid website link first."; return; }
+    try {
+      const saved = JSON.parse(localStorage.getItem("moonstone-bookmarks") || "[]");
+      const name = prompt("Name this bookmark:", new URL(url).hostname.replace(/^www\./, ""));
+      if (!name || !name.trim()) return;
+      saved.push({name:name.trim().slice(0,30),url,icon:"link"});
+      localStorage.setItem("moonstone-bookmarks", JSON.stringify(saved));
+      status.textContent = "Bookmark saved to this browser. Close the temporary browser and refresh the homepage to see it.";
+    } catch { status.textContent = "Couldn't save the bookmark in this browser."; }
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && modal.classList.contains("open")) { modal.classList.remove("open"); frame.src = "about:blank"; } });
 })();
 </script>
 
