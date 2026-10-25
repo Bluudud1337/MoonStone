@@ -133,6 +133,26 @@ footer{margin-top:42px;color:var(--muted);font-size:11px;text-align:center}
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
   const safeLoad = (key, fallback) => { try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback; } catch { return fallback; } };
+  const themeVars = {
+    moonstone: {bg:"#090909",panel:"#111110",hover:"#1b1b19",text:"#eeeade",muted:"#85847d",border:"#292925",accent:"#d9d3bd",particle:"#d9d3bd"},
+    moonlight: {bg:"#0c0e15",panel:"#131621",hover:"#202435",text:"#e4e9f5",muted:"#8c94a8",border:"#292e40",accent:"#c5d2f3",particle:"#b8c9ff"},
+    terminal: {bg:"#080d09",panel:"#0e1510",hover:"#19241b",text:"#cde7cf",muted:"#829985",border:"#26382a",accent:"#a8e6b0",particle:"#a8e6b0"},
+    garnet: {bg:"#100709",panel:"#1a0d12",hover:"#2b121b",text:"#f5e8eb",muted:"#b28b96",border:"#47202d",accent:"#e16b88",particle:"#e16b88"},
+    paper: {bg:"#eeeade",panel:"#e4e0d2",hover:"#d9d4c4",text:"#171714",muted:"#777469",border:"#d0cbbb",accent:"#24241f",particle:"#777469"}
+  };
+  function applySharedTheme(){
+    let settings = safeLoad("moonstone-settings", {});
+    const theme = themeVars[settings.theme] ? settings.theme : "moonstone";
+    const vars = themeVars[theme];
+    const root = document.documentElement;
+    Object.entries(vars).forEach(([key,value]) => root.style.setProperty("--"+key,value));
+    document.body.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme === "paper" ? "light" : "dark";
+  }
+  applySharedTheme();
+  window.addEventListener("storage", event => {
+    if (event.key === "moonstone-settings" || event.key === null) applySharedTheme();
+  });
   const games = [
     {id:"snake",title:"Snake",description:"Eat, grow, and try not to run into yourself.",category:"Arcade",kind:"builtin",art:"art-snake",symbol:"⌁"},
     {id:"2048",title:"2048",description:"Slide matching tiles together to reach 2048.",category:"Puzzle",kind:"builtin",art:"art-puzzle",symbol:"2048"},
