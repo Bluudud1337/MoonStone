@@ -1565,9 +1565,17 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     if (!query) return;
 
     if (searchMode === "web") {
-      const destination = "https://www.google.com/search?q=" + encodeURIComponent(query);
-      // Web searches should not count as leaving MoonStone. Keep the homepage open.
-      window.open(destination, "_blank", "noopener,noreferrer");
+      const destination = "https://www.google.com/search?igu=1&q=" + encodeURIComponent(query);
+      const browser = document.getElementById("tempBrowser");
+      const frame = document.getElementById("tempBrowserFrame");
+      const status = document.getElementById("tempBrowserStatus");
+      if (browser && frame) {
+        browser.classList.add("open");
+        frame.src = destination;
+        const address = document.getElementById("moonstoneAddress");
+        if (address) address.value = destination;
+        if (status) status.textContent = "Searching Google inside MoonStone. Some search pages may block embedded viewing.";
+      }
       return;
     }
 
@@ -1724,27 +1732,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   if (!address) return;
   const updateAddress = () => {
     const current = window.location.pathname + window.location.search + window.location.hash;
-    address.value = current || "/";
+    if (!address.value) address.value = current || "/";
   };
   updateAddress();
-  window.addEventListener("popstate", updateAddress);
-  address.addEventListener("keydown", event => {
-    if (event.key !== "Enter") return;
-    let target = address.value.trim();
-    if (!target) return;
-    if (/^https?:\/\//i.test(target)) {
-      try {
-        const url = new URL(target);
-        if (url.origin !== window.location.origin) {
-          // External URLs are handled by the temporary embedded browser above.
-          return;
-        }
-        target = url.pathname + url.search + url.hash;
-      } catch { return; }
-    }
-    if (!target.startsWith("/")) target = "/" + target;
-    window.location.href = target;
-  });
 })();
 </script>
 
@@ -1785,15 +1775,31 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       historyIndex = history.length - 1;
     }
   }
-  openBtn.addEventListener("click", () => {
-    const entered = urlInput.value.trim();
-    if (/^https?:\/\//i.test(entered) || /^[\w-]+\.[a-z]{2,}/i.test(entered)) { modal.classList.add("open"); navigate(entered); }
-    else if (entered) { window.location.href = entered.startsWith("/") ? entered : "/" + entered; }
-    else { modal.classList.toggle("open"); }
-  });
+  function openAddressOrSearch(value) {
+    const entered = value.trim();
+    if (!entered) { modal.classList.toggle("open"); return; }
+    const looksLikeUrl = /^https?:\/\//i.test(entered) || /^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered) || entered.startsWith("/");
+    if (looksLikeUrl) {
+      if (entered.startsWith("/")) {
+        const localUrl = new URL(entered, window.location.origin);
+        if (localUrl.origin === window.location.origin) {
+          modal.classList.remove("open");
+          window.location.href = localUrl.href;
+          return;
+        }
+      }
+      modal.classList.add("open");
+      navigate(entered);
+      return;
+    }
+    const destination = "https://www.google.com/search?igu=1&q=" + encodeURIComponent(entered);
+    modal.classList.add("open");
+    navigate(destination);
+  }
+  openBtn.addEventListener("click", () => openAddressOrSearch(urlInput.value));
   document.getElementById("closeTempBrowser").addEventListener("click", () => { modal.classList.remove("open"); frame.src = "about:blank"; });
   modal.addEventListener("click", e => { if (e.target === modal) { modal.classList.remove("open"); frame.src = "about:blank"; } });
-  urlInput.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); const entered=urlInput.value.trim(); if (/^https?:\/\//i.test(entered) || /^[\w-]+\.[a-z]{2,}/i.test(entered)) { modal.classList.add("open"); navigate(entered); } else if (entered) window.location.href = entered.startsWith("/") ? entered : "/" + entered; } });
+  urlInput.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); openAddressOrSearch(urlInput.value); } });
   document.getElementById("tempReload").addEventListener("click", () => { if (historyIndex >= 0) navigate(history[historyIndex], false); });
   document.getElementById("tempBack").addEventListener("click", () => {
     if (historyIndex > 0) { historyIndex--; navigate(history[historyIndex], false); }
