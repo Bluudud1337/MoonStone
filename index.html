@@ -860,6 +860,15 @@ body.dock-span-full.dock-right.sidebar-pushed .sidebar{left:auto!important;right
 
 
 
+/* Search field refresh: wide, soft, rounded like the supplied reference. */
+.home{width:min(1035px,calc(100% - 48px));}
+.search{height:72px;gap:18px;padding:0 28px;border-radius:999px;background:color-mix(in srgb,var(--panel) 78%,#080808);border:1px solid color-mix(in srgb,var(--border) 70%,transparent);box-shadow:0 12px 42px rgba(0,0,0,.22),18px 0 45px color-mix(in srgb,var(--accent) 5%,transparent);transition:border-color .22s ease,box-shadow .22s ease,background .22s ease}
+.search:focus-within{transform:none;border-color:color-mix(in srgb,var(--accent) 30%,var(--border));box-shadow:0 10px 44px rgba(0,0,0,.28),0 0 30px color-mix(in srgb,var(--accent) 8%,transparent)}
+.search svg{width:25px;height:25px;stroke-width:1.65}
+.search input{font-size:16px;letter-spacing:.005em}
+.search input::placeholder{color:color-mix(in srgb,var(--muted) 82%,#fff);opacity:.78}
+.search-mode{padding:8px 13px;border-radius:999px;font-size:12px}
+@media(max-width:620px){.home{width:calc(100% - 30px)}.search{height:60px;padding:0 18px;gap:12px}.search svg{width:21px;height:21px}.search input{font-size:14px}.search-mode{padding:7px 10px}}
 /* Saved homepage layout choices */
 .layout-choice-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 20px}
 .layout-choice{display:flex;flex-direction:column;align-items:stretch;gap:10px;min-width:0;padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel);color:var(--text);text-align:left;cursor:pointer;transition:border-color .18s,background .18s,transform .18s}
@@ -880,14 +889,13 @@ body.dock-span-full.dock-right.sidebar-pushed .sidebar{left:auto!important;right
 .layout-choice-copy strong{font-size:12px;font-weight:600}.layout-choice-copy small{font-size:10px;line-height:1.5;color:var(--muted)}
 .layout-choice-check{display:none;align-self:flex-end;font-size:11px;color:var(--accent)}
 .layout-choice.selected .layout-choice-check{display:block}
-body.layout-browser main{display:none}
-body.layout-browser .corner-actions{display:none}
-body.layout-browser #tempBrowser{display:flex;top:59px;left:88px;right:12px;bottom:12px;padding:0;border:1px solid var(--border);border-radius:14px;overflow:hidden}
-body.layout-browser #tempBrowser .temp-browser-window{border-radius:13px}
-body.layout-browser .sidebar{left:12px;top:50%;transform:translateY(-50%)}
-body.layout-browser .site-browser{position:fixed;left:78px;right:0;top:0;height:58px}
-body.layout-browser #tempBrowserFrame{background:var(--bg)}
-@media(max-width:620px){.layout-choice-list{grid-template-columns:1fr}.layout-choice{flex-direction:row;align-items:center}.layout-choice-preview{width:105px;min-width:105px;height:66px}.layout-choice-copy{flex:1}.layout-choice-check{align-self:center}body.layout-browser .site-browser{left:0;padding-left:10px}body.layout-browser #tempBrowser{left:0;right:0;top:58px;bottom:0;border-radius:0}body.layout-browser .sidebar{display:none}}
+/* The layout toggle only changes the browser chrome; the homepage stays intact. */
+.site-browser{display:none}
+body.layout-browser .site-browser{display:flex;position:fixed;inset:0 0 auto 0;z-index:60;height:58px;padding:9px 18px 9px 90px;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--bg,#090909) 91%,transparent);backdrop-filter:blur(18px)}
+body.layout-browser main{padding-top:82px}
+body.layout-browser .home{padding-top:8px}
+body.layout-browser .browser-action{height:36px}
+@media(max-width:620px){.layout-choice-list{grid-template-columns:1fr}.layout-choice{flex-direction:row;align-items:center}.layout-choice-preview{width:105px;min-width:105px;height:66px}.layout-choice-copy{flex:1}.layout-choice-check{align-self:center}body.layout-browser .site-browser{padding-left:10px;padding-right:10px}.browser-dots{display:none}.site-browser .browser-action{padding:0 8px}body.layout-browser main{padding-top:70px}}
 /* Settings redesign */
 #settingsModal .modal{width:min(880px,100%);max-height:min(88svh,760px);padding:0;overflow:hidden;display:flex;flex-direction:column}
 #settingsModal .modal-heading{margin:0;padding:21px 24px;border-bottom:1px solid var(--border)}
@@ -1039,12 +1047,12 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           <div class="layout-choice-list" id="layoutChoiceList">
             <button class="layout-choice" type="button" data-layout-choice="browser" aria-pressed="false">
               <span class="layout-choice-preview browser-preview"><i></i><i></i><i></i><b></b><em></em></span>
-              <span class="layout-choice-copy"><strong>Browser</strong><small>Tabs, address bar, and a built-in browsing area.</small></span>
+              <span class="layout-choice-copy"><strong>Browser style</strong><small>Add the browser toolbar across the top of the homepage.</small></span>
               <span class="layout-choice-check" aria-hidden="true">✓</span>
             </button>
             <button class="layout-choice" type="button" data-layout-choice="classic" aria-pressed="false">
               <span class="layout-choice-preview classic-preview"><i></i><b></b><em></em><em></em><em></em></span>
-              <span class="layout-choice-copy"><strong>Classic</strong><small>The familiar centered search and bookmark homepage.</small></span>
+              <span class="layout-choice-copy"><strong>Classic</strong><small>Hide the browser toolbar for a cleaner homepage.</small></span>
               <span class="layout-choice-check" aria-hidden="true">✓</span>
             </button>
           </div>
@@ -1322,21 +1330,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       button.classList.toggle("selected", selected);
       button.setAttribute("aria-pressed", String(selected));
     });
-    const browser = $("#tempBrowser");
-    if (settings.layout === "browser") {
-      browser.classList.add("open");
-      if (!browser.dataset.layoutInitialized) {
-        browser.dataset.layoutInitialized = "true";
-        const frame = $("#tempBrowserFrame");
-        if (frame && !frame.src) frame.src = "about:blank";
-        const address = $("#moonstoneAddress");
-        if (address && !address.value) address.value = "";
-        const status = $("#tempBrowserStatus");
-        if (status) status.textContent = "Enter a URL or search in the address bar above. Some sites do not allow embedding.";
-      }
-    } else if (browser.dataset.layoutInitialized === "true") {
-      browser.classList.remove("open");
-    }
+    // The layout preference only shows or hides the top browser chrome.
+    // Opening the embedded browser remains a separate user action.
     applySiteFont(settings.siteFont);
     document.body.classList.toggle("no-animations", !settings.animations);
     $("#particleToggle").setAttribute("aria-checked", settings.particles);
@@ -1728,7 +1723,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
   $("#resetSettingsButton").addEventListener("click", () => {
     if (!window.confirm("Reset MoonStone preferences to their defaults? Your bookmarks will be kept.")) return;
-    settings = {theme:"moonstone",particles:true,animations:true,confirmLeave:true,cancelLeave:false,compactBookmarks:false,dockPosition:"left",dockSpan:"compact"};
+    settings = {theme:"moonstone",particles:true,animations:true,confirmLeave:true,cancelLeave:false,compactBookmarks:false,dockPosition:"left",dockSpan:"compact",siteFont:"",layout:"classic"};
     saveSettings();
     applySettings();
     $("#settingsDataStatus").textContent = "Preferences reset. Your bookmarks are unchanged.";
