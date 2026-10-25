@@ -860,6 +860,34 @@ body.dock-span-full.dock-right.sidebar-pushed .sidebar{left:auto!important;right
 
 
 
+/* Saved homepage layout choices */
+.layout-choice-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 20px}
+.layout-choice{display:flex;flex-direction:column;align-items:stretch;gap:10px;min-width:0;padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel);color:var(--text);text-align:left;cursor:pointer;transition:border-color .18s,background .18s,transform .18s}
+.layout-choice:hover{border-color:var(--accent);transform:translateY(-1px)}
+.layout-choice.selected{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--panel))}
+.layout-choice-preview{height:78px;position:relative;display:block;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#090909}
+.layout-choice-preview i,.layout-choice-preview b,.layout-choice-preview em{position:absolute;display:block;font-style:normal}
+.browser-preview i:nth-child(1){left:7px;top:8px;width:13px;height:13px;border:1px solid #666;border-radius:50%}
+.browser-preview i:nth-child(2){left:25px;top:8px;width:13px;height:13px;border:1px solid #666;border-radius:50%}
+.browser-preview i:nth-child(3){left:43px;top:8px;width:13px;height:13px;border:1px solid #666;border-radius:50%}
+.browser-preview b{left:7px;right:7px;top:29px;height:12px;border-radius:5px;background:#252525}
+.browser-preview em{left:7px;right:7px;top:47px;bottom:7px;border:1px solid #292929;border-radius:4px;background:linear-gradient(90deg,#171717 0 17%,#0c0c0c 17%)}
+.classic-preview i{width:22px;height:22px;left:calc(50% - 11px);top:9px;border:1px solid #d9d3bd;border-radius:50%}
+.classic-preview b{left:20%;right:20%;top:38px;height:10px;border-radius:8px;background:#252525}
+.classic-preview em{top:56px;width:13px;height:13px;border-radius:4px;background:#202020}
+.classic-preview em:nth-of-type(1){left:26%}.classic-preview em:nth-of-type(2){left:calc(50% - 6px)}.classic-preview em:nth-of-type(3){right:26%}
+.layout-choice-copy{display:flex;flex-direction:column;gap:4px}
+.layout-choice-copy strong{font-size:12px;font-weight:600}.layout-choice-copy small{font-size:10px;line-height:1.5;color:var(--muted)}
+.layout-choice-check{display:none;align-self:flex-end;font-size:11px;color:var(--accent)}
+.layout-choice.selected .layout-choice-check{display:block}
+body.layout-browser main{display:none}
+body.layout-browser .corner-actions{display:none}
+body.layout-browser #tempBrowser{display:flex;top:59px;left:88px;right:12px;bottom:12px;padding:0;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+body.layout-browser #tempBrowser .temp-browser-window{border-radius:13px}
+body.layout-browser .sidebar{left:12px;top:50%;transform:translateY(-50%)}
+body.layout-browser .site-browser{position:fixed;left:78px;right:0;top:0;height:58px}
+body.layout-browser #tempBrowserFrame{background:var(--bg)}
+@media(max-width:620px){.layout-choice-list{grid-template-columns:1fr}.layout-choice{flex-direction:row;align-items:center}.layout-choice-preview{width:105px;min-width:105px;height:66px}.layout-choice-copy{flex:1}.layout-choice-check{align-self:center}body.layout-browser .site-browser{left:0;padding-left:10px}body.layout-browser #tempBrowser{left:0;right:0;top:58px;bottom:0;border-radius:0}body.layout-browser .sidebar{display:none}}
 /* Settings redesign */
 #settingsModal .modal{width:min(880px,100%);max-height:min(88svh,760px);padding:0;overflow:hidden;display:flex;flex-direction:column}
 #settingsModal .modal-heading{margin:0;padding:21px 24px;border-bottom:1px solid var(--border)}
@@ -1007,6 +1035,19 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       <div class="settings-content">
         <section class="settings-panel active" data-settings-panel="appearance">
           <p class="settings-kicker">MAKE IT YOURS</p><h3>Appearance</h3><p class="settings-intro">Tune the look and feel of MoonStone.</p>
+          <div class="section-label">Site layout</div>
+          <div class="layout-choice-list" id="layoutChoiceList">
+            <button class="layout-choice" type="button" data-layout-choice="browser" aria-pressed="false">
+              <span class="layout-choice-preview browser-preview"><i></i><i></i><i></i><b></b><em></em></span>
+              <span class="layout-choice-copy"><strong>Browser</strong><small>Tabs, address bar, and a built-in browsing area.</small></span>
+              <span class="layout-choice-check" aria-hidden="true">✓</span>
+            </button>
+            <button class="layout-choice" type="button" data-layout-choice="classic" aria-pressed="false">
+              <span class="layout-choice-preview classic-preview"><i></i><b></b><em></em><em></em><em></em></span>
+              <span class="layout-choice-copy"><strong>Classic</strong><small>The familiar centered search and bookmark homepage.</small></span>
+              <span class="layout-choice-check" aria-hidden="true">✓</span>
+            </button>
+          </div>
           <div class="section-label">Color theme</div><div class="theme-list" id="themeList"></div>
           <div class="section-label">Site font</div>
           <div class="setting-row"><div class="setting-description"><strong>Font preset</strong><span>Choose a built-in font family for the whole site.</span></div><select class="settings-action" id="siteFontSelect" aria-label="Site font"><option value="default">MoonStone default</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Lato">Lato</option><option value="Montserrat">Montserrat</option><option value="Poppins">Poppins</option><option value="Nunito">Nunito</option><option value="Roboto Mono">Roboto Mono</option><option value="Georgia">Georgia</option><option value="Arial">Arial</option><option value="Verdana">Verdana</option><option value="Trebuchet MS">Trebuchet MS</option><option value="Courier New">Courier New</option></select></div>
@@ -1149,7 +1190,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     compactBookmarks: savedSettings.compactBookmarks === true,
     dockPosition: ["left","right","bottom"].includes(savedSettings.dockPosition) ? savedSettings.dockPosition : "left",
     dockSpan: savedSettings.dockSpan === "full" ? "full" : "compact",
-    siteFont: typeof savedSettings.siteFont === "string" ? savedSettings.siteFont.slice(0, 60) : ""
+    siteFont: typeof savedSettings.siteFont === "string" ? savedSettings.siteFont.slice(0, 60) : "",
+    layout: savedSettings.layout === "browser" ? "browser" : "classic"
   };
 
   let bookmarks = loadJSON("moonstone-bookmarks", defaultBookmarks);
@@ -1274,6 +1316,27 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
   function applySettings() {
     document.body.dataset.theme = settings.theme;
+    document.body.classList.toggle("layout-browser", settings.layout === "browser");
+    document.querySelectorAll("[data-layout-choice]").forEach(button => {
+      const selected = button.dataset.layoutChoice === settings.layout;
+      button.classList.toggle("selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+    const browser = $("#tempBrowser");
+    if (settings.layout === "browser") {
+      browser.classList.add("open");
+      if (!browser.dataset.layoutInitialized) {
+        browser.dataset.layoutInitialized = "true";
+        const frame = $("#tempBrowserFrame");
+        if (frame && !frame.src) frame.src = "about:blank";
+        const address = $("#moonstoneAddress");
+        if (address && !address.value) address.value = "";
+        const status = $("#tempBrowserStatus");
+        if (status) status.textContent = "Enter a URL or search in the address bar above. Some sites do not allow embedding.";
+      }
+    } else if (browser.dataset.layoutInitialized === "true") {
+      browser.classList.remove("open");
+    }
     applySiteFont(settings.siteFont);
     document.body.classList.toggle("no-animations", !settings.animations);
     $("#particleToggle").setAttribute("aria-checked", settings.particles);
@@ -1490,6 +1553,14 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   function closeModal(id) {
     $("#" + id).classList.remove("open");
   }
+
+  document.querySelectorAll("[data-layout-choice]").forEach(button => {
+    button.addEventListener("click", () => {
+      settings.layout = button.dataset.layoutChoice === "browser" ? "browser" : "classic";
+      saveSettings();
+      applySettings();
+    });
+  });
 
   $("#settingsOpen").addEventListener("click", () => openModal("settingsModal"));
 
