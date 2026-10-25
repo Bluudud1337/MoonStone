@@ -87,15 +87,26 @@ body[data-theme="moonlight"] {
   --particle: #b8c9ff;
 }
 
+body[data-theme="midnight"] {
+  --bg: #050713;
+  --panel: #0b1022;
+  --hover: #141c35;
+  --text: #e5eaff;
+  --muted: #8793b8;
+  --border: #202b4b;
+  --accent: #819cff;
+  --particle: #819cff;
+}
+
 body[data-theme="terminal"] {
-  --bg: #080d09;
-  --panel: #0e1510;
-  --hover: #19241b;
-  --text: #cde7cf;
-  --muted: #829985;
-  --border: #26382a;
-  --accent: #a8e6b0;
-  --particle: #a8e6b0;
+  --bg: #000000;
+  --panel: #050805;
+  --hover: #0a190a;
+  --text: #39ff14;
+  --muted: #18b80b;
+  --border: #14520b;
+  --accent: #39ff14;
+  --particle: #39ff14;
 }
 
 body[data-theme="garnet"] {
@@ -1069,16 +1080,23 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     {
       id: "moonlight",
       name: "Moonlight",
-      description: "Cool midnight tones",
+      description: "Cool blue-gray tones",
       bg: "#0c0e15",
       fg: "#c5d2f3"
     },
     {
+      id: "midnight",
+      name: "Midnight",
+      description: "Deep navy with electric blue accents",
+      bg: "#050713",
+      fg: "#819cff"
+    },
+    {
       id: "terminal",
       name: "Terminal",
-      description: "Muted green monochrome",
-      bg: "#080d09",
-      fg: "#a8e6b0"
+      description: "Pure black with neon green text",
+      bg: "#000000",
+      fg: "#39ff14"
     },
     {
       id: "garnet",
