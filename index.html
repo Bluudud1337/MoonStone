@@ -132,7 +132,17 @@ body[data-theme="paper"] {
   --particle: #777469;
 }
 
-body[data-theme="flowery"] {
+body[data-theme="astralsync"] {
+  --bg: #070b18;
+  --panel: #0d1428;
+  --hover: #172342;
+  --text: #e8edff;
+  --muted: #8f9bc4;
+  --border: #26365f;
+  --accent: #7897ff;
+  --particle: #9b83ff;
+}
+[data-theme="flowery"] {
   --bg: #17120d;
   --panel: #211a13;
   --hover: #33271a;
@@ -861,6 +871,8 @@ body.dock-span-full.dock-right.sidebar-pushed .sidebar{left:auto!important;right
 
 
 /* Site-wide cursor options */
+body[data-cursor="rainbow"],body[data-cursor="rainbow"] *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 2 L5 25 L11 19 L16 29 L21 26 L16 17 L25 17 Z' fill='%23ff4545' stroke='%23101010' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M7 5 L7 20 L12 16 L16 24 L18 23 L14 15 L22 15 Z' fill='%23ffcf4a'/%3E%3Cpath d='M7 5 L7 13 L12 11 L18 13 L22 15 L14 15 L12 16 Z' fill='%2347dc86'/%3E%3Cpath d='M7 5 L14 8 L22 15 L14 15 Z' fill='%234b8dff'/%3E%3C/svg%3E") 5 2,auto}
+
 body[data-cursor="cream"],body[data-cursor="cream"] *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 2 L5 25 L11 19 L16 29 L21 26 L16 17 L25 17 Z' fill='%23f3eedf' stroke='%23101010' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 5 2,auto}
 body[data-cursor="black"],body[data-cursor="black"] *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 2 L5 25 L11 19 L16 29 L21 26 L16 17 L25 17 Z' fill='%23101010' stroke='%23f3eedf' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 5 2,auto}
 body[data-cursor="crosshair"],body[data-cursor="crosshair"] *{cursor:crosshair}
@@ -1069,9 +1081,10 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           <div class="setting-row"><div class="setting-description"><strong>Custom font name</strong><span>Type a font name, including a Google Font such as Space Grotesk.</span></div><div class="font-custom-controls"><input class="field" id="customFontName" type="text" maxlength="60" placeholder="e.g. Space Grotesk" aria-label="Custom font name" autocomplete="off"><button class="settings-action" id="applyCustomFont" type="button">Apply</button></div></div>
           <p class="settings-intro" id="fontStatus">Google Fonts load from Google Fonts. Other fonts must be installed on the device.</p>
           <div class="section-label">Cursor</div>
-          <div class="setting-row"><div class="setting-description"><strong>Cursor style</strong><span>Change the pointer across MoonStone, including links, buttons, menus, and browser controls.</span></div><select class="settings-action" id="cursorStyleSelect" aria-label="Cursor style"><option value="default">System default</option><option value="cream">Cream pointer</option><option value="black">Black pointer</option><option value="crosshair">Crosshair</option><option value="pixel">Pixel arrow</option><option value="custom">Custom image</option></select></div>
+          <div class="setting-row"><div class="setting-description"><strong>Cursor style</strong><span>Change the pointer across MoonStone, including links, buttons, menus, and browser controls.</span></div><select class="settings-action" id="cursorStyleSelect" aria-label="Cursor style"><option value="default">System default</option><option value="cream">Cream pointer</option><option value="black">Black pointer</option><option value="crosshair">Crosshair</option><option value="pixel">Pixel arrow</option><option value="rainbow">Rainbow cursor</option><option value="custom">Uploaded image</option><option value="link">Image from URL</option></select></div>
           <div class="setting-row"><div class="setting-description"><strong>Upload cursor image</strong><span>Choose a small PNG, GIF, or CUR file. PNG works best.</span></div><div class="font-custom-controls"><label class="settings-action" for="cursorImageUpload">Choose image</label><input id="cursorImageUpload" type="file" accept="image/png,image/gif,image/x-icon,.cur" hidden><button class="settings-action" id="clearCursorImage" type="button">Remove</button></div></div>
-          <p class="settings-intro" id="cursorStatus" role="status">Choose a style or upload your own cursor image.</p>
+          <div class="setting-row" id="cursorUrlRow"><div class="setting-description"><strong>Cursor image URL</strong><span>Paste a direct HTTPS link to a small cursor image (PNG, GIF, or CUR).</span></div><div class="font-custom-controls"><input class="settings-action" id="cursorImageUrl" type="url" inputmode="url" placeholder="https://example.com/cursor.png" aria-label="Cursor image URL"><button class="settings-action" id="applyCursorUrl" type="button">Apply link</button></div></div>
+          <p class="settings-intro" id="cursorStatus" role="status">Choose a style, upload an image, or apply an image URL.</p>
           <div class="section-label">Dock layout</div>
           <div class="setting-row"><div class="setting-description"><strong>Dock position</strong><span>Choose which screen edge holds the navigation dock.</span></div><select class="settings-action" id="dockPositionSelect" aria-label="Dock position"><option value="left">Left</option><option value="right">Right</option><option value="bottom">Bottom</option></select></div>
           <div class="setting-row"><div class="setting-description"><strong>Dock span</strong><span>Use a compact floating dock or stretch it along the full edge.</span></div><select class="settings-action" id="dockSpanSelect" aria-label="Dock span"><option value="compact">Compact</option><option value="full">Full edge</option></select></div>
@@ -1186,6 +1199,13 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       description: "Flower yellow, sunset warmth, and leafy green",
       bg: "#17120d",
       fg: "#f4d34e"
+    },
+    {
+      id: "astralsync",
+      name: "AstralSyncOS",
+      description: "Deep space navy, electric blue, and violet",
+      bg: "#070b18",
+      fg: "#b9c8ff"
     }
   ];
 
@@ -1211,8 +1231,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     dockSpan: savedSettings.dockSpan === "full" ? "full" : "compact",
     siteFont: typeof savedSettings.siteFont === "string" ? savedSettings.siteFont.slice(0, 60) : "",
     layout: savedSettings.layout === "browser" ? "browser" : "classic",
-    cursorStyle: ["default","cream","black","crosshair","pixel","custom"].includes(savedSettings.cursorStyle) ? savedSettings.cursorStyle : "default",
-    cursorImage: typeof savedSettings.cursorImage === "string" && savedSettings.cursorImage.startsWith("data:image/") && savedSettings.cursorImage.length < 180000 ? savedSettings.cursorImage : ""
+    cursorStyle: ["default","cream","black","crosshair","pixel","rainbow","custom","link"].includes(savedSettings.cursorStyle) ? savedSettings.cursorStyle : "default",
+    cursorImage: typeof savedSettings.cursorImage === "string" && savedSettings.cursorImage.startsWith("data:image/") && savedSettings.cursorImage.length < 180000 ? savedSettings.cursorImage : "",
+    cursorImageUrl: typeof savedSettings.cursorImageUrl === "string" && /^https:\/\//i.test(savedSettings.cursorImageUrl) && savedSettings.cursorImageUrl.length < 2048 ? savedSettings.cursorImageUrl : ""
   };
 
   let bookmarks = loadJSON("moonstone-bookmarks", defaultBookmarks);
@@ -1339,20 +1360,39 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     document.body.dataset.theme = settings.theme;
     document.body.classList.toggle("layout-browser", settings.layout === "browser");
     document.body.dataset.cursor = settings.cursorStyle === "custom" && !settings.cursorImage ? "default" : settings.cursorStyle;
-    if (settings.cursorStyle === "custom" && settings.cursorImage) {
-      document.body.style.setProperty("--moonstone-custom-cursor", 'url("' + settings.cursorImage + '") 2 2, auto');
+    if ((settings.cursorStyle === "custom" && settings.cursorImage) || (settings.cursorStyle === "link" && settings.cursorImageUrl)) {
+      const cursorUrl = settings.cursorStyle === "link" ? settings.cursorImageUrl : settings.cursorImage;
+      document.body.style.setProperty("--moonstone-custom-cursor", 'url("' + cursorUrl.replace(/["\\\\]/g, "") + '") 2 2, auto');
     } else {
       document.body.style.removeProperty("--moonstone-custom-cursor");
     }
     const cursorSelect = $("#cursorStyleSelect");
     if (cursorSelect) cursorSelect.value = settings.cursorStyle === "custom" && !settings.cursorImage ? "default" : settings.cursorStyle;
+    const cursorUrlInput = $("#cursorImageUrl");
+    if (cursorUrlInput && settings.cursorImageUrl && !cursorUrlInput.value) cursorUrlInput.value = settings.cursorImageUrl;
+    const cursorUrlRow = $("#cursorUrlRow");
+    if (cursorUrlRow) cursorUrlRow.style.display = settings.cursorStyle === "link" ? "" : "";
     const cursorStatus = $("#cursorStatus");
-    if (cursorStatus) cursorStatus.textContent = settings.cursorStyle === "custom" && settings.cursorImage ? "Custom cursor active across MoonStone." : settings.cursorStyle === "custom" ? "Upload an image to activate your custom cursor." : settings.cursorStyle === "default" ? "Using the system cursor." : "Applied: " + settings.cursorStyle + " cursor.";
+    if (cursorStatus) cursorStatus.textContent = settings.cursorStyle === "custom" && settings.cursorImage ? "Uploaded cursor active across MoonStone." : settings.cursorStyle === "link" && settings.cursorImageUrl ? "Linked cursor active across MoonStone." : settings.cursorStyle === "custom" ? "Upload an image to activate your custom cursor." : settings.cursorStyle === "link" ? "Paste a direct HTTPS image URL and choose Apply link." : settings.cursorStyle === "default" ? "Using the system cursor." : "Applied: " + settings.cursorStyle + " cursor.";
     const clearCursorButton = $("#clearCursorImage");
     if (clearCursorButton) clearCursorButton.disabled = !settings.cursorImage;
     const cursorStyleSelect = $("#cursorStyleSelect");
   const cursorImageUpload = $("#cursorImageUpload");
   const clearCursorImage = $("#clearCursorImage");
+  const cursorImageUrl = $("#cursorImageUrl");
+  const applyCursorUrl = $("#applyCursorUrl");
+  if (applyCursorUrl) applyCursorUrl.addEventListener("click", () => {
+    const raw = (cursorImageUrl?.value || "").trim();
+    let parsed;
+    try { parsed = new URL(raw); } catch { $("#cursorStatus").textContent = "Enter a valid direct HTTPS image URL."; return; }
+    if (parsed.protocol !== "https:" || !/\.(png|gif|cur|ico)(?:$|[?#])/i.test(parsed.pathname + parsed.search + parsed.hash)) {
+      $("#cursorStatus").textContent = "Use an HTTPS link ending in .png, .gif, .cur, or .ico."; return;
+    }
+    settings.cursorImageUrl = parsed.href;
+    settings.cursorStyle = "link";
+    saveSettings();
+    applySettings();
+  });
   if (cursorStyleSelect) cursorStyleSelect.addEventListener("change", () => {
     settings.cursorStyle = cursorStyleSelect.value;
     saveSettings();
@@ -1393,6 +1433,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   });
   if (clearCursorImage) clearCursorImage.addEventListener("click", () => {
     settings.cursorImage = "";
+    settings.cursorImageUrl = ""; 
+    if (cursorImageUrl) cursorImageUrl.value = "";
     if (settings.cursorStyle === "custom") settings.cursorStyle = "default";
     saveSettings();
     applySettings();
@@ -1796,7 +1838,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
   $("#resetSettingsButton").addEventListener("click", () => {
     if (!window.confirm("Reset MoonStone preferences to their defaults? Your bookmarks will be kept.")) return;
-    settings = {theme:"moonstone",particles:true,animations:true,confirmLeave:true,cancelLeave:false,compactBookmarks:false,dockPosition:"left",dockSpan:"compact",siteFont:"",layout:"classic",cursorStyle:"default",cursorImage:""};
+    settings = {theme:"moonstone",particles:true,animations:true,confirmLeave:true,cancelLeave:false,compactBookmarks:false,dockPosition:"left",dockSpan:"compact",siteFont:"",layout:"classic",cursorStyle:"default",cursorImage:"",cursorImageUrl:""};
     saveSettings();
     applySettings();
     $("#settingsDataStatus").textContent = "Preferences reset. Your bookmarks are unchanged.";
