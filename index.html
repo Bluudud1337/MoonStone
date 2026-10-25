@@ -762,6 +762,47 @@ main {
 .browser-brand{font-size:12px;font-weight:650;letter-spacing:.02em;color:var(--muted,#85847d);white-space:nowrap}
 @media(max-width:520px){.site-browser{padding:8px 10px;gap:8px}.browser-brand{display:none}.browser-address-wrap{height:34px}}
 
+
+/* Settings redesign */
+#settingsModal .modal{width:min(880px,100%);max-height:min(88svh,760px);padding:0;overflow:hidden;display:flex;flex-direction:column}
+#settingsModal .modal-heading{margin:0;padding:21px 24px;border-bottom:1px solid var(--border)}
+.settings-layout{display:grid;grid-template-columns:190px minmax(0,1fr);min-height:0;overflow:hidden;flex:1}
+.settings-nav{padding:18px 12px;border-right:1px solid var(--border);background:color-mix(in srgb,var(--panel) 65%,transparent);display:flex;flex-direction:column;gap:5px}
+.settings-nav-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--muted);text-align:left;font-size:12px;cursor:pointer}
+.settings-nav-item span{width:18px;text-align:center;font-size:15px}
+.settings-nav-item:hover{background:var(--hover);color:var(--text)}
+.settings-nav-item.active{background:var(--hover);border-color:var(--border);color:var(--text)}
+.settings-content{overflow-y:auto;padding:24px 27px 27px;min-width:0}
+.settings-panel{display:none}.settings-panel.active{display:block;animation:appear .18s ease both}
+.settings-kicker{font-size:10px;letter-spacing:.16em;color:var(--accent);margin:0 0 7px}
+.settings-panel h3{font-size:23px;letter-spacing:-.04em;font-weight:600;margin:0}
+.settings-intro{font-size:12px;color:var(--muted);line-height:1.6;margin:7px 0 21px}
+.settings-panel .section-label{margin-top:19px}
+.settings-status{font-size:9px;letter-spacing:.08em;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:5px 7px;white-space:nowrap}
+.settings-action{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--text);font-size:11px;cursor:pointer;white-space:nowrap}
+.settings-action:hover{background:var(--hover);border-color:var(--accent)}
+.data-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px;margin-bottom:9px;border:1px solid var(--border);border-radius:12px;background:var(--panel)}
+.data-card>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.data-card strong{font-size:12px;font-weight:550}.data-card span{font-size:11px;line-height:1.5;color:var(--muted)}
+.danger-card{margin-top:22px}.danger-action{color:#e16b88}
+#settingsModal .theme-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+#settingsModal .theme-option{padding:9px;gap:9px}
+#settingsModal .theme-swatch{width:30px;height:30px}
+@media(max-width:620px){
+ #settingsModal{padding:8px}
+ #settingsModal .modal{max-height:calc(100svh - 16px);border-radius:14px}
+ #settingsModal .modal-heading{padding:16px}
+ .settings-layout{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+ .settings-nav{padding:8px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;border-right:0;border-bottom:1px solid var(--border)}
+ .settings-nav-item{justify-content:center;flex-direction:column;gap:4px;padding:8px 3px;font-size:10px}
+ .settings-nav-item span{font-size:14px}
+ .settings-content{padding:18px 15px 22px}
+ #settingsModal .theme-list{grid-template-columns:1fr}
+ .settings-panel h3{font-size:21px}
+ .data-card{padding:12px}
+}
+
+body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.compact-bookmarks .bookmarks{gap:7px}body.compact-bookmarks .bookmark-icon,body.compact-bookmarks .bookmark-icon svg{width:17px;height:17px}
 </style>
 </head>
 
@@ -837,43 +878,42 @@ main {
       <button class="close-button" data-close="settingsModal" aria-label="Close settings">✕</button>
     </div>
 
-    <div class="section-label">Appearance</div>
-    <div class="theme-list" id="themeList"></div>
-
-    <div class="section-label">Preferences</div>
-    <div class="setting-row">
-      <div class="setting-description">
-        <strong>Particle background</strong>
-        <span>Floating ambient particles</span>
+    <div class="settings-layout">
+      <nav class="settings-nav" aria-label="Settings categories">
+        <button class="settings-nav-item active" data-settings-tab="appearance" type="button"><span>◐</span> Appearance</button>
+        <button class="settings-nav-item" data-settings-tab="behavior" type="button"><span>⌘</span> Behavior</button>
+        <button class="settings-nav-item" data-settings-tab="privacy" type="button"><span>◇</span> Privacy</button>
+        <button class="settings-nav-item" data-settings-tab="data" type="button"><span>↗</span> Your data</button>
+      </nav>
+      <div class="settings-content">
+        <section class="settings-panel active" data-settings-panel="appearance">
+          <p class="settings-kicker">MAKE IT YOURS</p><h3>Appearance</h3><p class="settings-intro">Tune the look and feel of MoonStone.</p>
+          <div class="section-label">Color theme</div><div class="theme-list" id="themeList"></div>
+          <div class="section-label">Visual effects</div>
+          <div class="setting-row"><div class="setting-description"><strong>Particle background</strong><span>Floating ambient particles</span></div><button class="toggle" id="particleToggle" role="switch" aria-checked="true" aria-label="Particle background"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Animations</strong><span>Hover and transition effects</span></div><button class="toggle" id="animationToggle" role="switch" aria-checked="true" aria-label="Animations"></button></div>
+        </section>
+        <section class="settings-panel" data-settings-panel="behavior">
+          <p class="settings-kicker">YOUR EXPERIENCE</p><h3>Behavior</h3><p class="settings-intro">Choose how MoonStone responds to your actions.</p>
+          <div class="setting-row"><div class="setting-description"><strong>Confirm leaving</strong><span>Ask before opening another page</span></div><button class="toggle" id="confirmLeaveToggle" role="switch" aria-checked="true" aria-label="Confirm leaving"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Cancel leaving automatically</strong><span>Block navigation while enabled. This overrides confirmation.</span></div><button class="toggle" id="cancelLeaveToggle" role="switch" aria-checked="false" aria-label="Cancel leaving automatically"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Compact bookmarks</strong><span>Use smaller shortcut tiles on the homepage</span></div><button class="toggle" id="compactToggle" role="switch" aria-checked="false" aria-label="Compact bookmarks"></button></div>
+        </section>
+        <section class="settings-panel" data-settings-panel="privacy">
+          <p class="settings-kicker">YOUR CONTROL</p><h3>Privacy</h3><p class="settings-intro">Manage how this page behaves on your device.</p>
+          <div class="setting-row"><div class="setting-description"><strong>Local-only preferences</strong><span>Settings and bookmarks stay in this browser's local storage.</span></div><span class="settings-status">ON DEVICE</span></div>
+          <div class="setting-row"><div class="setting-description"><strong>Clear search field</strong><span>Clear the current search without changing your saved settings.</span></div><button class="settings-action" id="clearSearchButton" type="button">Clear</button></div>
+        </section>
+        <section class="settings-panel" data-settings-panel="data">
+          <p class="settings-kicker">BACKUP & RESTORE</p><h3>Your data</h3><p class="settings-intro">Keep a backup of your preferences and bookmarks.</p>
+          <div class="data-card"><div><strong>Export backup</strong><span>Download your settings and bookmarks as a JSON file.</span></div><button class="settings-action" id="exportSettingsButton" type="button">Export</button></div>
+          <div class="data-card"><div><strong>Import backup</strong><span>Restore a MoonStone JSON backup on this browser.</span></div><button class="settings-action" id="importSettingsButton" type="button">Import</button></div>
+          <input id="importSettingsFile" type="file" accept="application/json,.json" hidden>
+          <div class="data-card danger-card"><div><strong>Reset preferences</strong><span>Restore default settings. Bookmarks will not be deleted.</span></div><button class="settings-action danger-action" id="resetSettingsButton" type="button">Reset</button></div>
+          <p class="modal-note" id="settingsDataStatus" aria-live="polite">Your preferences are saved automatically on this device.</p>
+        </section>
       </div>
-      <button class="toggle" id="particleToggle" role="switch" aria-checked="true" aria-label="Particle background"></button>
     </div>
-
-    <div class="setting-row">
-      <div class="setting-description">
-        <strong>Animations</strong>
-        <span>Hover and transition effects</span>
-      </div>
-      <button class="toggle" id="animationToggle" role="switch" aria-checked="true" aria-label="Animations"></button>
-    </div>
-
-    <div class="setting-row">
-      <div class="setting-description">
-        <strong>Confirm leaving</strong>
-        <span>Ask before opening another page</span>
-      </div>
-      <button class="toggle" id="confirmLeaveToggle" role="switch" aria-checked="true" aria-label="Confirm leaving"></button>
-    </div>
-
-    <div class="setting-row">
-      <div class="setting-description">
-        <strong>Cancel leaving automatically</strong>
-        <span>Block page navigation while enabled</span>
-      </div>
-      <button class="toggle" id="cancelLeaveToggle" role="switch" aria-checked="false" aria-label="Cancel leaving automatically"></button>
-    </div>
-
-    <p class="modal-note">Your preferences are saved automatically on this device.</p>
   </section>
 </div>
 
@@ -960,7 +1000,8 @@ main {
     particles: savedSettings.particles !== false,
     animations: savedSettings.animations !== false,
     confirmLeave: savedSettings.confirmLeave !== false,
-    cancelLeave: savedSettings.cancelLeave === true
+    cancelLeave: savedSettings.cancelLeave === true,
+    compactBookmarks: savedSettings.compactBookmarks === true
   };
 
   let bookmarks = loadJSON("moonstone-bookmarks", defaultBookmarks);
@@ -992,6 +1033,8 @@ main {
     $("#animationToggle").setAttribute("aria-checked", settings.animations);
     $("#confirmLeaveToggle").setAttribute("aria-checked", settings.confirmLeave);
     $("#cancelLeaveToggle").setAttribute("aria-checked", settings.cancelLeave);
+    $("#compactToggle").setAttribute("aria-checked", settings.compactBookmarks);
+    document.body.classList.toggle("compact-bookmarks", settings.compactBookmarks);
     $("#themeList").querySelectorAll(".theme-option").forEach(button => {
       const selected = button.dataset.theme === settings.theme;
       button.classList.toggle("selected", selected);
@@ -1240,6 +1283,76 @@ main {
     settings.cancelLeave = !settings.cancelLeave;
     saveSettings();
     applySettings();
+  });
+
+  $("#compactToggle").addEventListener("click", () => {
+    settings.compactBookmarks = !settings.compactBookmarks;
+    saveSettings();
+    applySettings();
+  });
+
+  document.querySelectorAll("[data-settings-tab]").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll("[data-settings-tab]").forEach(item => item.classList.toggle("active", item === button));
+      document.querySelectorAll("[data-settings-panel]").forEach(panel => panel.classList.toggle("active", panel.dataset.settingsPanel === button.dataset.settingsTab));
+    });
+  });
+
+  $("#clearSearchButton").addEventListener("click", () => {
+    $("#searchInput").value = "";
+    if (searchMode === "site") renderBookmarks();
+    $("#searchInput").focus();
+    $("#settingsDataStatus").textContent = "Search field cleared.";
+  });
+
+  $("#exportSettingsButton").addEventListener("click", () => {
+    const backup = { format: "moonstone-backup", version: 1, settings, bookmarks };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "moonstone-backup.json";
+    link.click();
+    URL.revokeObjectURL(url);
+    $("#settingsDataStatus").textContent = "Backup exported.";
+  });
+
+  $("#importSettingsButton").addEventListener("click", () => $("#importSettingsFile").click());
+  $("#importSettingsFile").addEventListener("change", async event => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    try {
+      const backup = JSON.parse(await file.text());
+      if (backup.format !== "moonstone-backup" || !backup.settings || !Array.isArray(backup.bookmarks)) throw new Error("Invalid backup file");
+      const validThemes = themes.map(theme => theme.id);
+      settings = {
+        theme: validThemes.includes(backup.settings.theme) ? backup.settings.theme : "moonstone",
+        particles: backup.settings.particles !== false,
+        animations: backup.settings.animations !== false,
+        confirmLeave: backup.settings.confirmLeave !== false,
+        cancelLeave: backup.settings.cancelLeave === true,
+        compactBookmarks: backup.settings.compactBookmarks === true
+      };
+      bookmarks = backup.bookmarks.filter(item => item && typeof item.name === "string" && typeof item.url === "string").map(item => ({name:item.name.slice(0,30),url:item.url,icon:iconSVG[item.icon] ? item.icon : "link"}));
+      saveSettings();
+      saveBookmarks();
+      renderThemes();
+      renderBookmarks();
+      applySettings();
+      renderEditList();
+      $("#settingsDataStatus").textContent = "Backup imported successfully.";
+    } catch {
+      $("#settingsDataStatus").textContent = "Couldn't import that file. Choose a MoonStone JSON backup.";
+    }
+    event.target.value = "";
+  });
+
+  $("#resetSettingsButton").addEventListener("click", () => {
+    if (!window.confirm("Reset MoonStone preferences to their defaults? Your bookmarks will be kept.")) return;
+    settings = {theme:"moonstone",particles:true,animations:true,confirmLeave:true,cancelLeave:false,compactBookmarks:false};
+    saveSettings();
+    applySettings();
+    $("#settingsDataStatus").textContent = "Preferences reset. Your bookmarks are unchanged.";
   });
 
   /* Search */
