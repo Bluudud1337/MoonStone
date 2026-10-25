@@ -1013,7 +1013,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
         </section>
         <section class="settings-panel" data-settings-panel="behavior">
           <p class="settings-kicker">YOUR EXPERIENCE</p><h3>Behavior</h3><p class="settings-intro">Choose how MoonStone responds to your actions.</p>
-          <div class="setting-row"><div class="setting-description"><strong>Confirm leaving</strong><span>Ask before opening another page</span></div><button class="toggle" id="confirmLeaveToggle" role="switch" aria-checked="true" aria-label="Confirm leaving"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Confirm leaving</strong><span>Use your browser’s warning when leaving, refreshing, or closing this page</span></div><button class="toggle" id="confirmLeaveToggle" role="switch" aria-checked="true" aria-label="Confirm leaving"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Cancel leaving automatically</strong><span>Block navigation while enabled. This overrides confirmation.</span></div><button class="toggle" id="cancelLeaveToggle" role="switch" aria-checked="false" aria-label="Cancel leaving automatically"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Compact bookmarks</strong><span>Use smaller shortcut tiles on the homepage</span></div><button class="toggle" id="compactToggle" role="switch" aria-checked="false" aria-label="Compact bookmarks"></button></div>
         </section>
@@ -1282,12 +1282,16 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     });
   }
 
+  // Use the browser-native leave warning. The browser controls its wording and when it appears.
+  window.addEventListener("beforeunload", event => {
+    if (!settings.confirmLeave || settings.cancelLeave) return;
+    event.preventDefault();
+    event.returnValue = "";
+  });
+
   function shouldAllowNavigation() {
-    if (settings.cancelLeave) return false;
-    if (settings.confirmLeave && !window.confirm("Are you sure you want to leave Moonstone?")) {
-      return false;
-    }
-    return true;
+    // This can block site-controlled links, but browsers do not let sites force users to stay when closing a tab.
+    return !settings.cancelLeave;
   }
 
   function safeUrl(rawUrl) {
@@ -1346,9 +1350,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           beginEdit(index);
           return;
         }
-        if (settings.cancelLeave || settings.confirmLeave) {
+        if (settings.cancelLeave) {
           event.preventDefault();
-          if (shouldAllowNavigation()) location.href = link.href;
+          return;
         }
       });
 
@@ -1624,9 +1628,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
             clickEvent.preventDefault();
             return;
           }
-          if (settings.cancelLeave || settings.confirmLeave) {
+          if (settings.cancelLeave) {
             clickEvent.preventDefault();
-            if (shouldAllowNavigation()) location.href = link.href;
           }
         });
         $("#bookmarks").appendChild(link);
