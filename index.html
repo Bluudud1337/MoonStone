@@ -254,16 +254,13 @@ main {
 .brand-icon {
   width: 58px;
   height: 58px;
-  display: block;
+  display: grid;
+  place-items: center;
+  font-size: 48px;
+  line-height: 1;
   flex-shrink: 0;
   transition: transform .35s ease, filter .35s ease;
   filter: drop-shadow(0 0 6px #8daeea) drop-shadow(0 0 15px #6489d8aa);
-}
-.brand-icon img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
 }
 .brand-icon:hover {
   transform: scale(1.06);
@@ -1040,9 +1037,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       </div>
     </div>
     <div class="brand">
-      <div class="brand-icon" role="img" aria-label="Moonstone gemstone logo">
-        <img src="/moonstone-gem.png" alt="" />
-      </div>
+      <div class="brand-icon" role="img" aria-label="Moonstone diamond logo">💎</div>
       <h1>MOONSTONE</h1>
       <p class="brand-message" id="brandMessage" aria-live="polite"><span id="brandMessageText">A little corner of the internet.</span><span class="brand-message-cursor" aria-hidden="true"></span></p>
     </div>
