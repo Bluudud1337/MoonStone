@@ -959,6 +959,14 @@ body.layout-browser .browser-action{height:36px}
 }
 
 body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.compact-bookmarks .bookmarks{gap:7px}body.compact-bookmarks .bookmark-icon,body.compact-bookmarks .bookmark-icon svg{width:17px;height:17px}
+
+/* Homepage clock and device battery */
+.home-status{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 auto 26px;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.home-status-item{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:7px 11px;border:1px solid var(--border);border-radius:999px;background:color-mix(in srgb,var(--panel) 78%,transparent);backdrop-filter:blur(10px)}
+.home-status-item svg{width:15px;height:15px;fill:none;stroke:var(--accent);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.home-status-value{color:var(--text);font-weight:550}
+@media(max-width:420px){.home-status{gap:7px;margin-bottom:22px}.home-status-item{padding:7px 9px;font-size:11px;gap:6px}}
+
 </style>
 </head>
 
@@ -1019,6 +1027,16 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
 <main>
   <section class="home">
+    <div class="home-status" aria-label="Current time and device battery">
+      <div class="home-status-item" title="Your local time">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        <span class="home-status-value" id="homeClock">--:--:--</span>
+      </div>
+      <div class="home-status-item" title="This device's battery level">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="17" height="10" rx="2"></rect><path d="M22 10v4"></path><path id="homeBatteryFill" d="M6 10h8v4H6z" fill="currentColor" stroke="none"></path></svg>
+        <span class="home-status-value" id="homeBattery">Battery unavailable</span>
+      </div>
+    </div>
     <div class="brand">
       <!-- Optional: replace this placeholder SVG with your own image URL -->
       <div class="brand-icon" aria-label="Moonstone logo">
@@ -2069,6 +2087,45 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   window.moonstoneOpenSearch=query=>{if(activeId===null)createTab();navigate(query)};
   render();
 })();</script>
+
+
+<script>
+(() => {
+  const clock = document.getElementById("homeClock");
+  const batteryText = document.getElementById("homeBattery");
+  const batteryFill = document.getElementById("homeBatteryFill");
+  if (clock) {
+    const updateClock = () => {
+      clock.textContent = new Intl.DateTimeFormat(undefined, {
+        hour: "numeric", minute: "2-digit", second: "2-digit"
+      }).format(new Date());
+    };
+    updateClock();
+    window.setInterval(updateClock, 1000);
+  }
+  if (batteryText) {
+    if (navigator.getBattery) {
+      navigator.getBattery().then(battery => {
+        const updateBattery = () => {
+          const percent = Math.round(battery.level * 100);
+          batteryText.textContent = percent + "% battery" + (battery.charging ? " · charging" : "");
+          if (batteryFill) {
+            batteryFill.setAttribute("d", percent > 0
+              ? "M6 10h" + (Math.max(0.5, 8 * percent / 100)) + "v4H6z"
+              : "M6 10h0v4H6z");
+          }
+        };
+        updateBattery();
+        battery.addEventListener("levelchange", updateBattery);
+        battery.addEventListener("chargingchange", updateBattery);
+      }).catch(() => { batteryText.textContent = "Battery unavailable"; });
+    } else {
+      batteryText.textContent = "Battery unavailable";
+      batteryText.title = "This browser does not provide battery status.";
+    }
+  }
+})();
+</script>
 
 </body>
 </html>
