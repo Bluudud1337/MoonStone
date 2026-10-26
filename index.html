@@ -254,13 +254,16 @@ main {
 .brand-icon {
   width: 58px;
   height: 58px;
-  display: grid;
-  place-items: center;
-  font-size: 48px;
-  line-height: 1;
+  display: block;
   flex-shrink: 0;
   transition: transform .35s ease, filter .35s ease;
   filter: drop-shadow(0 0 6px #8daeea) drop-shadow(0 0 15px #6489d8aa);
+}
+.brand-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 .brand-icon:hover {
   transform: scale(1.06);
@@ -1037,7 +1040,30 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       </div>
     </div>
     <div class="brand">
-      <div class="brand-icon" role="img" aria-label="Moonstone diamond logo">💎</div>
+      <div class="brand-icon" role="img" aria-label="Faceted diamond logo">
+        <svg viewBox="0 0 64 72" aria-hidden="true">
+          <defs>
+            <linearGradient id="diamondFace" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f8f5e9"/>
+              <stop offset=".42" stop-color="#bfc9d8"/>
+              <stop offset="1" stop-color="#687b98"/>
+            </linearGradient>
+            <linearGradient id="diamondSide" x1="0" y1="0" x2="0.9" y2="1">
+              <stop offset="0" stop-color="#dce9ff"/>
+              <stop offset="1" stop-color="#50627f"/>
+            </linearGradient>
+          </defs>
+          <path d="M16 5H48L62 24 32 68 2 24Z" fill="#202a3b" stroke="#dce8fa" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M16 5H48L42 24H22Z" fill="url(#diamondFace)"/>
+          <path d="M16 5 22 24 2 24Z" fill="#7185a3"/>
+          <path d="M48 5 42 24 62 24Z" fill="#e8f0ff"/>
+          <path d="M22 24H42L32 68Z" fill="url(#diamondSide)"/>
+          <path d="M2 24H22L32 68Z" fill="#8d9bb0"/>
+          <path d="M42 24H62L32 68Z" fill="#35445c"/>
+          <path d="M16 5H48L62 24H2Z" fill="none" stroke="#f4f7ff" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M20 9 12 21M44 9 53 21M25 28 32 58" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".85"/>
+        </svg>
+      </div>
       <h1>MOONSTONE</h1>
       <p class="brand-message" id="brandMessage" aria-live="polite"><span id="brandMessageText">A little corner of the internet.</span><span class="brand-message-cursor" aria-hidden="true"></span></p>
     </div>
