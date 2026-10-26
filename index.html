@@ -1095,6 +1095,15 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1a1.7 1.7 0 0 1-2.4 2.4l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a1.7 1.7 0 0 1-3.4 0v-.2a1.7 1.7 0 0 0-2.9-1.2l-.1.1a1.7 1.7 0 0 1-2.4-2.4l.1-.1a1.7 1.7 0 0 0-1.2-2.9H4a1.7 1.7 0 0 1 0-3.4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a1.7 1.7 0 0 1 2.4-2.4l.1.1a1.7 1.7 0 0 0 2.9-1.2V2a1.7 1.7 0 0 1 3.4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a1.7 1.7 0 0 1 2.4 2.4l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.2a1.7 1.7 0 0 1 0 3.4h-.2a1.7 1.7 0 0 0-1.2 2.9Z"/></svg>
   </button>
 </nav>
+<script>
+  // These sections are not available yet; keep clicks on MoonStone and show a clear notice.
+  document.querySelectorAll('.sidebar a.side-link[aria-label="Movies"], .sidebar a.side-link[aria-label="Apps"], .sidebar a.side-link[aria-label="Chatroom"]').forEach(link => {
+    link.addEventListener("click", event => {
+      event.preventDefault();
+      window.alert("Coming soon");
+    });
+  });
+</script>
 
 <div class="corner-actions">
   <button class="small-button" id="editOpen" aria-label="Edit bookmarks" title="Edit bookmarks">
