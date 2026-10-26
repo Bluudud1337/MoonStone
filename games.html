@@ -137,6 +137,15 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
 .browser-brand{font-size:12px;font-weight:650;letter-spacing:.02em;color:var(--muted,#85847d);white-space:nowrap}
 @media(max-width:520px){.site-browser{padding:8px 10px;gap:8px}.browser-brand{display:none}.browser-address-wrap{height:34px}}
 
+/* Shared dock settings from the homepage */
+body.dock-left .sidebar{left:17px;right:auto;top:50%;bottom:auto;transform:translateY(-50%);flex-direction:column}
+body.dock-right .sidebar{left:auto;right:17px;top:50%;bottom:auto;transform:translateY(-50%);flex-direction:column}
+body.dock-bottom .sidebar{left:50%;right:auto;top:auto;bottom:13px;transform:translateX(-50%);flex-direction:row}
+body.dock-span-full.dock-left .sidebar,body.dock-span-full.dock-right .sidebar{top:0;bottom:0;transform:none;height:100vh;justify-content:center;border-radius:0;padding:10px 7px}
+body.dock-span-full.dock-left .sidebar{left:0}
+body.dock-span-full.dock-right .sidebar{right:0}
+body.dock-span-full.dock-bottom .sidebar{left:0;right:0;bottom:0;top:auto;transform:none;width:100%;height:auto;justify-content:center;border-radius:0;flex-direction:row;padding:7px 10px}
+@media(max-width:600px){body.dock-left .sidebar{left:10px;right:auto;top:50%;bottom:auto;transform:translateY(-50%);flex-direction:column}body.dock-right .sidebar{left:auto;right:10px;top:50%;bottom:auto;transform:translateY(-50%);flex-direction:column}body.dock-bottom .sidebar{left:50%;right:auto;top:auto;bottom:13px;transform:translateX(-50%);flex-direction:row}}
 </style>
 </head>
 <body>
@@ -203,9 +212,19 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
     document.body.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme === "paper" ? "light" : "dark";
   }
+  function applySharedDock(){
+    const settings = safeLoad("moonstone-settings", {});
+    document.body.classList.remove("dock-left", "dock-right", "dock-bottom");
+    document.body.classList.add("dock-" + (["left", "right", "bottom"].includes(settings.dockPosition) ? settings.dockPosition : "left"));
+    document.body.classList.toggle("dock-span-full", settings.dockSpan === "full");
+  }
   applySharedTheme();
+  applySharedDock();
   window.addEventListener("storage", event => {
-    if (event.key === "moonstone-settings" || event.key === null) applySharedTheme();
+    if (event.key === "moonstone-settings" || event.key === null) {
+      applySharedTheme();
+      applySharedDock();
+    }
   });
   // Add games here. Each object needs only a title, link, and image.
   const games =     [
