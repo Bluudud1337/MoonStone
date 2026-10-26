@@ -258,6 +258,7 @@ body.no-animations *,body.no-animations *::before,body.no-animations *::after{an
 </style>
 </head>
 <body data-layout="pc" data-card="m">
+<canvas id="moonstoneParticles" aria-hidden="true" style="position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.55"></canvas>
 
 <section id="gate" class="gate">
   <div>
@@ -714,6 +715,16 @@ fullscreenBtn.addEventListener("click", async () => {
   }
 });
 /* ---------- shared MoonStone homepage settings ---------- */
+let moonstoneParticleFrame=0,moonstoneParticleDots=[];
+function setMoonStoneParticles(enabled){
+  const canvas=document.getElementById("moonstoneParticles");if(!canvas)return;
+  const ctx=canvas.getContext("2d");cancelAnimationFrame(moonstoneParticleFrame);
+  if(!enabled||matchMedia("(prefers-reduced-motion: reduce)").matches){ctx.clearRect(0,0,canvas.width,canvas.height);return}
+  const resize=()=>{canvas.width=Math.max(1,innerWidth*devicePixelRatio);canvas.height=Math.max(1,innerHeight*devicePixelRatio);moonstoneParticleDots=Array.from({length:Math.min(55,Math.floor(innerWidth/25))},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:(Math.random()*1.5+.5)*devicePixelRatio,v:(Math.random()*.22+.06)*devicePixelRatio}))};
+  resize();window.addEventListener("resize",resize,{passive:true});
+  const draw=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle=getComputedStyle(document.body).getPropertyValue("--accent").trim()||"#fffb9e";for(const p of moonstoneParticleDots){ctx.globalAlpha=.25+(p.r/devicePixelRatio)*.18;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();p.y-=p.v;if(p.y<0){p.y=canvas.height;p.x=Math.random()*canvas.width}}ctx.globalAlpha=1;moonstoneParticleFrame=requestAnimationFrame(draw)};
+  draw();
+}
 function applyMoonStoneSettings(){
   let prefs={};
   try{prefs=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")||{}}catch{}
@@ -730,6 +741,7 @@ function applyMoonStoneSettings(){
     }
   }else{document.documentElement.style.removeProperty("--site-font");}
   document.body.classList.toggle("no-animations",prefs.animations===false);
+  setMoonStoneParticles(prefs.particles!==false);
   document.body.style.cursor=prefs.cursorStyle==="default"||!prefs.cursorStyle?"":"";
   if(prefs.cursorStyle==="custom"&&prefs.cursorImage)document.body.style.cursor='url("'+prefs.cursorImage+'") 2 2, auto';
   else if(prefs.cursorStyle==="link"&&prefs.cursorImageUrl)document.body.style.cursor='url("'+prefs.cursorImageUrl+'") 2 2, auto';
