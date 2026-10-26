@@ -1507,7 +1507,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     if (link.hasAttribute("download") || (link.target && link.target !== "_self")) return;
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     allowUnloadWithoutPrompt = true;
-  }, true);
+  });
 
   window.addEventListener("beforeunload", event => {
     if (!settings.confirmLeave || allowUnloadWithoutPrompt) return;
