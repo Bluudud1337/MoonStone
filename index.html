@@ -2487,7 +2487,16 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
         button.title = "Developer console failed to initialize";
         return;
       }
-      window.eruda.init({ container: document.body, tool: ["console", "elements", "sources", "network", "resources"] });
+      // Isolate Eruda's styles and mount it inside the browser window so its
+      // mobile backdrop cannot cover the entire MoonStone page.
+      const host = document.getElementById("tempBrowser");
+      window.eruda.init({
+        container: host || document.body,
+        tool: ["console", "elements", "sources", "network", "resources"],
+        useShadowDom: true,
+        autoScale: true
+      });
+      if (typeof window.eruda.position === "function") window.eruda.position("bottom");
       ready = true;
       window.eruda.show();
       setPressed(true);
