@@ -252,22 +252,24 @@ main {
 }
 
 .brand-icon {
-  width: 39px;
-  height: 39px;
+  width: 54px;
+  height: 54px;
   display: grid;
   place-items: center;
   color: var(--accent);
-  transition: transform .4s ease, filter .4s ease;
+  transition: transform .35s ease, filter .35s ease;
+  filter: drop-shadow(0 0 5px #8daeea) drop-shadow(0 0 13px #6489d8aa);
 }
 
 .brand-icon svg {
   width: 100%;
   height: 100%;
+  overflow: visible;
 }
 
 .brand-icon:hover {
-  transform: rotate(45deg) scale(1.1);
-  filter: drop-shadow(0 0 9px var(--accent));
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 8px #b7d5ff) drop-shadow(0 0 20px #6489d8);
 }
 
 .brand h1 {
@@ -1038,12 +1040,33 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       </div>
     </div>
     <div class="brand">
-      <!-- Optional: replace this placeholder SVG with your own image URL -->
-      <div class="brand-icon" aria-label="Moonstone logo">
-        <svg viewBox="0 0 40 40" aria-hidden="true">
-          <path d="M20 2 25 15 38 20 25 25 20 38 15 25 2 20 15 15Z"
-            fill="none" stroke="currentColor" stroke-width="1.4"/>
-          <circle cx="20" cy="20" r="3" fill="currentColor"/>
+      <div class="brand-icon" role="img" aria-label="Moonstone gemstone logo">
+        <svg viewBox="0 0 64 76" aria-hidden="true">
+          <defs>
+            <linearGradient id="gemBody" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#e3e8f2"/>
+              <stop offset=".28" stop-color="#5d6675"/>
+              <stop offset=".55" stop-color="#171a20"/>
+              <stop offset=".78" stop-color="#8997ad"/>
+              <stop offset="1" stop-color="#252932"/>
+            </linearGradient>
+            <linearGradient id="gemFlash" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#d9eaff"/>
+              <stop offset=".5" stop-color="#7198d7"/>
+              <stop offset="1" stop-color="#343d50"/>
+            </linearGradient>
+          </defs>
+          <path d="M32 2 61 31 32 74 3 31Z" fill="url(#gemBody)" stroke="#b9c7dc" stroke-width="1.2"/>
+          <path d="M32 2 23 29 3 31Z" fill="#cbd6e5" opacity=".72"/>
+          <path d="M32 2 42 29 61 31Z" fill="#252a33" stroke="#8998ad" stroke-width=".6"/>
+          <path d="M23 29 42 29 32 49Z" fill="url(#gemFlash)" opacity=".92"/>
+          <path d="M3 31 23 29 32 49 32 74Z" fill="#333a47" stroke="#9aa8bc" stroke-width=".6"/>
+          <path d="M42 29 61 31 32 74 32 49Z" fill="#171a20" stroke="#8b9bb2" stroke-width=".6"/>
+          <path d="M23 29 32 2 42 29 32 49Z" fill="#899bb6" opacity=".5"/>
+          <path d="M10 29 30 7" fill="none" stroke="#f1f5ff" stroke-width="1.4" stroke-linecap="round" opacity=".85"/>
+          <path d="M9 34 28 62" fill="none" stroke="#8bb8ff" stroke-width="1" opacity=".7"/>
+          <path d="M35 53 55 33" fill="none" stroke="#dce8ff" stroke-width="1" opacity=".8"/>
+          <path d="M22 38 27 43 23 47 18 42Z M39 35 44 40 39 45 35 40Z M37 57 42 62 37 67 33 62Z" fill="#080a0e" opacity=".9"/>
         </svg>
       </div>
       <h1>MOONSTONE</h1>
