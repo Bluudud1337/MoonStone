@@ -64,7 +64,7 @@ h1{font-size:clamp(32px,5vw,48px);letter-spacing:-.065em;line-height:1;margin:0;
 footer{margin-top:42px;color:var(--muted);font-size:11px;text-align:center}
 .overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:20px;background:#000c;backdrop-filter:blur(12px)}
 .overlay.open{display:flex}
-.game-window{width:min(760px,100%);max-height:calc(100dvh - 40px);overflow:auto;border:1px solid var(--border);border-radius:18px;background:var(--bg);box-shadow:0 24px 90px #0009}
+.game-window{width:min(1120px,96vw);max-height:calc(100dvh - 24px);overflow:auto;border:1px solid var(--border);border-radius:18px;background:var(--bg);box-shadow:0 24px 90px #0009}
 .game-window:fullscreen{width:100%;height:100%;max-height:none;border:0;border-radius:0;display:flex;flex-direction:column;padding:12px}
 .game-window:fullscreen .game-stage{flex:1;min-height:0}
 .game-window:fullscreen .game-stage iframe{height:100%}
@@ -76,8 +76,9 @@ footer{margin-top:42px;color:var(--muted);font-size:11px;text-align:center}
 .icon-button{width:35px;height:35px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--border);border-radius:10px;cursor:pointer;color:var(--muted)}
 .icon-button:hover{color:var(--text)}
 .icon-button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.game-stage{min-height:340px;padding:22px;display:flex;align-items:center;justify-content:center;position:relative}
-.game-stage iframe{display:block;width:100%;height:min(68vh,520px);border:0;border-radius:10px;background:#fff}
+.game-stage{min-height:340px;padding:14px;display:flex;align-items:center;justify-content:center;position:relative}
+.game-stage iframe{display:block;width:100%;height:min(76vh,760px);border:0;border-radius:10px;background:#fff}
+ @media(max-width:640px){.overlay{padding:8px}.game-window{width:100%;max-height:calc(100dvh - 16px);border-radius:13px}.game-stage{padding:8px}.game-stage iframe{height:72vh}.game-head{padding:10px 12px}}
 .stage-inner{width:100%;max-width:420px;text-align:center}
 .game-note{color:var(--muted);font-size:12px;line-height:1.5;margin:0 0 18px}
 .game-action{padding:10px 14px;background:var(--panel);border:1px solid var(--border);border-radius:10px;cursor:pointer}
@@ -166,6 +167,8 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
 <div class="overlay" id="gameOverlay" role="dialog" aria-modal="true" aria-labelledby="activeGameTitle">
   <section class="game-window" id="gameWindow">
     <header class="game-head"><h2 id="activeGameTitle">Game</h2><div class="game-controls">
+      <button class="icon-button" id="refreshGame" aria-label="Refresh game" title="Refresh game"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2"/></svg></button>
+
       <button class="icon-button" id="fullscreenButton" aria-label="Toggle fullscreen" title="Fullscreen"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg></button>
       <button class="icon-button" id="closeGame" aria-label="Close game" title="Close">✕</button>
     </div></header>
@@ -1268,6 +1271,22 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
     if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
     $("#gameStage").innerHTML="";
   }
+  $("#refreshGame").addEventListener("click",()=>{
+    if(!activeGame) return;
+    const frame=$("#gameStage iframe");
+    if(frame){
+      try { frame.contentWindow.location.reload(); }
+      catch { const current=frame.src; frame.src="about:blank"; frame.src=current; }
+      return;
+    }
+    if(cleanupGame){cleanupGame();cleanupGame=null;}
+    if(snakeLoop){clearInterval(snakeLoop);snakeLoop=null;}
+    $("#gameStage").innerHTML="";
+    if(activeGame.id==="tic-tac-toe") startTicTacToe();
+    else if(activeGame.id==="snake") startSnake();
+    else if(activeGame.id==="2048") start2048();
+  });
+
   $("#closeGame").addEventListener("click",stopActiveGame);
   $("#gameOverlay").addEventListener("click",e=>{if(e.target===$("#gameOverlay"))stopActiveGame();});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("#gameOverlay").classList.contains("open")&&!document.fullscreenElement)stopActiveGame();});
