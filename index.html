@@ -59,6 +59,16 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   outline-offset: 4px;
 }
 
+#cursorTrail {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  pointer-events: none;
+  display: none;
+}
+
 #particles {
   position: fixed;
   inset: 0;
@@ -1100,6 +1110,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
 
 <canvas id="particles" aria-hidden="true"></canvas>
+<canvas id="cursorTrail" aria-hidden="true"></canvas>
 
 <!-- Sidebar -->
 <nav class="sidebar" aria-label="Main navigation">
@@ -1210,6 +1221,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           <div class="setting-row"><div class="setting-description"><strong>Custom font name</strong><span>Type a font name, including a Google Font such as Space Grotesk.</span></div><div class="font-custom-controls"><input class="field" id="customFontName" type="text" maxlength="60" placeholder="e.g. Space Grotesk" aria-label="Custom font name" autocomplete="off"><button class="settings-action" id="applyCustomFont" type="button">Apply</button></div></div>
           <p class="settings-intro" id="fontStatus">Google Fonts load from Google Fonts. Other fonts must be installed on the device.</p>
           <div class="section-label">Cursor</div>
+          <div class="setting-row"><div class="setting-description"><strong>Cursor particle trail</strong><span>Leave a short-lived particle trail as you move your cursor.</span></div><button class="toggle" id="cursorTrailToggle" role="switch" aria-checked="false" aria-label="Cursor particle trail"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Cursor style</strong><span>Change the pointer across MoonStone, including links, buttons, menus, and browser controls.</span></div><select class="settings-action" id="cursorStyleSelect" aria-label="Cursor style"><option value="default">System default</option><option value="cream">Cream pointer</option><option value="black">Black pointer</option><option value="crosshair">Crosshair</option><option value="pixel">Pixel arrow</option><option value="rainbow">Rainbow cursor</option><option value="custom">Uploaded image</option><option value="link">Image from URL</option></select></div>
           <div class="setting-row"><div class="setting-description"><strong>Upload cursor image</strong><span>Choose a small PNG, GIF, or CUR file. PNG works best.</span></div><div class="font-custom-controls"><label class="settings-action" for="cursorImageUpload">Choose image</label><input id="cursorImageUpload" type="file" accept="image/png,image/gif,image/x-icon,.cur" hidden><button class="settings-action" id="clearCursorImage" type="button">Remove</button></div></div>
           <div class="setting-row" id="cursorUrlRow"><div class="setting-description"><strong>Cursor image URL</strong><span>Paste a direct HTTPS link to a small cursor image (PNG, GIF, or CUR).</span></div><div class="font-custom-controls"><input class="settings-action" id="cursorImageUrl" type="url" inputmode="url" placeholder="https://example.com/cursor.png" aria-label="Cursor image URL"><button class="settings-action" id="applyCursorUrl" type="button">Apply link</button></div></div>
@@ -1381,6 +1393,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     theme: themes.some(t => t.id === savedSettings.theme)
       ? savedSettings.theme : "moonstone",
     particles: savedSettings.particles !== false,
+    cursorTrail: savedSettings.cursorTrail === true,
     animations: savedSettings.animations !== false,
     confirmLeave: savedSettings.confirmLeave !== false,
     cancelLeave: savedSettings.cancelLeave === true,
@@ -1631,6 +1644,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     applySiteFont(settings.siteFont);
     document.body.classList.toggle("no-animations", !settings.animations);
     $("#particleToggle").setAttribute("aria-checked", settings.particles);
+    $("#cursorTrailToggle").setAttribute("aria-checked", settings.cursorTrail);
+    updateCursorTrail();
     $("#animationToggle").setAttribute("aria-checked", settings.animations);
     $("#confirmLeaveToggle").setAttribute("aria-checked", settings.confirmLeave);
     $("#cancelLeaveToggle").setAttribute("aria-checked", settings.cancelLeave);
@@ -1915,6 +1930,12 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     applySettings();
   });
 
+  $("#cursorTrailToggle").addEventListener("click", () => {
+    settings.cursorTrail = !settings.cursorTrail;
+    saveSettings();
+    applySettings();
+  });
+
   $("#animationToggle").addEventListener("click", () => {
     settings.animations = !settings.animations;
     saveSettings();
@@ -2031,6 +2052,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       settings = {
         theme: validThemes.includes(backup.settings.theme) ? backup.settings.theme : "moonstone",
         particles: backup.settings.particles !== false,
+        cursorTrail: backup.settings.cursorTrail === true,
         animations: backup.settings.animations !== false,
         confirmLeave: backup.settings.confirmLeave !== false,
         cancelLeave: backup.settings.cancelLeave === true,
@@ -2055,7 +2077,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
   $("#resetSettingsButton").addEventListener("click", () => {
     if (!window.confirm("Reset MoonStone preferences to their defaults? Your bookmarks will be kept.")) return;
-    settings = {theme:"moonstone",particles:true,animations:true,confirmLeave:true,cancelLeave:false,browserAllowRedirects:false,compactBookmarks:false,dockPosition:"left",dockSpan:"compact",siteFont:"",layout:"classic",cursorStyle:"default",cursorImage:"",cursorImageUrl:""};
+    settings = {theme:"moonstone",particles:true,cursorTrail:false,animations:true,confirmLeave:true,cancelLeave:false,browserAllowRedirects:false,compactBookmarks:false,dockPosition:"left",dockSpan:"compact",siteFont:"",layout:"classic",cursorStyle:"default",cursorImage:"",cursorImageUrl:""};
     saveSettings();
     applySettings();
     $("#settingsDataStatus").textContent = "Preferences reset. Your bookmarks are unchanged.";
@@ -2132,6 +2154,78 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       renderBookmarks();
     }
   });
+
+  /* Optional cursor particle trail */
+  const cursorTrailCanvas = $("#cursorTrail");
+  const cursorTrailCtx = cursorTrailCanvas.getContext("2d");
+  let cursorTrailParticles = [];
+  let cursorTrailFrame = null;
+  let cursorTrailLastFrame = 0;
+
+  function resizeCursorTrail() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    cursorTrailCanvas.width = Math.round(window.innerWidth * dpr);
+    cursorTrailCanvas.height = Math.round(window.innerHeight * dpr);
+    cursorTrailCanvas.style.width = window.innerWidth + "px";
+    cursorTrailCanvas.style.height = window.innerHeight + "px";
+    cursorTrailCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function updateCursorTrail() {
+    cursorTrailCanvas.style.display = settings.cursorTrail && !reducedMotion.matches ? "block" : "none";
+    if (settings.cursorTrail && !reducedMotion.matches) {
+      if (cursorTrailFrame === null) cursorTrailFrame = requestAnimationFrame(drawCursorTrail);
+    } else {
+      if (cursorTrailFrame !== null) cancelAnimationFrame(cursorTrailFrame);
+      cursorTrailFrame = null;
+      cursorTrailParticles = [];
+      cursorTrailCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    }
+  }
+
+  document.addEventListener("pointermove", event => {
+    if (!settings.cursorTrail || reducedMotion.matches || event.pointerType === "touch") return;
+    const color = getComputedStyle(document.body).getPropertyValue("--accent").trim() || "#ff8a24";
+    for (let i = 0; i < 2; i++) {
+      cursorTrailParticles.push({
+        x: event.clientX + (Math.random() - .5) * 8,
+        y: event.clientY + (Math.random() - .5) * 8,
+        r: Math.random() * 2.3 + 1,
+        life: 1,
+        decay: Math.random() * .035 + .025,
+        color
+      });
+    }
+    if (cursorTrailParticles.length > 140) cursorTrailParticles.splice(0, cursorTrailParticles.length - 140);
+  }, {passive:true});
+
+  function drawCursorTrail(timestamp = 0) {
+    if (!settings.cursorTrail || reducedMotion.matches) {
+      updateCursorTrail();
+      return;
+    }
+    cursorTrailFrame = null;
+    if (timestamp - cursorTrailLastFrame >= 24) {
+      cursorTrailLastFrame = timestamp;
+      cursorTrailCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      cursorTrailParticles = cursorTrailParticles.filter(p => p.life > 0);
+      cursorTrailParticles.forEach(p => {
+        p.life -= p.decay;
+        p.r *= .985;
+        cursorTrailCtx.globalAlpha = Math.max(0, p.life) * .85;
+        cursorTrailCtx.fillStyle = p.color;
+        cursorTrailCtx.beginPath();
+        cursorTrailCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        cursorTrailCtx.fill();
+      });
+      cursorTrailCtx.globalAlpha = 1;
+    }
+    cursorTrailFrame = requestAnimationFrame(drawCursorTrail);
+  }
+
+  resizeCursorTrail();
+  window.addEventListener("resize", resizeCursorTrail);
+  reducedMotion.addEventListener?.("change", updateCursorTrail);
 
   /* Lightweight particle background */
 
