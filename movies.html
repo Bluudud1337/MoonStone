@@ -255,10 +255,123 @@ body.no-animations *,body.no-animations *::before,body.no-animations *::after{an
   top: 12px;
   right: 12px;
 }
+
+/* MoonStone editorial redesign: separate visual language from the original source layout */
+:root{--dock-size:62px;--page-gutter:clamp(20px,5.6vw,88px);--ink:var(--text,var(--ink));}
+body{background-image:radial-gradient(ellipse at 78% 2%,color-mix(in srgb,var(--accent) 8%,transparent),transparent 36%);background-attachment:fixed}
+#moonstoneParticles{opacity:.28!important}
+#app{padding-left:92px}
+.moonstone-dock{position:fixed;z-index:45;left:18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:7px;padding:11px 8px;border:1px solid var(--line);border-radius:22px;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(22px) saturate(1.2);box-shadow:0 18px 60px #0003}
+.dock-mark{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:var(--accent);color:var(--bg);font-size:20px;font-weight:800;letter-spacing:-.08em}
+.dock-rule{width:24px;height:1px;background:var(--line);margin:4px 0}
+.dock-item{width:45px;min-height:45px;position:relative;display:grid;place-items:center;border-radius:14px;color:var(--mute);transition:background .2s,color .2s,transform .2s}
+.dock-glyph{font-size:23px;line-height:1}
+.dock-label{position:absolute;left:54px;white-space:nowrap;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel);font-size:11px;opacity:0;pointer-events:none;transform:translateX(-4px);transition:opacity .16s,transform .16s}
+.dock-item:hover .dock-label,.dock-item:focus-visible .dock-label{opacity:1;transform:translateX(0)}
+.dock-item:hover,.dock-item.active{background:var(--panel2);color:var(--ink)}
+.dock-item.active{box-shadow:inset 2px 0 var(--accent)}
+.dock-item:active{transform:scale(.94)}
+#top{position:absolute;inset:0 0 auto 0;margin-left:0;height:88px;padding:0 var(--page-gutter);background:transparent;backdrop-filter:none}
+#top.solid{background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid color-mix(in srgb,var(--line) 65%,transparent)}
+#top .logo{font-size:13px;letter-spacing:.18em;color:var(--ink);font-weight:750}
+#top .logo i{display:none}
+#top .nav{margin-left:auto;gap:5px}
+#top .nav button{padding:10px 13px;color:var(--mute);border-radius:999px;font-size:12px}
+#top .nav button.on{color:var(--ink);background:var(--panel2)}
+#top .right{margin-left:12px;gap:9px}
+#top .ib{border:1px solid var(--line);border-radius:50%;color:var(--ink)}
+#top .me{border:1px solid var(--line);border-radius:999px;padding:5px 10px 5px 5px}
+.hero{min-height:650px;height:min(82vh,850px);align-items:center;padding:130px var(--page-gutter) 100px;isolation:isolate}
+.hero .bg{inset:0;filter:none;transform:none;opacity:.44;background-position:center 30%;mask-image:linear-gradient(90deg,transparent 0%,#000 48%,#000 100%);-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 48%,#000 100%)}
+.hero::after{background:linear-gradient(90deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 90%,transparent) 28%,color-mix(in srgb,var(--bg) 15%,transparent) 72%,var(--bg) 100%),linear-gradient(0deg,var(--bg),transparent 35%,color-mix(in srgb,var(--bg) 12%,transparent))}
+.hero-in{align-items:center;gap:clamp(30px,7vw,110px);max-width:1280px;margin:0 auto}
+.hero-copy{max-width:570px;position:relative;z-index:2}
+.tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:22px}
+.hero h1{font-size:clamp(3.2rem,8vw,7.3rem);font-weight:550;line-height:.92;letter-spacing:-.075em;margin-bottom:24px;max-width:700px}
+.meta{color:var(--mute);gap:13px;font-size:11px;letter-spacing:.04em}
+.meta .m{color:var(--accent)}
+.meta .pill{border-color:var(--line);border-radius:5px}
+.hero p{max-width:470px;color:color-mix(in srgb,var(--ink) 72%,var(--mute));font-size:14px;line-height:1.9;margin:22px 0 28px}
+.btn{border-radius:999px;padding:13px 21px;font-size:12px;font-weight:650}
+.btn-w{background:var(--ink);color:var(--bg)}
+.btn-g{background:color-mix(in srgb,var(--panel) 75%,transparent);color:var(--ink);border:1px solid var(--line);backdrop-filter:blur(12px)}
+.btn-a{background:var(--accent);color:var(--bg)}
+.hero-poster{width:clamp(170px,22vw,280px);border-radius:7px;box-shadow:22px 28px 70px #0008;transform:rotate(2deg);border:1px solid color-mix(in srgb,var(--ink) 12%,transparent)}
+main#rows{margin-top:-65px;padding:0 var(--page-gutter) 90px;max-width:1600px;margin-left:auto;margin-right:auto}
+.row{margin:0 0 44px}
+.row h2{padding:0;margin:0 0 15px;font-size:clamp(15px,1.4vw,19px);font-weight:550;letter-spacing:-.035em}
+.scroller{padding:8px 2px 24px;gap:14px;scroll-padding:0 2px}
+.arrow{width:44px;top:2.3rem;bottom:24px;border:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);border-radius:12px;opacity:0}
+.card{width:var(--card);border-radius:7px}
+.card .poster{border-radius:7px;border:1px solid color-mix(in srgb,var(--ink) 9%,transparent);background:var(--panel)}
+.card:hover,.card:focus-visible{transform:translateY(-5px) scale(1.025)}
+.card .badge{top:9px;left:8px;border-radius:4px;padding:5px 7px;color:var(--bg);background:var(--accent);letter-spacing:.08em;text-transform:uppercase}
+.card .over{inset:0;padding:10px;background:linear-gradient(0deg,#000b,transparent 60%);align-items:flex-end;opacity:0}
+.card .circ{border-color:#fff5}
+.card .t{font-size:12px;margin-top:11px;font-weight:600;color:var(--ink)}
+.card .s{font-size:10px;letter-spacing:.05em}
+.grid{padding:24px 0;gap:30px 16px}
+.grid-h{padding:128px var(--page-gutter) 0;font-size:clamp(27px,4vw,46px);font-weight:550;letter-spacing:-.06em}
+.sug{margin:0;color:var(--mute);font-size:11px}
+footer{padding:28px 0 50px;border-color:var(--line);color:var(--mute);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.back{z-index:70}
+.modal{border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:0 30px 100px #0008}
+.pad p{color:var(--mute)}
+.dhead{border-radius:16px 16px 0 0}
+.circ{border-color:var(--line);background:var(--panel);color:var(--ink)}
+.circ:hover{border-color:var(--accent);background:var(--panel2)}
+.circ.on{background:var(--accent);color:var(--bg)}
+.set h2{padding-top:24px}
+.toast{background:var(--ink);color:var(--bg);border-radius:999px}
+body[data-theme="paper"] .btn-w{background:#171714;color:#eeeade}
+body[data-theme="paper"] .hero p{color:#333}
+body[data-theme="paper"] #top.solid{background:#eeeadeeF}
+body.no-animations .moonstone-dock *,body.calm .moonstone-dock *{transition:none!important}
+@media(max-width:760px){
+ #app{padding-left:0;padding-bottom:85px}
+ #top{height:68px;padding:0 18px;gap:8px}
+ #top .logo{font-size:11px}
+ #top .nav{display:none}
+ #top .right{margin-left:auto}
+ #top .me span{display:none}
+ .moonstone-dock{left:50%;top:auto;bottom:12px;transform:translateX(-50%);flex-direction:row;gap:4px;padding:7px 9px;border-radius:19px;max-width:calc(100vw - 22px)}
+ .dock-mark{width:36px;height:36px;border-radius:12px;font-size:17px}
+ .dock-rule{width:1px;height:23px;margin:0 2px}
+ .dock-item{width:38px;min-height:38px;border-radius:12px}
+ .dock-glyph{font-size:20px}
+ .dock-label{display:none}
+ .hero{height:auto;min-height:630px;padding:115px 22px 105px;align-items:flex-end}
+ .hero .bg{inset:20px 0 0;opacity:.32;mask-image:linear-gradient(180deg,#000,transparent 100%);-webkit-mask-image:linear-gradient(180deg,#000,transparent 100%)}
+ .hero-in{gap:12px}
+ .hero-poster{display:none}
+ .hero h1{font-size:clamp(3.4rem,17vw,5.5rem)}
+ .hero p{font-size:13px;line-height:1.75}
+ main#rows{padding:0 22px 40px;margin-top:-50px}
+ .row{margin-bottom:32px}
+ .row h2{font-size:15px}
+ .scroller{gap:10px}
+ .card{width:min(var(--card),39vw)}
+ .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px 9px}
+ .grid .card{width:auto}
+ .grid-h{padding:95px 22px 0}
+}
+@media(max-width:390px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{min-height:590px}.dock-item{width:35px}.moonstone-dock{gap:2px}}
+
 </style>
 </head>
 <body data-layout="pc" data-card="m">
 <canvas id="moonstoneParticles" aria-hidden="true" style="position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.55"></canvas>
+<nav class="moonstone-dock" id="moonstoneDock" aria-label="MoonStone dock">
+  <a class="dock-mark" href="index.html" aria-label="MoonStone home" title="MoonStone home">M</a>
+  <span class="dock-rule"></span>
+  <button class="dock-item active" data-dock-view="home" aria-label="Discover" title="Discover"><span class="dock-glyph">⌂</span><span class="dock-label">Discover</span></button>
+  <button class="dock-item" data-dock-view="movie" aria-label="Movies" title="Movies"><span class="dock-glyph">▤</span><span class="dock-label">Movies</span></button>
+  <button class="dock-item" data-dock-view="show" aria-label="Series" title="Series"><span class="dock-glyph">▥</span><span class="dock-label">Series</span></button>
+  <button class="dock-item" data-dock-view="list" aria-label="Saved titles" title="Saved titles"><span class="dock-glyph">♡</span><span class="dock-label">Saved</span></button>
+  <span class="dock-rule"></span>
+  <button class="dock-item" id="dockSearch" aria-label="Search" title="Search"><span class="dock-glyph">⌕</span><span class="dock-label">Search</span></button>
+  <button class="dock-item" id="dockSettings" aria-label="Movie settings" title="Movie settings"><span class="dock-glyph">⚙</span><span class="dock-label">Settings</span></button>
+</nav>
 
 <section id="gate" class="gate">
   <div>
@@ -714,6 +827,16 @@ fullscreenBtn.addEventListener("click", async () => {
     toast("Fullscreen is not available here.");
   }
 });
+
+/* ---------- MoonStone dock + homepage settings bridge ---------- */
+function setDockActive(next){document.querySelectorAll("[data-dock-view]").forEach(b=>b.classList.toggle("active",b.dataset.dockView===next))}
+document.getElementById("moonstoneDock").addEventListener("click",e=>{
+ const b=e.target.closest("[data-dock-view]");
+ if(b){view=b.dataset.dockView;$("#q").value="";render();setDockActive(view);scrollTo({top:0,behavior:document.body.classList.contains("no-animations")?"auto":"smooth"});return}
+ if(e.target.closest("#dockSearch")){$("#search").classList.add("open");$("#q").focus();return}
+ if(e.target.closest("#dockSettings"))$("#settingsBtn").click();
+});
+
 /* ---------- shared MoonStone homepage settings ---------- */
 let moonstoneParticleFrame=0,moonstoneParticleDots=[];
 function setMoonStoneParticles(enabled){
@@ -731,6 +854,17 @@ function applyMoonStoneSettings(){
   const themeNames=["moonstone","moonlight","midnight","terminal","garnet","paper","flowery","astralsync","halloween","frogies","eclipse","void-purple","void-white"];
   document.body.dataset.theme=themeNames.includes(prefs.theme)?prefs.theme:"moonstone";
   document.body.classList.toggle("calm",prefs.animations===false);
+  document.body.dataset.cursor=prefs.cursorStyle||"default";
+  document.body.classList.toggle("dock-bottom",prefs.dockPosition==="bottom");
+  document.body.classList.toggle("dock-right",prefs.dockPosition==="right");
+  document.body.classList.toggle("dock-left",!prefs.dockPosition||prefs.dockPosition==="left");
+  document.body.classList.toggle("dock-span-full",prefs.dockFullHeight===true);
+  document.body.classList.toggle("sidebar-pushed",prefs.dockHidden===true);
+  if(prefs.wallpaperUrl && /^https?:\/\//i.test(prefs.wallpaperUrl)){
+    document.body.style.backgroundImage='linear-gradient(color-mix(in srgb,var(--bg) 80%,transparent),color-mix(in srgb,var(--bg) 90%,transparent)),url("'+prefs.wallpaperUrl.replace(/["\\]/g,"")+'")';
+    document.body.style.backgroundSize="cover";document.body.style.backgroundAttachment="fixed";
+  }else{document.body.style.backgroundImage="";}
+  if(prefs.accent && /^#[0-9a-f]{3,8}$/i.test(prefs.accent))document.documentElement.style.setProperty("--accent",prefs.accent);
   if(prefs.siteFont&&/^[a-zA-Z0-9 _-]{1,60}$/.test(prefs.siteFont)){
     document.documentElement.style.setProperty("--site-font",'"'+prefs.siteFont+'", Inter, ui-sans-serif, system-ui, sans-serif');
     const prior=document.getElementById("moonstoneMoviesFont");if(prior)prior.remove();
@@ -747,6 +881,7 @@ function applyMoonStoneSettings(){
   else if(prefs.cursorStyle==="link"&&prefs.cursorImageUrl)document.body.style.cursor='url("'+prefs.cursorImageUrl+'") 2 2, auto';
 }
 window.addEventListener("storage",e=>{if(e.key==="moonstone-settings")applyMoonStoneSettings()});
+window.addEventListener("pageshow",applyMoonStoneSettings);
 /* ---------- init ---------- */
 applyMoonStoneSettings();applySettings();renderProfiles();
 if(me&&profiles.some(p=>p.id===me))chooseProfile(me);else localStorage.removeItem("coralflix-profile");
