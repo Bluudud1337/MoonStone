@@ -155,6 +155,7 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
 <main>
   <div class="toolbar">
     <label class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/></svg><input id="gameSearch" type="search" placeholder="Search through games..." autocomplete="off" aria-label="Search games"></label>
+    <div class="count" id="gameCount" aria-live="polite">156 games</div>
   </div>
   <section class="section" aria-label="Game library">
     <div class="game-grid" id="gameGrid"></div>
@@ -197,9 +198,944 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
     if (event.key === "moonstone-settings" || event.key === null) applySharedTheme();
   });
   // Add games here. Each object needs only a title, link, and image.
-  const games = [
-    { Title: "Slope", Link: "https://moonstone-sandy.vercel.app/games/slope.html", Img: "https://imgs.search.brave.com/300wu4toPKaQQJUvaytsj8Hr8dqstYhOKRBle4TXEp8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9taXIt/czMtY2RuLWNmLmJl/aGFuY2UubmV0L3By/b2plY3RzLzQwNC80/OTI5MjExODMwNjYx/MTEuWTNKdmNDdzVN/akFzTnpJd0xERTRN/Q3d3LmpwZw" },
-  ];
+  const games =     [
+      {
+        Title: "Slope",
+        Link: "https://moonstone-sandy.vercel.app/games/slope.html",
+        Img: "https://imgs.search.brave.com/300wu4toPKaQQJUvaytsj8Hr8dqstYhOKRBle4TXEp8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9taXIt/czMtY2RuLWNmLmJl/aGFuY2UubmV0L3By/b2plY3RzLzQwNC80/OTI5MjExODMwNjYxMTEuWTNKdmNDdzVNakFzTnpJd0xERTRNQ3d3LmpwZw"
+      },
+      {
+        Title: "Krunker.io",
+        Link: "https://krunker.io/",
+        Img: "https://krunker-io.io/krunker-io-icon.jpg",
+        Category: "Shooter"
+      },
+      {
+        Title: "Agar.io",
+        Link: "https://agar.io/",
+        Img: "https://paperiogame.io/data/image/game/agario.png",
+        Category: "IO"
+      },
+      {
+        Title: "Slither.io",
+        Link: "https://slither.io/",
+        Img: "https://media.pocketgamer.com/artwork/na-kcwl/image_jpeg_820.jpg",
+        Category: "IO"
+      },
+      {
+        Title: "Shell Shockers",
+        Link: "https://shellshock.io/",
+        Img: "https://slopegame.io/upload/imgs/shell-shockers-logo.jpg",
+        Category: "Shooter"
+      },
+      {
+        Title: "Diep.io",
+        Link: "https://diep.io/",
+        Img: "https://tse2.mm.bing.net/th/id/OIP.SoA7WalxosSMghPoFU8xUQAAAA",
+        Category: "IO"
+      },
+      {
+        Title: "Tag",
+        Link: "https://htmlxm.github.io/h3/tag/",
+        Img: "https://cdn-1.webcatalog.io/catalog/poki-tag/poki-tag-icon-filled-256.png",
+        Category: "Action"
+      },
+      {
+        Title: "Sonic 2 Heroes",
+        Link: "https://playsonicgames.com/embed/sonic-2-heroes.html",
+        Img: "https://i.ytimg.com/vi/6l0yZTA_W84/maxresdefault.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Rush",
+        Link: "https://c930n.github.io/seraph/games/sonicrush/index.html",
+        Img: "https://tse3.mm.bing.net/th/id/OIP.7bzWQQqYtOXGFyuxhFHgiwHaEK?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Maxidrive",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=sonic-maxidrive.bin",
+        Img: "https://kbhgames.com/wp-content/uploads/2023/12/Sonic-Maxidrive.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Scorched Quest",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=sonic-scorched-quest.gen",
+        Img: "https://i.ytimg.com/vi/ah9gyZhkU_8/maxresdefault.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic 2",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=Sonic%20The%20Hedgehog%202.gen",
+        Img: "https://th.bing.com/th/id/R.7d0aa2470f4f090efd76d71f590b1f95?rik=zSXD2%2ffCn0Bzyg&pid=ImgRaw&r=0",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic 3",
+        Link: "https://c930n.github.io/seraph/games/sonicthehedgehog3/index.html",
+        Img: "https://cdn2.steamgriddb.com/file/sgdb-cdn/icon_thumb/9b38965364330406f2af50c5bac6b5cf.png",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic CD",
+        Link: "https://www.play-games.com/iframe/28919.html",
+        Img: "https://tse3.mm.bing.net/th/id/OIP.nEHHzXyQDMSLuTBjEtCUdQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Mania",
+        Link: "https://math.leaning.cfd/g/assets/gn-games/590.html",
+        Img: "https://image.api.playstation.com/cdn/UP0177/CUSA07023_00/pvfMACRlDW27Agp9HjDxL8CcmqxZL1V5.png",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Advance",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=gba&f=sonic-advance.gba",
+        Img: "https://cdn.mobygames.com/covers/4089338-sonic-advance-game-boy-advance-front-cover.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Advance 2",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=gba&f=sonic-advance-2.gba",
+        Img: "https://e.snmc.io/lk/lv/x/f10daace6aa56d5e48288417068f28b2/5277738",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Advance 3",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=gba&f=sonic-advance-3.gba",
+        Img: "https://cdn.mobygames.com/covers/5596618-sonic-advance-3-game-boy-advance-front-cover.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Metal Sonic Hyperdrive",
+        Link: "https://playsonicgames.com/embed/metal-sonic-hyperdrive.html",
+        Img: "https://i.ytimg.com/vi/G0llD0Zz9ZA/maxresdefault.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Metal Sonic Rebooted",
+        Link: "https://playsonicgames.com/embed/metal-sonic-rebooted.html",
+        Img: "https://i.ytimg.com/vi/k19ujv5L-UQ/maxresdefault.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic HellFire Saga",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=HellfireSaga_Final_30_01_23.gen",
+        Img: "https://i.ytimg.com/vi/0_MqWt8PH5c/maxresdefault.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Classic Heroes",
+        Link: "https://playsonicgames.com/embed/sonic-classic-heroes.html",
+        Img: "https://www.jogosonlinewx.com.br/wp-content/uploads/2024/07/hq720-1.webp",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Hex Adventure",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=SHA_FINAL_BUILD.bin",
+        Img: "https://www.y9freegames.com/wp-content/uploads/thumbs/custom/S/Sonic-Hex-Adventure.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic VR",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=SonicVR.gen",
+        Img: "https://cdn.thegamesdb.net/images/original/boxart/front/130171-1.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Robo Blast",
+        Link: "https://theregoestokyo0.github.io/srb2web/",
+        Img: "https://1.bp.blogspot.com/-rufQX4uCgas/XwZNbaYMS2I/AAAAAAAAEmI/Jgi1KraZn4gg0Ln67rPJBRvVCeb7y2kngCLcBGAsYHQ/s1600/Sonic%2BRobo%2BBlast%2B2.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Zeta Overdrive",
+        Link: "https://playsonicgames.com/embed/sonic-zeta-overdrive.html",
+        Img: "https://i.ytimg.com/vi/mPduuNj4SU8/maxresdefault.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Renovation",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=sonic-renovation.bin",
+        Img: "https://tse4.mm.bing.net/th/id/OIP.YVqMm5vPGyQSneAOVbhe_QHaGX?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Battle Race",
+        Link: "https://playsonicgames.com/embed/sonic-2-battle-race.html",
+        Img: "https://www.y9freegames.com/wp-content/uploads/2025/12/Sonic-2-Battle-Race-150x150.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Acceleration",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=sonic-acceleration.bin",
+        Img: "https://i.ytimg.com/vi/vcpB1OZr1GY/maxresdefault.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic HackAble",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=sonic-the-hackable2021.bin",
+        Img: "https://www.y9freegames.com/wp-content/uploads/thumbs/custom/S/Sonic-the-Hackable.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic EraZor",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=sonic-erazor7.bin",
+        Img: "https://i.ytimg.com/vi/d8RCeawts5A/maxresdefault.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Agx",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=Sonic%20The%20Hedgehog%20AGX%20First%20Public%20Release.bin",
+        Img: "https://i.ytimg.com/vi/8PM15gqzUZA/maxresdefault.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Rocket",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=Sonic_The_Hedgehog_Rocket.gen",
+        Img: "https://th.bing.com/th/id/OIP.5NSlOO3DE--oiRPL-mpY_wEsCo?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Dragon Edition",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=sonic-dragon.gen",
+        Img: "https://i.ytimg.com/vi/Dp7I6OUrTfA/maxresdefault.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Robotnik Returns 2",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=Robotnik_Returns_2.gen",
+        Img: "https://tse3.mm.bing.net/th/id/OIP.8SsqVXaOJN1LsALriJbABwHaEK?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic SMD",
+        Link: "https://www.retrogames.cc/embed/46697-shc2024-sonic-smd.html",
+        Img: "https://tse2.mm.bing.net/th/id/OIP.MgwojY4Xq7cuT8grd271dAAAAA?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic 3 & Knuckles Battle Race",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=sonic-3-knuckles-battle-race.gen",
+        Img: "https://i.ytimg.com/vi/U2aa8pXuu9Q/hqdefault.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic 4 CNOB",
+        Link: "https://sonicgames.org/embed/sonic-4-cybernetic-outbreak",
+        Img: "https://tse2.mm.bing.net/th/id/OIP.NZO0IFJ0e03_fQdl9bYtJQAAAA?w=420&h=280&rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic 2 Return of Shadow",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=sonic-2-return-of-shadow.bin",
+        Img: "https://images.launchbox-app.com/29d5f6df-6a94-409d-a454-96e4563adaae.jpg",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic 1 Tag Team",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=sonic-1-tag-team-adventure.bin",
+        Img: "https://th.bing.com/th/id/OIP.S4fA7yOowqsYLKyahRGB_gAAAA?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Sonic"
+      },
+      {
+        Title: "Sonic Megadriven",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=sonic-the-hedgehog-megadriven-demo3.bin",
+        Img: "https://tse1.mm.bing.net/th/id/OIP.0YWhHnE8apAv3gtGEI2z4AHaEK?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Sonic"
+      },
+      {
+        Title: "Moto X3M",
+        Link: "https://motox3munblocked.github.io/",
+        Img: "https://rideable.org/wp-content/uploads/2023/11/moto-x3m-unblocked.jpg",
+        Category: "Racing"
+      },
+      {
+        Title: "G-Switch",
+        Link: "https://unblockedgamesfree.github.io/g-switch-3/",
+        Img: "https://img.poki.com/cdn-cgi/image/quality=78,width=600,height=600,fit=cover,g=0.5x0.5,f=auto/7f53593c-4090-4cc5-a934-6a5e599d8eaa.png",
+        Category: "Arcade"
+      },
+      {
+        Title: "Tunnel Rush",
+        Link: "https://unblocked-games-67.org/iframes/tunnel-rush-main/",
+        Img: "https://unblocked-game66.com/wp-content/uploads/2024/03/tunnel-rush.png",
+        Category: "Arcade"
+      },
+      {
+        Title: "Hyper Tunnel",
+        Link: "https://gamea.azgame.io/hyper-tunnel/",
+        Img: "https://ozgames.io/cache/data/image/game/Hyper-Tunnel-m160x96.JPG",
+        Category: "Arcade"
+      },
+      {
+        Title: "Slope Tunnel",
+        Link: "https://unblocked-games-67.org/iframes/slope-tunnel-main/",
+        Img: "https://tunnelrush3d.com/cache/data/image/game/slope-tunnel1-m300x300.jpg",
+        Category: "Arcade"
+      },
+      {
+        Title: "Escape Road",
+        Link: "https://azgames.io/game/escape-road/",
+        Img: "https://traffic-rider.io/data/image/game/escaperoad.jpg",
+        Category: "Racing"
+      },
+      {
+        Title: "SpeedStars",
+        Link: "https://thepercentcalculator.com/playgame/speedstars/",
+        Img: "https://oss.speedstars.im/game-img/speed-stars-1.webp",
+        Category: "Racing"
+      },
+      {
+        Title: "1v1.lol",
+        Link: "https://1v1lol-unblocked-free.github.io/",
+        Img: "https://1v1lolunblocked.org/files/images/1v1lol-350x350.jpg",
+        Category: "Shooter"
+      },
+      {
+        Title: "Subway Surfers",
+        Link: "https://c930n.github.io/seraph/games/subwaysurfers/index.html",
+        Img: "https://play-lh.googleusercontent.com/q3fXz4jcMPIjLh2bICiRFRHHZTL3iSrA6jqynI6JNcCGnN7uA7l1-QepJjd63bm3k0Y",
+        Category: "Arcade"
+      },
+      {
+        Title: "Retro Bowl",
+        Link: "https://retro-bowl-unblocked.com/game",
+        Img: "https://r2.fizzerz.com/game-source/retro-bowl/icon.webp",
+        Category: "Sports"
+      },
+      {
+        Title: "Basketball Stars",
+        Link: "https://unblockedgamesfree.github.io/basketball-stars/",
+        Img: "https://r2.fizzerz.com/game-source/basketball-stars/icon.webp",
+        Category: "Sports"
+      },
+      {
+        Title: "Basketball Random",
+        Link: "https://ubg67.gitlab.io/basket-random/",
+        Img: "https://unblockedrush.com/wp-content/uploads/2025/09/basket-random.webp",
+        Category: "Sports"
+      },
+      {
+        Title: "Soccer Random",
+        Link: "https://ubg67.gitlab.io/soccer-random/",
+        Img: "https://ubg67.gitlab.io/assets/upload/ubg67org/soccer-random.png",
+        Category: "Sports"
+      },
+      {
+        Title: "Boxing Random",
+        Link: "https://ubg67.gitlab.io/boxing-random/",
+        Img: "https://images.sftcdn.net/images/t_app-cover-l,f_auto/p/21f6d42f-18ce-450e-9626-0a283cdd45c3/3487339502/boxing-random-screenshot.png",
+        Category: "Sports"
+      },
+      {
+        Title: "Volley Random",
+        Link: "https://rycellgames.github.io/raw/games/volleyrandom/index.html",
+        Img: "https://tse4.mm.bing.net/th/id/OIP.MA3NsAVZ-mCVcOvwVsv9aQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Sports"
+      },
+      {
+        Title: "Basket Bros",
+        Link: "https://iframe.unblocked-76-games.org/basket-bros-main/",
+        Img: "https://tse2.mm.bing.net/th/id/OIP.hKZHbFV9hitcpsUbWoNJAwHaFj?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Sports"
+      },
+      {
+        Title: "Pac-Man",
+        Link: "https://pacman.gamestores.fun/",
+        Img: "https://brutalgamer.com/wp-content/uploads/2015/05/PAC-MAN_Icon.jpg",
+        Category: "Classic"
+      },
+      {
+        Title: "Cookie Clicker",
+        Link: "https://jasongamesdev.github.io/cookie-clicker/",
+        Img: "https://cdn2.steamgriddb.com/icon/806c0bf65a5cc8e89564ac7391bb3f76/32/256x256.png",
+        Category: "Casual"
+      },
+      {
+        Title: "Infinite Craft",
+        Link: "https://infinitecraftnew.com/infinite-craft/",
+        Img: "https://tse1.mm.bing.net/th/id/OIP.KoctmhK3esztcugH73hmnQHaEK?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Casual"
+      },
+      {
+        Title: "BitLife",
+        Link: "https://gameinclassroom.github.io/bitlife/",
+        Img: "https://www.gamenora.com/upload/games/thumbnails/BitLife%20Real%20Life%20Simulator.webp",
+        Category: "Casual"
+      },
+      {
+        Title: "Poly Track",
+        Link: "https://www.kodub.com/apps/polytrack",
+        Img: "https://poki.us.org/wp-content/uploads/2025/07/Poly-Track.jpg",
+        Category: "Racing"
+      },
+      {
+        Title: "Roblox",
+        Link: "https://71.ip.nowgg.fun/apps/a/19900/b.html",
+        Img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Roblox_Corporation_2025_logo.svg/250px-Roblox_Corporation_2025_logo.svg.png",
+        Category: "Adventure"
+      },
+      {
+        Title: "People Playground",
+        Link: "https://bplus-math.github.io/iframe/194-a.html",
+        Img: "https://images.gog-statics.com/5ffaf8774afa96332c101594d9046271d002b90bc1e2ba1fd1ed3d4da2f8d8df.jpg",
+        Category: "Sandbox"
+      },
+      {
+        Title: "Solar Smash",
+        Link: "https://solarsmashonline.com/play/solar-smash/",
+        Img: "https://gogamego.io/wp-content/uploads/2025/08/solar-smash.webp",
+        Category: "Sandbox"
+      },
+      {
+        Title: "Pixel Speedrun",
+        Link: "https://files.rocketgames.io/uploads/games/p/pixel-speedrun/files/85bc97/index.html",
+        Img: "https://tse2.mm.bing.net/th/id/OIP.gP6ysHWWmM74-Y4FwqqfwQHaEP?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Arcade"
+      },
+      {
+        Title: "Death Run 3D",
+        Link: "https://23azostore.github.io/s7/death-run-3d/",
+        Img: "https://unblockedrush.com/wp-content/uploads/2025/08/death-run-3d-cleaned.webp",
+        Category: "Arcade"
+      },
+      {
+        Title: "Cluster Rush",
+        Link: "https://jasongamesdev.github.io/cluster-rush/",
+        Img: "https://doodle-jump.co/data/image/game/cluster-rush.png",
+        Category: "Arcade"
+      },
+      {
+        Title: "Tap Road",
+        Link: "https://jasongamesdev.github.io/tap-road/",
+        Img: "https://snow-rider3d.io/data/image/game/tap-road.jpg",
+        Category: "Arcade"
+      },
+      {
+        Title: "Snow Rider 3D",
+        Link: "https://snowriderx.github.io/snowrider3d/index.html",
+        Img: "https://snow-rider3d.io/data/image/game/snow-rider-3d-unblocked/snow-rider-3d-unblocked.jpg",
+        Category: "Sports"
+      },
+      {
+        Title: "Geometry Dash Lite",
+        Link: "https://ubg76.gitlab.io/geometry-dash-lite/",
+        Img: "https://tse1.mm.bing.net/th/id/OIP.Xn_URdu2VFU43Hl9grWhugAAAA?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Arcade"
+      },
+      {
+        Title: "Geometry Dash Remastered",
+        Link: "https://ubgwtf.gitlab.io/geometry-dash-remastered/",
+        Img: "https://geometrydashbreeze.com/upload/cache/upload/imgs/geometry-dash-remastered-m240x240.jpg",
+        Category: "Arcade"
+      },
+      {
+        Title: "Level Devil",
+        Link: "https://www.leveldevilfull.com/play/level-devil/",
+        Img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3242750/a78a03f1047a590e6b9b0360ec361924d7f98959/capsule_616x353.jpg?t=1743000677",
+        Category: "Platformer"
+      },
+      {
+        Title: "Pizza Tower",
+        Link: "https://math.leaning.cfd/g/assets/gn-games/267.html",
+        Img: "https://img.gg.deals/91/bc/8d13bc0d02ba4006283cfc6206fd23e267b4_912cr485.jpg",
+        Category: "Platformer"
+      },
+      {
+        Title: "Fancy Pants",
+        Link: "https://23azostore.github.io/s4/fancy-pants/",
+        Img: "https://th.bing.com/th/id/OIP.NmIPDnCJRQazLP46jY8FEQHaHa?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Platformer"
+      },
+      {
+        Title: "Red Ball 4",
+        Link: "https://iframe.unblocked-76-games.org/red-ball-4-main/",
+        Img: "https://th.bing.com/th/id/R.a43b23686213c36ed4e704e71dc7cb33?rik=64OLEqYIQ%2fELFA&pid=ImgRaw&r=0",
+        Category: "Platformer"
+      },
+      {
+        Title: "FireBoy & WaterGirl",
+        Link: "https://iframe.unblocked-76-games.org/fireboy-and-watergirl-1-forest-temple-main/",
+        Img: "https://play-lh.googleusercontent.com/6N_ON50BZiEAe-ll2lM92NrVrgp5I5Ha6VI0a4Usw7uPmgEjL6tgJR6jWYUkkYgx2LM",
+        Category: "Platformer"
+      },
+      {
+        Title: "Stickman Hook",
+        Link: "https://map-l.github.io/play/stickmanhook/",
+        Img: "https://tse1.mm.bing.net/th/id/OIP.UEKMsdk-eU43lfHA0j9naQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Platformer"
+      },
+      {
+        Title: "Tanuki Sunset",
+        Link: "https://class6x.gitlab.io/tanuki-sunset/",
+        Img: "https://boygames.io/wp-content/uploads/2025/09/Tanuki-sunset-UNBLOCKED.png",
+        Category: "Casual"
+      },
+      {
+        Title: "Crossy Road",
+        Link: "https://classroom8.github.io/crossy-road/",
+        Img: "https://cdn.jim-nielsen.com/ios/1024/crossy-road-2022-05-13.png",
+        Category: "Arcade"
+      },
+      {
+        Title: "Temple Run",
+        Link: "https://nf00008.ourcrazysites.com/gg/temple-run/",
+        Img: "https://www.coolmathgameskids.com/wp-content/uploads/2021/01/temple-run-2.jpg",
+        Category: "Arcade"
+      },
+      {
+        Title: "Google Snake",
+        Link: "https://googlesnakemods.com/v/current/",
+        Img: "https://googlesnakemods.com/img/snake_logo.png",
+        Category: "Classic"
+      },
+      {
+        Title: "Google Baseball",
+        Link: "https://jasongamesdev.github.io/doodle-baseball/",
+        Img: "https://google-doodlebaseball.github.io/data/image/game/googlebaseball.png",
+        Category: "Sports"
+      },
+      {
+        Title: "Google Champion Island",
+        Link: "https://sudoku-online.github.io/a7/doodle-champion-island/",
+        Img: "https://www.unblockedgame.io/wp-content/uploads/2023/06/gci.jpg",
+        Category: "Adventure"
+      },
+      {
+        Title: "Uno",
+        Link: "https://db.quackprep.org/html/uno/",
+        Img: "https://th.bing.com/th/id/R.52f881f709924f58c801dc9dde7da9c0?rik=3lyQUpIZ%2bOS3Eg&pid=ImgRaw&r=0",
+        Category: "Card"
+      },
+      {
+        Title: "Stickman Duelist",
+        Link: "https://g2.igroutka.ru/lib/crazy/games/stickman-clash/",
+        Img: "https://th.bing.com/th/id/R.5b7c93faa5129b6fb26eead553d4e23e?rik=19Y3PgOvVMJaLg&pid=ImgRaw&r=0",
+        Category: "Fighting"
+      },
+      {
+        Title: "Stick Fighter",
+        Link: "https://unblocked-games-67.org/iframes/stick-fighter-main/",
+        Img: "https://th.bing.com/th/id/OIP.K5trUixMfBrO_9SAeNhWugHaHa?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Fighting"
+      },
+      {
+        Title: "UltraKill",
+        Link: "https://map-l.github.io/play/ultrakill/",
+        Img: "https://gamerjournalist.com/wp-content/uploads/2023/01/ultrakill-feature-1.jpg?resize=1024",
+        Category: "Shooter"
+      },
+      {
+        Title: "DeadShot",
+        Link: "https://deadshot.io",
+        Img: "https://static.wixstatic.com/media/a66f14_326c2e5c3a3b4a19be93963e7e2a443e~mv2.webp",
+        Category: "Shooter"
+      },
+      {
+        Title: "Killstreak",
+        Link: "https://math.demon.in.net/game/killstreak.html",
+        Img: "https://trampoline.turbowarp.org/thumbnails/915122508",
+        Category: "Shooter"
+      },
+      {
+        Title: "FnF",
+        Link: "https://fnf.kdata1.com/2024/fnf/5000/",
+        Img: "https://tse4.mm.bing.net/th/id/OIP.NKqfrjuDg1GNk3IZvY_biAAAAA?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "FnF"
+      },
+      {
+        Title: "FnF Tricky",
+        Link: "https://fnf.run3.io/tricky/1/",
+        Img: "https://tse1.mm.bing.net/th/id/OIP.d2iEQ2jo3-RYTg9hRnBX_gHaFh?cb=defcache2defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "FnF"
+      },
+      {
+        Title: "FnF Kapi",
+        Link: "https://fnf.kdata1.com/kapi-arcade-showdown/2/",
+        Img: "https://i.pinimg.com/originals/3a/b4/6b/3ab46b3cb789406d2d5fe4241fcd7f7e.gif",
+        Category: "FnF"
+      },
+      {
+        Title: "FnF Whitty",
+        Link: "https://mod.fnfhub.net/24905/",
+        Img: "https://images.gamebanana.com/img/ss/mods/602ad2dd9c20e.jpg",
+        Category: "FnF"
+      },
+      {
+        Title: "FnF Mario Madness v2",
+        Link: "https://mod.fnfhub.net/27062/",
+        Img: "https://www.fnfgo.com/wp-content/uploads/2024/05/fnf-mario-madness.jpg",
+        Category: "FnF"
+      },
+      {
+        Title: "FnF Shucks",
+        Link: "https://mod.fnfhub.net/27472/",
+        Img: "https://i.ytimg.com/vi/d5Gp0EsktNI/maxresdefault.jpg",
+        Category: "FnF"
+      },
+      {
+        Title: "FnF Mid Fight",
+        Link: "https://fnf.run3.io/midfight/2/",
+        Img: "https://i1.sndcdn.com/artworks-UfzAwNw2wehZw0g0-zx7tQQ-t500x500.png",
+        Category: "FnF"
+      },
+      {
+        Title: "FnF Rivals",
+        Link: "https://static.fnfgaming.com/file/h5games/onlinegames/games/2025/q2/friday-night-funkin-rivals/index.html",
+        Img: "https://fnf-games.io/data/image/game/fnf-rivals/fnf-rivals.jpeg",
+        Category: "FnF"
+      },
+      {
+        Title: "FnF Spirits of Hell V2",
+        Link: "https://static.fnfgaming.com/file/h5games/onlinegames/games/2023/q3/friday-night-funkin-spirits-of-hell-v2-sonic/index.html",
+        Img: "https://i1.sndcdn.com/artworks-cIgWJkCA9Ers2F6l-S6d4AQ-t1080x1080.jpg",
+        Category: "FnF"
+      },
+      {
+        Title: "FnF Rodentrap",
+        Link: "https://static.fnfgaming.com/file/h5games/onlinegames/games/2025/q2/friday-night-funkin-rodentrap-sonic-legacy/index.html",
+        Img: "https://kbhgames.com/wp-content/uploads/2024/03/FNF-Sonic-Legacy-RodentRap.png",
+        Category: "FnF"
+      },
+      {
+        Title: "FnF Accelerant Hank",
+        Link: "https://static.fnfgaming.com/file/h5games/onlinegames/games/2025/q2/friday-night-funkin-accelerant-hank/index.html",
+        Img: "https://th.bing.com/th/id/OIP.m5Hij_4ub8XFaQJRKy5inwHaG6?w=162&h=180&c=7&r=0&o=7&pid=1.7&rm=3",
+        Category: "FnF"
+      },
+      {
+        Title: "FNAF",
+        Link: "https://fnaf1.io/fnaf-1.embed",
+        Img: "https://fnaf1.io/cache/data/image/game/fnaf-1-f185x115.jpg",
+        Category: "Horror"
+      },
+      {
+        Title: "FNAF 2",
+        Link: "https://run3.io/popgame/fnaf/fnaf2.html",
+        Img: "https://th.bing.com/th/id/R.36d219819fa9df37a0e415e9873ebea4?rik=GRxp7sWHDLYEgA&pid=ImgRaw&r=0",
+        Category: "Horror"
+      },
+      {
+        Title: "FNAF 3",
+        Link: "https://run3.io/popgame/fnaf/fnaf3.html",
+        Img: "https://th.bing.com/th/id/R.a70c4d0e845b2de77dc85a45cea0a4ab?rik=XQ%2f%2fZRS06SnuzA&pid=ImgRaw&r=0",
+        Category: "Horror"
+      },
+      {
+        Title: "FNAF 4",
+        Link: "https://run3.io/popgame/fnaf/fnaf4.html",
+        Img: "https://tse3.mm.bing.net/th/id/OIP.WwpqmzOebGsUs6AXt1P9kQHaHd?cb=defcache2defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Horror"
+      },
+      {
+        Title: "Granny",
+        Link: "https://facade.myaddr.dev/!!/https://cdn.jsdelivr.net/gh/gn-math/html@main/90.htmlv",
+        Img: "https://nargames.com/storage/uploads/thumbs/granny.webp",
+        Category: "Horror"
+      },
+      {
+        Title: "Baldi's Basics",
+        Link: "https://baldisbasics.gitlab.io/file/",
+        Img: "https://geometrydash.io/data/image/baldis-basics.jpg",
+        Category: "Horror"
+      },
+      {
+        Title: "Bendy & Ink Machine",
+        Link: "https://facade.myaddr.dev/!!/https://cdn.jsdelivr.net/gh/gn-math/html@main/215.html",
+        Img: "https://image.api.playstation.com/vulcan/ap/rnd/202505/0123/d1f5b1636c6c3ecf8f75eba464dfbc74b7598e82a9ce8a6e.png",
+        Category: "Horror"
+      },
+      {
+        Title: "Happy Wheels",
+        Link: "https://facade.myaddr.dev/!!/https://cdn.jsdelivr.net/gh/gn-math/html@main/624.html",
+        Img: "https://tse4.mm.bing.net/th/id/OIP.XoXLWqfQ3huF31UGCRxXpgHaEK?cb=defcache2defcache=1&rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Action"
+      },
+      {
+        Title: "Ragdoll Hit",
+        Link: "https://class6x.gitlab.io/ragdoll-hit/",
+        Img: "https://class6x.gitlab.io/assets/upload/classroom6x/jpg/ragdoll-hit.jpg",
+        Category: "Action"
+      },
+      {
+        Title: "Pokemon Emerald",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=gba&f=pokemon-emerald.gba",
+        Img: "https://archives.bulbagarden.net/media/upload/thumb/6/65/Emerald_EN_boxart.jpg/1200px-Emerald_EN_boxart.jpg",
+        Category: "RPG"
+      },
+      {
+        Title: "Pokemon FireRed",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=gba&f=pokemonredfire.gba",
+        Img: "https://assets.altarofgaming.com/wp-content/uploads/2021/12/pokemon-fire-red-version-game-cover-altar-of-gaming.jpg",
+        Category: "RPG"
+      },
+      {
+        Title: "Pokemon Unbound",
+        Link: "https://retrogames.games/embed/pokemon-unbound-v2-1-1-1",
+        Img: "https://tse2.mm.bing.net/th/id/OIP.8MB91Im9wS3sIvymCFZhawHaEK?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "RPG"
+      },
+      {
+        Title: "DBZ Supersonic Warriors",
+        Link: "https://www.dbzgames.org/emu/dragon-ball-z-supersonic-warriors_g/",
+        Img: "https://tse3.mm.bing.net/th/id/OIP.jEPmg0KGu06Nbke7thM6HAHaEK?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Fighting"
+      },
+      {
+        Title: "Bleach vs Naruto",
+        Link: "https://www.rocketgames.io/gameframe/bleach-vs-naruto",
+        Img: "https://th.bing.com/th/id/OIP.K1hJZkNxCT3HGg3lOYpuaAHaEo?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Fighting"
+      },
+      {
+        Title: "Stick Duel",
+        Link: "https://files.twoplayergames.org/files/games/o1/Stick_Duel_The_War/index.html",
+        Img: "https://tse4.mm.bing.net/th/id/OIP.OCIBdMDaeUCn5ahQzdYQzgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Fighting"
+      },
+      {
+        Title: "Out_Paced",
+        Link: "https://out-paced.vercel.app/",
+        Img: "https://out-paced.vercel.app/Logo.png",
+        Category: "Racing"
+      },
+      {
+        Title: "Survival Race",
+        Link: "https://survival-race.io/game/survival-race/",
+        Img: "https://unblockedrush.com/wp-content/uploads/2025/09/survival-race.webp",
+        Category: "Racing"
+      },
+      {
+        Title: "Highway Rider",
+        Link: "https://unblocked-games-67.org/iframes/highway-rider-extreme-main/",
+        Img: "https://new66ez.github.io/img/highwayriderextreme/highway-rider-extreme.png",
+        Category: "Racing"
+      },
+      {
+        Title: "Battle Wheels",
+        Link: "https://iframe.unblocked-76-games.org/battle-wheels-main/",
+        Img: "https://tse4.mm.bing.net/th/id/OIP.tYbEsfqZkxloTipNAF34eAHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Racing"
+      },
+      {
+        Title: "Tomb of the Mask",
+        Link: "https://class6x.gitlab.io/tomb-of-the-mask/",
+        Img: "https://api.web.gamepix.com/assets/img/600/340/banner/tomb-of-the-mask.png",
+        Category: "Arcade"
+      },
+      {
+        Title: "Among Us Sandbox",
+        Link: "https://iframe.unblocked-76-games.org/among-us-main/",
+        Img: "https://tse4.mm.bing.net/th/id/OIP.Id5vBbqOKzKUZmhlbLkYpgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Casual"
+      },
+      {
+        Title: "Binding of Isaac",
+        Link: "https://db.quackprep.org/html/thebindingofisaac/",
+        Img: "https://external-preview.redd.it/b9jmDJXxvCIeGxGZ-c7CyZlnU0wYzEo5kfZkpVopP6g.jpg?auto=webp&s=91dc39a367a877caa7697d305a89d1f0ecd263af",
+        Category: "Roguelike"
+      },
+      {
+        Title: "BoneTale",
+        Link: "https://app-371277.games.s3.yandex.net/371277/ab6m47paqoskshjkrm7xc8q6oq5u3kjp_brotli/index.html?is-united-page=1&skip-guard=1&header=no",
+        Img: "https://play-lh.googleusercontent.com/fBLGre4csvQQZ6QAOlj7FU3psT9FNXK9JERdjey1sYQePwzvVBwM0v9CMQNy_LUdaCrF",
+        Category: "RPG"
+      },
+      {
+        Title: "Evil Glitch",
+        Link: "https://facade.myaddr.dev/!!/https://cdn.jsdelivr.net/gh/gn-math/html@main/277.html",
+        Img: "https://facade.myaddr.dev/!!/https://cdn.jsdelivr.net/gh/genizy/assets@main/evil-glitch/icon.jpeg",
+        Category: "Action"
+      },
+      {
+        Title: "Lands of Blight",
+        Link: "https://class6x.gitlab.io/lands-of-blight/",
+        Img: "https://disasterarena.github.io/images/lands-of-blight.png",
+        Category: "Strategy"
+      },
+      {
+        Title: "-b",
+        Link: "https://truffled.lol/games/minusbog/index.html",
+        Img: "https://i.ytimg.com/vi/rcBJD-yHwlQ/maxresdefault.jpg",
+        Category: "Horror"
+      },
+      {
+        Title: "-3",
+        Link: "https://truffled.lol/games/minus3/index.html",
+        Img: "https://th.bing.com/th/id/OIP.C8lbwJe_lzp21Tv9dUxg-QAAAA?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Horror"
+      },
+      {
+        Title: "Baldi's fun new school",
+        Link: "https://truffled.lol/games/bfs/",
+        Img: "https://baldigames.com/data/image/game/baldi-s-fun-new-school-plus-ultimate-edition1.jpg",
+        Category: "Horror"
+      },
+      {
+        Title: "FnF Bop City",
+        Link: "https://truffled.lol/games/fnf/bopcity.html",
+        Img: "https://i.ytimg.com/vi/Kx_HSiy7v-4/maxresdefault.jpg",
+        Category: "FnF"
+      },
+      {
+        Title: "Gacha Life",
+        Link: "https://truffled.lol/gamefile/life.html",
+        Img: "https://play-lh.googleusercontent.com/wW_bGOO7sq6b5wBYeU2CJt9wjtFdjgr5HgjfvtDrNgdBn1pDIGXra67VBeuQCbjcgjU",
+        Category: "Casual"
+      },
+      {
+        Title: "GachaVerse",
+        Link: "https://truffled.lol/gamefile/verse.html",
+        Img: "https://img.itch.zone/aW1hZ2UvMjcxNDU5LzEzMTI0NzAucG5n/original/BSxeda.png",
+        Category: "Casual"
+      },
+      {
+        Title: "Sonic Worlds Next",
+        Link: "https://truffled.lol/games/swn/index.html",
+        Img: "https://static.wikitide.net/stationsquarewiki/7/74/Worlds_next_title.png",
+        Category: "Sonic"
+      },
+      {
+        Title: "Five Nights At Frickbear 3",
+        Link: "https://truffled.lol/games/fb3/index.html",
+        Img: "https://citybrawl.com/data/image/five-nights-at-frickbears-3.png",
+        Category: "Horror"
+      },
+      {
+        Title: "Deltarune",
+        Link: "https://schoology-assistance.linkpc.net/games/340.html",
+        Img: "https://machita66.com/imagesGame/deltarune.webp",
+        Category: "Adventure"
+      },
+      {
+        Title: "Five Nights At Candy's",
+        Link: "https://truffled.lol/gamefile/fnac.html",
+        Img: "https://th.bing.com/th/id/OIP.ymu2-Zdz_F21xt1NQ6yXnQHaHa?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",
+        Category: "Horror"
+      },
+      {
+        Title: "Five Nights At Candy's 2",
+        Link: "https://truffled.lol/gamefile/fnac2.html",
+        Img: "https://m.media-amazon.com/images/M/MV5BYWI0OWIxNDMtMWQ0ZC00NDAyLWJhNGMtNmVmNTRjODAzNzgzXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        Category: "Horror"
+      },
+      {
+        Title: "Bad Time Sim",
+        Link: "https://truffled.lol/games/bts/index.html",
+        Img: "https://truffled.lol/games/bts/icon-256.png",
+        Category: "RPG"
+      },
+      {
+        Title: "Among Us",
+        Link: "https://truffled.lol/games/amongus/index.html",
+        Img: "https://images.wallpapersden.com/image/download/red-crewmate-among-us_bGhqZWuUmZqaraWkpJRqZmetamZn.jpg",
+        Category: "Strategy"
+      },
+      {
+        Title: "Cuphead",
+        Link: "https://truffled.lol/games/Cuphead/index.html",
+        Img: "https://assets1.ignimgs.com/2019/03/21/cuphead---button-fin-1553203839109.jpg",
+        Category: "Adventure"
+      },
+      {
+        Title: "Class Of 09",
+        Link: "https://truffled.lol/games/C09/index.html",
+        Img: "https://cdn1.epicgames.com/spt-assets/1e94f4cbe84e4e7dab9084ff9af4b05a/class-of-09-1sgdv.png",
+        Category: "Casual"
+      },
+      {
+        Title: "FnF Golden Apple",
+        Link: "https://truffled.lol/games/fnf/goldenapple.html",
+        Img: "https://f2.toyhou.se/file/f2-toyhou-se/images/73945758_wG1hU5eSUmkbJSd.png?1738455087",
+        Category: "FnF"
+      },
+      {
+        Title: "FnF Twiddlefinger",
+        Link: "https://truffled.lol/games/fnf/TWIDDLEFINGER.html",
+        Img: "https://space-waves.co/data/image/game/fnf-twiddlefinger.jpg",
+        Category: "FnF"
+      },
+      {
+        Title: "FnF Hex",
+        Link: "https://truffled.lol/games/fnf/hex.html",
+        Img: "https://i1.sndcdn.com/artworks-9HNjA1kGQy3cAg1L-UpYU8w-t500x500.jpg",
+        Category: "FnF"
+      },
+      {
+        Title: "Raft",
+        Link: "https://truffled.lol/games/raft/index.html",
+        Img: "https://unblockedgames88.gitlab.io/assets/imageGame/raft.png",
+        Category: "Strategy"
+      },
+      {
+        Title: "SonicBall",
+        Link: "https://truffled.lol/games/ball/index.html",
+        Img: "https://img.itch.zone/aW1hZ2UvMjcyMTMzLzEzMTU4NjYucG5n/original/95w37O.png",
+        Category: "Racing"
+      },
+      {
+        Title: "Geometry Dash",
+        Link: "https://web-dashers.github.io/",
+        Img: "https://assets-prd.ignimgs.com/2021/12/14/geometrydash-1639510868467.jpg",
+        Category: "Arcade"
+      },
+      {
+        Title: "FnF Hit Single",
+        Link: "https://www.noahstutoring.academy/games/113.html",
+        Img: "https://i.pinimg.com/originals/05/dc/0f/05dc0fddc98ebc8ac543b4331f3dc65f.jpg",
+        Category: "FnF"
+      },
+      {
+        Title: "Station Saturn",
+        Link: "https://play-prod.struckd.com/api/v1/games/game/1797942a-d436-4284-a084-e6f9f88fd7b7/build/latest/frame",
+        Img: "https://img.itch.zone/aW1nLzExNDMzMzU2LnBuZw==/original/IvErVH.png",
+        Category: "Shooter"
+      },
+      {
+        Title: "Plauge Inc",
+        Link: "https://wasm.rip/files/plauge/index.html",
+        Img: "https://gamepropaganda.com/wp-content/uploads/2024/04/L6wNzpfcqKdOqJOhOIb71LUgVQkHf7MF.jpg",
+        Category: "Strategy"
+      },
+      {
+        Title: "Ages Of Conflict",
+        Link: "https://wasm.rip/files/aoc/index.html",
+        Img: "https://cdn.akamai.steamstatic.com/steam/apps/2186320/capsule_616x353.jpg?t=1708790926",
+        Category: "Strategy"
+      },
+      {
+        Title: "Uvwe Baldi",
+        Link: "https://unpkg.com/google-classroom-lessons@1.0.4/ossas.html",
+        Img: "https://images.gamebanana.com/img/ss/mods/sgi_common_thumbs_69b7466510a3d_530.webp",
+        Category: "Horror"
+      },
+      {
+        Title: "Antidisestablishmentarianism Baldi",
+        Link: "https://academic-mathwork.vercel.app/Antidisestablishmentarianism.html",
+        Img: "https://i.ytimg.com/vi/dFtsHd4nax0/maxresdefault.jpg",
+        Category: "Horror"
+      },
+      {
+        Title: "Super Mario 64",
+        Link: "https://studysync.co.uk/storage/sm64/",
+        Img: "https://www.giantbomb.com/a/uploads/scale_medium/1/12541/3312461-sq_n64_supermario64.jpg",
+        Category: "Adventure"
+      },
+      {
+        Title: "BowMasters",
+        Link: "https://studysync.co.uk/storage/bowmasters.html",
+        Img: "https://o.qoo-img.com/ggpht/LVOIa6Hey8FijLCNoBRpZEKDI37bGtOh20UN2umov4XPEXUIjYlmQ2vH1TQ0FOxY5v5X",
+        Category: "Shooter"
+      },
+      {
+        Title: "Sonic Back In Time",
+        Link: "https://f.kbhgames.com/emujs/play.php?c=segaMD&f=SonicBIT.gen",
+        Img: "https://i.ytimg.com/vi/1A5KFnvZMyg/maxresdefault.jpg",
+        Category: "Sonic"
+      }
+    ];
+
   let favorites = safeLoad("moonstone-games-favorites", []);
   let recent = safeLoad("moonstone-games-recent", []);
   let filter = "all";
@@ -217,8 +1153,10 @@ main{max-width:none;width:100%;padding:23px 20px 30px 20px;margin:0 auto}
     const query = $("#gameSearch").value.trim().toLowerCase();
     const grid = $("#gameGrid");
     grid.innerHTML = "";
-    games.filter(game => String(game.Title || "").toLowerCase().includes(query))
-      .forEach(game => {
+    const filteredGames = games.filter(game => String(game.Title || "").toLowerCase().includes(query));
+    const count = $("#gameCount");
+    if (count) count.textContent = query ? `${filteredGames.length} of ${games.length} games` : `${games.length} games`;
+    filteredGames.forEach(game => {
         const card = document.createElement("button");
         card.type = "button";
         card.className = "game-card";
