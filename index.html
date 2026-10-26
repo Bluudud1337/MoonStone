@@ -961,11 +961,11 @@ body.layout-browser .browser-action{height:36px}
 body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.compact-bookmarks .bookmarks{gap:7px}body.compact-bookmarks .bookmark-icon,body.compact-bookmarks .bookmark-icon svg{width:17px;height:17px}
 
 /* Homepage clock and device battery */
-.home-status{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 auto 26px;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
-.home-status-item{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:7px 11px;border:1px solid var(--border);border-radius:999px;background:color-mix(in srgb,var(--panel) 78%,transparent);backdrop-filter:blur(10px)}
+.home-status{position:fixed;right:18px;bottom:18px;z-index:6;display:flex;align-items:center;justify-content:flex-end;gap:8px;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;pointer-events:none}
+.home-status-item{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:7px 11px;border:1px solid var(--border);border-radius:999px;background:color-mix(in srgb,var(--panel) 88%,transparent);backdrop-filter:blur(10px);box-shadow:0 4px 18px #0002}
 .home-status-item svg{width:15px;height:15px;fill:none;stroke:var(--accent);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .home-status-value{color:var(--text);font-weight:550}
-@media(max-width:420px){.home-status{gap:7px;margin-bottom:22px}.home-status-item{padding:7px 9px;font-size:11px;gap:6px}}
+@media(max-width:420px){.home-status{right:10px;bottom:62px;gap:6px}.home-status-item{padding:7px 9px;font-size:11px;gap:6px}}
 
 </style>
 </head>
