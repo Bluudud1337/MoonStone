@@ -66,7 +66,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   height: 100%;
   z-index: 0;
   pointer-events: none;
-  opacity: .7;
+  opacity: .92;
 }
 
 .sidebar, main, .modal-backdrop {
@@ -2136,14 +2136,14 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     canvas.style.height = height + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const count = Math.min(65, Math.floor(width * height / 16000));
+    const count = Math.min(95, Math.floor(width * height / 11000));
     particles = Array.from({ length: count }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      r: Math.random() * 1.4 + .35,
-      vx: (Math.random() - .5) * .17,
-      vy: (Math.random() - .5) * .17,
-      alpha: Math.random() * .45 + .12,
+      r: Math.random() * 1.6 + .55,
+      vx: (Math.random() - .5) * .34,
+      vy: (Math.random() - .5) * .34,
+      alpha: Math.random() * .42 + .38,
       phase: Math.random() * Math.PI * 2
     }));
   }
