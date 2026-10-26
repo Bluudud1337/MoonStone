@@ -274,6 +274,15 @@ main {
   transform: scale(1.06) rotate(-2deg);
   filter: drop-shadow(0 0 9px color-mix(in srgb, var(--accent) 85%, transparent)) drop-shadow(0 0 24px color-mix(in srgb, var(--accent) 55%, transparent));
 }
+.brand-icon { cursor: pointer; }
+.brand-icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: 8px; }
+.brand-icon.is-bouncing { animation: diamondBounce .48s cubic-bezier(.34,1.56,.64,1); }
+@keyframes diamondBounce {
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-13px) scale(1.08,.92); }
+  65% { transform: translateY(2px) scale(.96,1.04); }
+  100% { transform: translateY(0) scale(1); }
+}
 @keyframes diamondDraw { to { stroke-dashoffset: 0; } }
 @keyframes diamondGlow {
   0%,100% { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 55%, transparent)) drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 25%, transparent)); }
@@ -1073,7 +1082,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       </div>
     </div>
     <div class="brand">
-      <div class="brand-icon" role="img" aria-label="MoonStone outlined diamond logo">
+      <div class="brand-icon" role="button" tabindex="0" aria-label="Make the MoonStone logo bounce" title="Click me">
         <svg viewBox="0 0 100 120" aria-hidden="true">
           <path class="diamond-outline-shadow" d="M50 4 96 60 50 116 4 60Z"/>
           <path class="diamond-outline" d="M50 4 96 60 50 116 4 60Z"/>
@@ -1307,6 +1316,23 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   };
 
   /* Random homepage messages with a subtle typing effect */
+  const brandIcon = document.querySelector(".brand-icon");
+  if (brandIcon) {
+    const bounceLogo = () => {
+      brandIcon.classList.remove("is-bouncing");
+      void brandIcon.offsetWidth;
+      brandIcon.classList.add("is-bouncing");
+      brandIcon.addEventListener("animationend", () => brandIcon.classList.remove("is-bouncing"), { once: true });
+    };
+    brandIcon.addEventListener("click", bounceLogo);
+    brandIcon.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        bounceLogo();
+      }
+    });
+  }
+
   const brandMessageText = $("#brandMessageText");
   const messageLines = [
     "Choom's gone cyber psycho..",
