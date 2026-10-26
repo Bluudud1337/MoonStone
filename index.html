@@ -877,7 +877,7 @@ main {
 .site-browser{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:8px;padding:10px 14px;background:color-mix(in srgb,var(--bg,#090909) 92%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid var(--border,#292925);min-width:0}
 .site-browser .browser-action{flex:0 0 auto}
 .site-browser .browser-address-wrap{flex:1 1 260px;max-width:760px}
-.site-browser #tempGo{min-width:52px}
+.site-browser #tempGo{min-width:36px}
 .browser-dots{display:flex;gap:6px;flex:0 0 auto}
 .browser-dot{width:10px;height:10px;border-radius:50%;background:#777}
 .browser-dot:nth-child(1){background:#ff6259}.browser-dot:nth-child(2){background:#ffc044}.browser-dot:nth-child(3){background:#35c96b}
@@ -890,11 +890,14 @@ main {
   .site-browser{padding:8px;gap:6px;flex-wrap:wrap}
   .browser-dots{display:none}
   .site-browser .browser-address-wrap{order:0;flex:1 1 calc(100% - 62px);max-width:none;height:38px}
-  .site-browser #tempGo{order:1;height:38px}
-  .site-browser #tempBookmark,.site-browser #closeTempBrowser,.site-browser #tempReload{order:2;flex:1 1 auto;height:32px;padding:0 8px}
+  .site-browser #tempGo{order:1;height:36px}
+  .site-browser #tempBookmark,.site-browser #closeTempBrowser,.site-browser #tempReload{order:2;flex:0 0 32px;width:32px;min-width:32px;height:32px;padding:0}
 }
 
 /* Temporary embedded browser */
+.browser-icon-action{width:36px;min-width:36px;height:36px;padding:0;display:inline-grid;place-items:center;font-size:0;line-height:0;flex:0 0 36px}
+.browser-icon-action svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.browser-icon-action:hover{color:var(--text,#eeeade)}
 .browser-action{height:36px;padding:0 12px;border:1px solid var(--border);border-radius:10px;background:var(--panel);color:var(--text);font-size:12px;cursor:pointer;white-space:nowrap}
 .browser-action:hover{border-color:var(--accent)}
 #tempBrowser{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;display:none;padding:0;background:var(--bg,#090909)}
@@ -1051,10 +1054,10 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 <div class="site-browser" role="region" aria-label="MoonStone browser bar">
   <div class="browser-dots" aria-hidden="true"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span></div>
   <div class="browser-address-wrap"><span class="browser-lock" aria-hidden="true">◈</span><input id="moonstoneAddress" type="text" aria-label="Paste a URL or enter a MoonStone page" placeholder="Search or enter address" spellcheck="false" autocomplete="off"></div>
-  <button class="browser-action" id="tempGo" type="button">Go</button>
-  <button class="browser-action" id="tempBookmark" type="button" title="Bookmark the current address">Bookmark</button>
-  <button class="browser-action" id="closeTempBrowser" type="button" title="Close embedded browser" aria-label="Close browser">Close</button>
-  <button class="browser-action" id="tempReload" type="button" title="Reload">Reload</button>
+  <button class="browser-action browser-icon-action" id="tempGo" type="button" title="Go to address" aria-label="Go to address"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></button>
+  <button class="browser-action browser-icon-action" id="tempBookmark" type="button" title="Bookmark the current address" aria-label="Bookmark the current address"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.75A1.75 1.75 0 0 1 7.75 3h8.5A1.75 1.75 0 0 1 18 4.75V21l-6-4-6 4z"/></svg></button>
+  <button class="browser-action browser-icon-action" id="closeTempBrowser" type="button" title="Close embedded browser" aria-label="Close browser"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+  <button class="browser-action browser-icon-action" id="tempReload" type="button" title="Reload" aria-label="Reload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M20 12a8 8 0 1 0 2 5"/></svg></button>
 </div>
 
 <div id="tempBrowser" role="region" aria-label="MoonStone browser">
