@@ -1645,7 +1645,6 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     document.body.classList.toggle("no-animations", !settings.animations);
     $("#particleToggle").setAttribute("aria-checked", settings.particles);
     $("#cursorTrailToggle").setAttribute("aria-checked", settings.cursorTrail);
-    updateCursorTrail();
     $("#animationToggle").setAttribute("aria-checked", settings.animations);
     $("#confirmLeaveToggle").setAttribute("aria-checked", settings.confirmLeave);
     $("#cancelLeaveToggle").setAttribute("aria-checked", settings.cancelLeave);
@@ -1934,6 +1933,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     settings.cursorTrail = !settings.cursorTrail;
     saveSettings();
     applySettings();
+    updateCursorTrail();
   });
 
   $("#animationToggle").addEventListener("click", () => {
@@ -2156,6 +2156,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   });
 
   /* Optional cursor particle trail */
+  const cursorTrailReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const cursorTrailCanvas = $("#cursorTrail");
   const cursorTrailCtx = cursorTrailCanvas.getContext("2d");
   let cursorTrailParticles = [];
@@ -2172,8 +2173,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   }
 
   function updateCursorTrail() {
-    cursorTrailCanvas.style.display = settings.cursorTrail && !reducedMotion.matches ? "block" : "none";
-    if (settings.cursorTrail && !reducedMotion.matches) {
+    cursorTrailCanvas.style.display = settings.cursorTrail && !cursorTrailReducedMotion.matches ? "block" : "none";
+    if (settings.cursorTrail && !cursorTrailReducedMotion.matches) {
       if (cursorTrailFrame === null) cursorTrailFrame = requestAnimationFrame(drawCursorTrail);
     } else {
       if (cursorTrailFrame !== null) cancelAnimationFrame(cursorTrailFrame);
@@ -2184,7 +2185,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   }
 
   document.addEventListener("pointermove", event => {
-    if (!settings.cursorTrail || reducedMotion.matches || event.pointerType === "touch") return;
+    if (!settings.cursorTrail || cursorTrailReducedMotion.matches || event.pointerType === "touch") return;
     const color = getComputedStyle(document.body).getPropertyValue("--accent").trim() || "#ff8a24";
     for (let i = 0; i < 2; i++) {
       cursorTrailParticles.push({
@@ -2200,7 +2201,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   }, {passive:true});
 
   function drawCursorTrail(timestamp = 0) {
-    if (!settings.cursorTrail || reducedMotion.matches) {
+    if (!settings.cursorTrail || cursorTrailReducedMotion.matches) {
       updateCursorTrail();
       return;
     }
@@ -2225,7 +2226,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
   resizeCursorTrail();
   window.addEventListener("resize", resizeCursorTrail);
-  reducedMotion.addEventListener?.("change", updateCursorTrail);
+  cursorTrailReducedMotion.addEventListener?.("change", updateCursorTrail);
+  updateCursorTrail();
 
   /* Lightweight particle background */
 
