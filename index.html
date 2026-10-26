@@ -2106,33 +2106,10 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   function createTab(){const t={id:nextId++,url:"",title:"New tab",history:[],index:-1};tabs.push(t);activeId=t.id;modal.classList.add("open");urlInput.value="";render();showNewTabPage();status.textContent="New tab: type a search or website address in the address bar.";requestAnimationFrame(()=>urlInput.focus());return t}
   function showNewTabPage(){
     sandbox();
-    if(browserAddress)browserAddress.value="";
-    const newTabPage = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-      *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f2efe7;color:#171714}
-      body{display:flex;align-items:center;justify-content:center;padding:24px}
-      main{width:min(620px,100%);display:flex;flex-direction:column;align-items:center;transform:translateY(-5vh)}
-      .mark{display:grid;place-items:center;width:48px;height:48px;border:1.5px solid #171714;border-radius:16px;transform:rotate(45deg);margin-bottom:26px}
-      .mark span{display:block;width:17px;height:17px;background:#171714;border-radius:3px}
-      h1{font-size:clamp(34px,7vw,54px);font-weight:650;letter-spacing:-2px;margin:0 0 34px;color:#171714}
-      h1 span{font-weight:400;color:#777266}
-      form{width:100%;display:flex;align-items:center;gap:12px;min-height:58px;padding:0 17px;border:1px solid #d7d2c6;border-radius:17px;background:#fffdf8;box-shadow:0 8px 30px #29251a0c;transition:border-color .15s,box-shadow .15s}
-      form:focus-within{border-color:#777266;box-shadow:0 8px 32px #29251a15}
-      .search-icon{width:20px;height:20px;flex:none;color:#777266}
-      input{width:100%;border:0;outline:0;background:transparent;color:#171714;font-size:16px}
-      input::placeholder{color:#969184}
-      button{width:34px;height:34px;flex:none;border:0;border-radius:10px;background:#171714;color:#f2efe7;cursor:pointer;font-size:19px}
-      button:hover{background:#39372f}
-      .hint{margin-top:18px;color:#777266;font-size:12px;letter-spacing:.2px}
-      @media(max-width:480px){main{transform:translateY(-3vh)}h1{margin-bottom:28px}form{min-height:54px}}
-      @media(prefers-color-scheme:dark){html,body{background:#171714;color:#f2efe7}h1{color:#f2efe7}h1 span{color:#aaa596}.mark{border-color:#f2efe7}.mark span{background:#f2efe7}form{background:#22221e;border-color:#414038}input{color:#f2efe7}input::placeholder,.search-icon,.hint{color:#aaa596}button{background:#f2efe7;color:#171714}}
-    </style></head><body><main><div class="mark" aria-hidden="true"><span></span></div><h1>MoonStone<span>.</span></h1><form id="search"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg><input id="q" autofocus placeholder="Search the web or enter a URL" aria-label="Search the web or enter a URL" autocomplete="off"><button type="submit" aria-label="Search">↵</button></form><div class="hint">A quieter place to start browsing.</div></main><script>document.getElementById('search').addEventListener('submit',function(e){e.preventDefault();const query=document.getElementById('q').value.trim();if(query)parent.postMessage({type:'moonstone-search',query:query},'*')});document.getElementById('q').focus();<\/script></body></html>`;
-    frame.srcdoc = newTabPage;
+    const newTabUrl="https://cosmic-dun-kappa.vercelcosmic-dun-kappa.vercel.app/p";
+    if(browserAddress)browserAddress.value=newTabUrl;
+    frame.src=newTabUrl;
   }
-  window.addEventListener("message",e=>{
-    if(e.source!==frame.contentWindow||e.data?.type!=="moonstone-search")return;
-    urlInput.value=e.data.query||"";
-    navigate(urlInput.value);
-  });
   function closeTab(id){const i=tabs.findIndex(t=>t.id===id);if(i<0)return;const wasActive=activeId===id;tabs.splice(i,1);if(!tabs.length){activeId=null;frame.src="about:blank";modal.classList.remove("open");setFullscreen(false);urlInput.value=window.location.pathname+window.location.search+window.location.hash||"/";render();return}if(wasActive)activeId=tabs[Math.max(0,i-1)].id;switchTab(activeId)}
   function navigate(value,addHistory=true){const entered=value.trim();if(!entered){status.textContent="Enter a search or website address.";return}let url;if(/^https?:\/\//i.test(entered)||/^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered))url=normalize(entered);else url="https://duckduckgo.com/?q="+encodeURIComponent(entered);if(!url){status.textContent="Enter a valid http:// or https:// address.";return}let t=active()||createTab();setTitle(t,url);if(browserAddress)browserAddress.value=entered;if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}sandbox();frame.src=url;urlInput.value=url;modal.classList.add("open");status.textContent="Loading "+t.title+". Sites may block iframe embedding.";render()}
   document.getElementById("tempGo").addEventListener("click",()=>navigate(urlInput.value));
