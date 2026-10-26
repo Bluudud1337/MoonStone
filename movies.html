@@ -10,10 +10,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6507880772375833" crossorigin="anonymous"></script>
 <style>
-:root{--bg:#0b0b0e;--panel:#17171c;--panel2:#212128;--ink:#f4f4f6;--mute:#9a9aa6;--line:rgba(255,255,255,.09);--accent:#ff6b4a;--card:176px;--r:6px}
+:root{color-scheme:dark;--bg:#090909;--panel:#111110;--panel2:#1b1b19;--ink:#fffb9e;--mute:#c9c57b;--line:#39371e;--accent:#fffb9e;--card:176px;--r:12px}
+body[data-theme="moonlight"]{--bg:#0c0e15;--panel:#131621;--panel2:#202435;--ink:#e4e9f5;--mute:#8c94a8;--line:#292e40;--accent:#c5d2f3}
+body[data-theme="midnight"]{--bg:#080808;--panel:#101010;--panel2:#1b1b1b;--ink:#e8e8e8;--mute:#858585;--line:#292929;--accent:#bdbdbd}
+body[data-theme="terminal"]{--bg:#000;--panel:#050805;--panel2:#0a190a;--ink:#39ff14;--mute:#18b80b;--line:#14520b;--accent:#39ff14}
+body[data-theme="garnet"]{--bg:#100709;--panel:#1a0d12;--panel2:#2b121b;--ink:#f5e8eb;--mute:#b28b96;--line:#47202d;--accent:#e16b88}
+body[data-theme="paper"]{color-scheme:light;--bg:#eeeade;--panel:#e4e0d2;--panel2:#d9d4c4;--ink:#171714;--mute:#777469;--line:#d0cbbb;--accent:#24241f}
+body[data-theme="flowery"]{--bg:#17120d;--panel:#211a13;--panel2:#33271a;--ink:#fff3d3;--mute:#d5b99a;--line:#675033;--accent:#f4d34e}
+body[data-theme="astralsync"]{--bg:#070b18;--panel:#0d1428;--panel2:#172342;--ink:#e8edff;--mute:#8f9bc4;--line:#26365f;--accent:#7897ff}
+body[data-theme="halloween"]{--bg:#120a08;--panel:#21120d;--panel2:#352016;--ink:#fff0dc;--mute:#d0a17d;--line:#59301b;--accent:#ff8a24}
+body[data-theme="frogies"]{--bg:#080b09;--panel:#151a16;--panel2:#242b25;--ink:#f0f3f0;--mute:#aab4aa;--line:#343d35;--accent:#38e65d}
+body[data-theme="eclipse"]{--bg:#080808;--panel:#140b05;--panel2:#2a1407;--ink:#fff0e3;--mute:#d18a59;--line:#66300f;--accent:#ff6a00}
+body[data-theme="void-purple"]{--bg:#000;--panel:#08000d;--panel2:#190022;--ink:#f8eaff;--mute:#b68bc9;--line:#42105b;--accent:#c026ff}
+body[data-theme="void-white"]{--bg:#000;--panel:#080808;--panel2:#1b1b1b;--ink:#fff;--mute:#a6a6a6;--line:#3a3a3a;--accent:#fff}
+body[data-theme="flowery"]{background-image:linear-gradient(#0f0b097a,#0f0b09ad),url("https://i.redd.it/sarn4u1tl3ah1.png");background-size:cover;background-attachment:fixed}
+body[data-theme="halloween"]{background-image:linear-gradient(#0f07047a,#0f0704ad),url("https://media.istockphoto.com/id/2178349388/photo/halloween-background-for-party-invitation-orange-halloween-banner-or-background-with-cutest.jpg?s=612x612&w=0&k=20&c=RGwZEONmRUcLsRbRzBhKm1uSTOHjT25moHF9NBaHjFc=");background-size:cover;background-attachment:fixed}
+*{box-sizing:border-box}
 *{box-sizing:border-box}
 html{font-size:16px;scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--site-font,"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif);min-height:100vh;overflow-x:hidden;transition:background-color .25s,color .25s}
 body[data-layout=tv]{--card:250px}
 body[data-layout=tv] html,html:has(body[data-layout=tv]){font-size:20px}
 body[data-card=s]{--card:140px}body[data-card=l]{--card:220px}
@@ -159,6 +174,7 @@ footer{padding:26px clamp(16px,4vw,56px) 40px;color:#666673;font-size:.78rem;bor
  .hero{min-height:560px;padding-bottom:4rem}.hero-poster{display:none}
  .grid{gap:16px 8px}
 }
+body.no-animations *,body.no-animations *::before,body.no-animations *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 /* Video player wrapper */
 .player-wrap {
   position: relative;
@@ -697,8 +713,30 @@ fullscreenBtn.addEventListener("click", async () => {
     toast("Fullscreen is not available here.");
   }
 });
+/* ---------- shared MoonStone homepage settings ---------- */
+function applyMoonStoneSettings(){
+  let prefs={};
+  try{prefs=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")||{}}catch{}
+  const themeNames=["moonstone","moonlight","midnight","terminal","garnet","paper","flowery","astralsync","halloween","frogies","eclipse","void-purple","void-white"];
+  document.body.dataset.theme=themeNames.includes(prefs.theme)?prefs.theme:"moonstone";
+  document.body.classList.toggle("calm",prefs.animations===false);
+  if(prefs.siteFont&&/^[a-zA-Z0-9 _-]{1,60}$/.test(prefs.siteFont)){
+    document.documentElement.style.setProperty("--site-font",'"'+prefs.siteFont+'", Inter, ui-sans-serif, system-ui, sans-serif');
+    const prior=document.getElementById("moonstoneMoviesFont");if(prior)prior.remove();
+    if(!["Arial","Verdana","Georgia","Trebuchet MS","Courier New"].some(f=>f.toLowerCase()===prefs.siteFont.toLowerCase())){
+      const link=document.createElement("link");link.id="moonstoneMoviesFont";link.rel="stylesheet";
+      link.href="https://fonts.googleapis.com/css2?family="+encodeURIComponent(prefs.siteFont).replace(/%20/g,"+")+":wght@400;500;600;700;800&display=swap";
+      document.head.appendChild(link);
+    }
+  }else{document.documentElement.style.removeProperty("--site-font");}
+  document.body.classList.toggle("no-animations",prefs.animations===false);
+  document.body.style.cursor=prefs.cursorStyle==="default"||!prefs.cursorStyle?"":"";
+  if(prefs.cursorStyle==="custom"&&prefs.cursorImage)document.body.style.cursor='url("'+prefs.cursorImage+'") 2 2, auto';
+  else if(prefs.cursorStyle==="link"&&prefs.cursorImageUrl)document.body.style.cursor='url("'+prefs.cursorImageUrl+'") 2 2, auto';
+}
+window.addEventListener("storage",e=>{if(e.key==="moonstone-settings")applyMoonStoneSettings()});
 /* ---------- init ---------- */
-applySettings();renderProfiles();
+applyMoonStoneSettings();applySettings();renderProfiles();
 if(me&&profiles.some(p=>p.id===me))chooseProfile(me);else localStorage.removeItem("coralflix-profile");
 </script>
 </body>
