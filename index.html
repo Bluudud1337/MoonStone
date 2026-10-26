@@ -2455,25 +2455,19 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
     button.title = value ? "Hide developer console" : "Show developer console";
     button.setAttribute("aria-label", button.title);
   }
+  function closeDevtools() {
+    try { if (window.eruda) window.eruda.hide(); } catch (_) {}
+    try { if (window.eruda) window.eruda.destroy(); } catch (_) {}
+    // Remove only Eruda's known top-level nodes, never broad ID selectors.
+    document.querySelectorAll("#eruda, #eruda-container, .eruda-entry-btn").forEach(node => node.remove());
+    document.body.style.removeProperty("overflow");
+    document.documentElement.style.removeProperty("overflow");
+    ready = false;
+    setPressed(false);
+  }
   button.addEventListener("click", () => {
     if (ready && window.eruda) {
-      if (button.getAttribute("aria-pressed") === "true") {
-        // Destroy Eruda instead of only hiding its panel; hiding can leave
-        // its overlay/container behind and cover the page with a grey layer.
-        try { window.eruda.hide(); } catch (_) {}
-        try { window.eruda.destroy(); } catch (_) {}
-        // Eruda can leave its fixed-position host behind on some mobile browsers.
-        document.querySelectorAll("#eruda, #eruda-container, .eruda-entry-btn, [id^='eruda-']").forEach(node => {
-          if (node !== button && !node.contains(button)) node.remove();
-        });
-        document.body.style.removeProperty("overflow");
-        document.documentElement.style.removeProperty("overflow");
-        ready = false;
-        setPressed(false);
-      } else {
-        window.eruda.show();
-        setPressed(true);
-      }
+      closeDevtools();
       return;
     }
     if (loading) return;
@@ -2487,19 +2481,17 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
         button.title = "Developer console failed to initialize";
         return;
       }
-      // Isolate Eruda's styles and mount it inside the browser window so its
-      // mobile backdrop cannot cover the entire MoonStone page.
-      const host = document.getElementById("tempBrowser");
-      window.eruda.init({
-        container: host || document.body,
-        tool: ["console", "elements", "sources", "network", "resources"],
-        useShadowDom: true,
-        autoScale: true
-      });
-      if (typeof window.eruda.position === "function") window.eruda.position("bottom");
-      ready = true;
-      window.eruda.show();
-      setPressed(true);
+      try {
+        // Keep Eruda in its default document context; avoid custom containers
+        // and Shadow DOM, which can break the console on mobile browsers.
+        window.eruda.init({ tool: ["console", "elements", "sources", "network", "resources"] });
+        ready = true;
+        window.eruda.show();
+        setPressed(true);
+      } catch (_) {
+        closeDevtools();
+        button.title = "Developer console failed to open. Try again.";
+      }
     };
     script.onerror = () => {
       loading = false;
