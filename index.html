@@ -2106,8 +2106,22 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   function createTab(){const t={id:nextId++,url:"",title:"New tab",history:[],index:-1};tabs.push(t);activeId=t.id;modal.classList.add("open");urlInput.value="";render();showNewTabPage();status.textContent="New tab: type a search or website address in the address bar.";requestAnimationFrame(()=>urlInput.focus());return t}
   function showNewTabPage(){
     sandbox();
-    frame.src = "https://cosmic-dun-kappa.vercelcosmic-dun-kappa.vercel.app/p";
-    status.textContent = "Opening MoonStone browser…";
+    if(browserAddress)browserAddress.value="";
+    const newTabPage = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+      *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Arial,Helvetica,sans-serif;background:#f8f9fa;color:#202124}
+      body{display:flex;align-items:center;justify-content:center;padding:24px}
+      main{width:min(640px,100%);display:flex;flex-direction:column;align-items:center;transform:translateY(-5vh)}
+      .brand{font-size:clamp(42px,8vw,66px);font-weight:500;letter-spacing:-2.5px;margin:0 0 30px;color:#202124}
+      .brand span:nth-child(1){color:#4285f4}.brand span:nth-child(2){color:#ea4335}.brand span:nth-child(3){color:#fbbc05}.brand span:nth-child(4){color:#4285f4}.brand span:nth-child(5){color:#34a853}.brand span:nth-child(6){color:#ea4335}
+      form{width:100%;display:flex;align-items:center;gap:12px;height:54px;padding:0 18px;border:1px solid #dfe1e5;border-radius:28px;background:white;box-shadow:0 1px 6px #20212420}
+      form:focus-within,form:hover{box-shadow:0 2px 8px #20212430;border-color:transparent}
+      .search-icon{width:19px;height:19px;flex:none;color:#9aa0a6}
+      input{width:100%;border:0;outline:0;background:transparent;color:#202124;font-size:16px}
+      button{border:0;background:transparent;color:#5f6368;cursor:pointer;font-size:16px;padding:8px}
+      .hint{margin-top:22px;color:#70757a;font-size:12px}
+      @media(prefers-color-scheme:dark){html,body{background:#202124;color:#e8eaed}.brand{color:#e8eaed}form{background:#303134;border-color:#5f6368;box-shadow:none}input{color:#e8eaed}.hint{color:#9aa0a6}}
+    </style></head><body><main><h1 class="brand"><span>M</span><span>o</span><span>o</span><span>n</span><span>S</span><span>t</span>one</h1><form id="search"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg><input id="q" autofocus placeholder="Search MoonStone or enter a website" aria-label="Search MoonStone or enter a website"><button type="submit" aria-label="Search">↵</button></form><div class="hint">Search the web or enter a website address</div></main><script>document.getElementById('search').addEventListener('submit',function(e){e.preventDefault();const query=document.getElementById('q').value.trim();if(query)parent.postMessage({type:'moonstone-search',query},'*')});document.getElementById('q').focus();<\/script></body></html>`;
+    frame.srcdoc = newTabPage;
   }
   window.addEventListener("message",e=>{
     if(e.source!==frame.contentWindow||e.data?.type!=="moonstone-search")return;
