@@ -1008,6 +1008,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     <div class="temp-browser-head">
       <button id="tempBack" class="temp-close-button" type="button" title="Close browser" aria-label="Close browser">×</button>
       <input id="tempBrowserAddress" type="text" aria-label="Current search or website" placeholder="Search or enter website address" autocomplete="off" spellcheck="false">
+      <button id="tempRefresh" class="temp-fullscreen-button" type="button" title="Refresh page" aria-label="Refresh page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M4.7 9a7 7 0 0 1 11.8-2L20 12M4 17v-5h5"/><path d="M19.3 15a7 7 0 0 1-11.8 2L4 12"/></svg></button>
       <button id="tempFullscreen" class="temp-fullscreen-button" type="button" title="Toggle fullscreen" aria-label="Toggle fullscreen" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/></svg></button>
     </div>
     <iframe id="tempBrowserFrame" title="MoonStone browser" src="https://cosmic-dun-kappa.vercel.app/p" allow="fullscreen; clipboard-read; clipboard-write" referrerpolicy="no-referrer"></iframe>
@@ -2131,6 +2132,11 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   document.getElementById("closeTempBrowser").addEventListener("click",()=>{if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")});
   document.getElementById("tempReload").addEventListener("click",()=>{const t=active();if(t&&t.url){sandbox();frame.src=t.url}});
   document.getElementById("tempBack").addEventListener("click",()=>{if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")});
+  document.getElementById("tempRefresh").addEventListener("click",()=>{
+    const t=active();
+    if(t&&t.url){sandbox();frame.removeAttribute("srcdoc");frame.src=t.url;status.textContent="Refreshing "+t.title+"."}
+    else{showNewTabPage();status.textContent="New tab: type a search or website address in the address bar."}
+  });
   document.getElementById("tempFullscreen").addEventListener("click",async()=>{
     try{
       if(document.fullscreenElement){await document.exitFullscreen();return}
