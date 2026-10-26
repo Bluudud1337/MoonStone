@@ -847,8 +847,13 @@ main {
 .temp-tabs{display:flex;align-items:center;gap:5px;min-height:44px;padding:6px 10px;background:var(--panel);border-bottom:1px solid var(--border);overflow-x:auto;flex:0 0 auto}
 .temp-tab{flex:0 0 auto}
 .temp-browser-head{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--panel);border-bottom:1px solid var(--border);flex:0 0 auto}
-.temp-browser-head button{min-height:34px;padding:0 12px;border:1px solid var(--border);border-radius:9px;background:var(--hover);color:var(--text);cursor:pointer}
-.temp-browser-note{padding:7px 12px;border-top:1px solid var(--border);background:var(--panel);color:var(--muted);font-size:11px}
+.temp-browser-head button{min-height:36px;border:1px solid var(--border);border-radius:9px;background:var(--hover);color:var(--text);cursor:pointer}
+.temp-browser-head #tempBrowserAddress{display:block!important;flex:1 1 auto;min-width:0;height:36px;padding:0 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;font-size:13px;outline:none}
+.temp-browser-head #tempBrowserAddress:focus{border-color:var(--accent)}
+.temp-browser-head .temp-close-button{flex:0 0 36px;width:36px;padding:0;font-size:25px;line-height:1}
+.temp-browser-head .temp-fullscreen-button{flex:0 0 36px;width:36px;display:grid;place-items:center;padding:7px}
+.temp-fullscreen-button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.temp-browser-note{display:none!important}
 @media(max-width:520px){.temp-tab{min-width:82px;max-width:160px}.temp-browser-head{padding:7px;gap:6px}.temp-browser-head button{padding:0 9px;font-size:12px}}
 .temp-tab{display:flex;align-items:center;gap:10px;max-width:220px;min-width:90px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);font-size:11px;cursor:pointer;white-space:nowrap}
 .temp-tab.active{background:var(--hover);color:var(--text);border-color:var(--accent)}
@@ -859,7 +864,7 @@ main {
 .temp-browser-head input{display:inline-block}
 .temp-browser-window{width:100%;height:100%;min-height:0;background:var(--bg);border:0;border-radius:0;overflow:hidden;display:flex;flex-direction:column;box-shadow:none}
 #tempBrowserFrame{display:block;flex:1 1 auto;min-height:0;width:100%;border:0;background:#fff}
-#tempBrowserStatus{flex:0 0 auto;max-height:34px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#tempBrowserStatus{display:none!important}
 body.sidebar-pushed .sidebar{left:-120px!important;transform:translate(-150%,-50%)!important;pointer-events:none}
 body.dock-left .sidebar{left:17px;right:auto;top:50%;bottom:auto;transform:translateY(-50%);flex-direction:column}
 body.dock-right .sidebar{left:auto;right:17px;top:50%;bottom:auto;transform:translateY(-50%);flex-direction:column}
@@ -872,7 +877,7 @@ body.dock-span-full.sidebar-pushed .sidebar{left:-140px!important;right:auto!imp
 body.dock-span-full.dock-right.sidebar-pushed .sidebar{left:auto!important;right:-140px!important;transform:translateX(150%)!important}
 @media(max-width:520px){#tempBrowser{top:52px;left:0;right:0;bottom:0}}
 .temp-browser-head{display:flex;align-items:center;gap:8px;padding:10px;border-bottom:1px solid var(--border);background:var(--panel)}
-.temp-browser-head input{display:none}
+.temp-browser-head input{display:block!important}
 .temp-browser-head button,.temp-browser-settings button{border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text);padding:9px 11px;cursor:pointer}
 .temp-browser-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)}
 .temp-browser-settings label{display:flex;align-items:center;gap:7px}
@@ -880,7 +885,7 @@ body.dock-span-full.dock-right.sidebar-pushed .sidebar{left:auto!important;right
 .sidebar-push{position:fixed;left:22px;top:calc(50% + 185px);z-index:6;width:32px;height:27px;border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text);cursor:pointer;transition:top .25s,transform .25s}
 @media(max-width:520px){#tempBrowser{top:52px;left:0;right:0;bottom:0}.sidebar-push{left:20px;top:calc(50% + 175px)}}
 .temp-browser-note{padding:8px 14px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
-@media(max-width:600px){.browser-action{padding:0 8px;font-size:11px}.temp-browser-head{flex-wrap:wrap}.temp-browser-head input{flex-basis:55%}}
+@media(max-width:600px){.browser-action{padding:0 8px;font-size:11px}.temp-browser-head{flex-wrap:wrap}.temp-browser-head #tempBrowserAddress{flex-basis:0}}
 
 
 
@@ -1001,12 +1006,12 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   <div class="temp-browser-window">
     <div class="temp-tabs" id="tempBrowserTabs" role="tablist" aria-label="Browser tabs"></div>
     <div class="temp-browser-head">
-      <button id="tempBack" type="button" title="Back">← Back</button>
-      <span style="flex:1"></span>
-      <button id="tempFullscreen" type="button" title="Toggle browser fullscreen" aria-pressed="false">Fullscreen</button>
+      <button id="tempBack" class="temp-close-button" type="button" title="Close browser" aria-label="Close browser">×</button>
+      <input id="tempBrowserAddress" type="text" aria-label="Current search or website" placeholder="Search or enter website address" autocomplete="off" spellcheck="false">
+      <button id="tempFullscreen" class="temp-fullscreen-button" type="button" title="Toggle fullscreen" aria-label="Toggle fullscreen" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/></svg></button>
     </div>
     <iframe id="tempBrowserFrame" title="MoonStone browser" src="https://cosmic-dun-kappa.vercelcosmic-dun-kappa.vercel.app/p" allow="fullscreen; clipboard-read; clipboard-write" referrerpolicy="no-referrer"></iframe>
-    <div class="temp-browser-note" id="tempBrowserStatus">Powered by MoonStone's selected browser.</div>
+    <div class="temp-browser-note" id="tempBrowserStatus" aria-live="polite"></div>
   </div>
 </div>
 
@@ -2084,20 +2089,20 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
 <script>
 (() => {
-  const modal=document.getElementById("tempBrowser"), urlInput=document.getElementById("moonstoneAddress"), frame=document.getElementById("tempBrowserFrame"), status=document.getElementById("tempBrowserStatus"), tabsEl=document.getElementById("tempBrowserTabs");
+  const modal=document.getElementById("tempBrowser"), urlInput=document.getElementById("moonstoneAddress"), browserAddress=document.getElementById("tempBrowserAddress"), frame=document.getElementById("tempBrowserFrame"), status=document.getElementById("tempBrowserStatus"), tabsEl=document.getElementById("tempBrowserTabs");
   if(!modal||!urlInput||!frame||!tabsEl)return;
   let tabs=[],activeId=null,nextId=1;
   const redirectSetting=document.getElementById("settingsBrowserAllowRedirects");
   let allowRedirects=false;
   try{allowRedirects=JSON.parse(localStorage.getItem("moonstone-settings")||"{}").browserAllowRedirects===true}catch{}
   if(redirectSetting){redirectSetting.setAttribute("aria-checked",String(allowRedirects));redirectSetting.addEventListener("click",()=>{allowRedirects=!allowRedirects;redirectSetting.setAttribute("aria-checked",String(allowRedirects));try{const saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}");saved.browserAllowRedirects=allowRedirects;localStorage.setItem("moonstone-settings",JSON.stringify(saved))}catch{};sandbox()})}
-  function setFullscreen(on){document.body.classList.toggle("browser-fullscreen",on);const b=document.getElementById("tempFullscreen");if(b){b.textContent=on?"Exit fullscreen":"Fullscreen";b.setAttribute("aria-pressed",String(on))}}
+  function setFullscreen(on){document.body.classList.toggle("browser-fullscreen",on);const b=document.getElementById("tempFullscreen");if(b){b.setAttribute("aria-pressed",String(on));b.title=on?"Exit fullscreen":"Toggle fullscreen";b.setAttribute("aria-label",b.title)}}
   const active=()=>tabs.find(t=>t.id===activeId);
   function normalize(value){let raw=value.trim();if(!raw)return null;if(!/^https?:\/\//i.test(raw))raw="https://"+raw;try{const u=new URL(raw);return ["http:","https:"].includes(u.protocol)?u.href:null}catch{return null}}
   function sandbox(){if(allowRedirects){frame.removeAttribute("sandbox")}else{frame.setAttribute("sandbox","allow-scripts allow-forms allow-same-origin allow-popups")} frame.setAttribute("allow","fullscreen")}
   function render(){tabsEl.replaceChildren();tabs.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="temp-tab"+(t.id===activeId?" active":"");b.setAttribute("role","tab");b.setAttribute("aria-selected",String(t.id===activeId));const title=document.createElement("span");title.className="temp-tab-title";title.textContent=t.title;const close=document.createElement("span");close.className="temp-tab-close";close.textContent="×";close.setAttribute("aria-label","Close tab");b.append(title,close);b.addEventListener("click",e=>e.target===close?closeTab(t.id):switchTab(t.id));tabsEl.append(b)});const add=document.createElement("button");add.type="button";add.className="temp-tab-add";add.textContent="+";add.title="New tab";add.addEventListener("click",()=>createTab());tabsEl.append(add)}
   function setTitle(t,url){t.url=url;try{t.title=new URL(url).hostname.replace(/^www\./,"")||"New tab"}catch{t.title="New tab"}}
-  function switchTab(id){const t=tabs.find(x=>x.id===id);if(!t)return;activeId=id;modal.classList.add("open");urlInput.value=t.url||"";if(t.url)frame.src=t.url;else showNewTabPage();render();status.textContent=t.url?"Loading "+t.title+". Some websites block embedded viewing.":"New tab: search the web or enter a website address."}
+  function switchTab(id){const t=tabs.find(x=>x.id===id);if(!t)return;activeId=id;modal.classList.add("open");urlInput.value=t.url||"";if(browserAddress)browserAddress.value=t.url||"";if(t.url)frame.src=t.url;else showNewTabPage();render();status.textContent=t.url?"Loading "+t.title+". Some websites block embedded viewing.":"New tab: search the web or enter a website address."}
   function createTab(){const t={id:nextId++,url:"",title:"New tab",history:[],index:-1};tabs.push(t);activeId=t.id;modal.classList.add("open");urlInput.value="";render();showNewTabPage();status.textContent="New tab: type a search or website address in the address bar.";requestAnimationFrame(()=>urlInput.focus());return t}
   function showNewTabPage(){
     sandbox();
@@ -2110,20 +2115,21 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     navigate(urlInput.value);
   });
   function closeTab(id){const i=tabs.findIndex(t=>t.id===id);if(i<0)return;const wasActive=activeId===id;tabs.splice(i,1);if(!tabs.length){activeId=null;frame.src="about:blank";modal.classList.remove("open");setFullscreen(false);urlInput.value=window.location.pathname+window.location.search+window.location.hash||"/";render();return}if(wasActive)activeId=tabs[Math.max(0,i-1)].id;switchTab(activeId)}
-  function navigate(value,addHistory=true){const entered=value.trim();if(!entered){status.textContent="Enter a search or website address.";return}let url;if(/^https?:\/\//i.test(entered)||/^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered))url=normalize(entered);else url="https://www.google.com/search?igu=1&q="+encodeURIComponent(entered);if(!url){status.textContent="Enter a valid http:// or https:// address.";return}let t=active()||createTab();setTitle(t,url);if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}sandbox();frame.src=url;urlInput.value=url;modal.classList.add("open");status.textContent="Loading "+t.title+". Sites may block iframe embedding.";render()}
+  function navigate(value,addHistory=true){const entered=value.trim();if(!entered){status.textContent="Enter a search or website address.";return}let url;if(/^https?:\/\//i.test(entered)||/^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered))url=normalize(entered);else url="https://www.google.com/search?igu=1&q="+encodeURIComponent(entered);if(!url){status.textContent="Enter a valid http:// or https:// address.";return}let t=active()||createTab();setTitle(t,url);if(browserAddress)browserAddress.value=entered;if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}sandbox();frame.src=url;urlInput.value=url;modal.classList.add("open");status.textContent="Loading "+t.title+". Sites may block iframe embedding.";render()}
   document.getElementById("tempGo").addEventListener("click",()=>navigate(urlInput.value));
+   if(browserAddress){browserAddress.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();urlInput.value=browserAddress.value;navigate(browserAddress.value)}});browserAddress.addEventListener("input",()=>{urlInput.value=browserAddress.value})}
   urlInput.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();navigate(urlInput.value)}});
   document.getElementById("closeTempBrowser").addEventListener("click",()=>{if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")});
   document.getElementById("tempReload").addEventListener("click",()=>{const t=active();if(t&&t.url){sandbox();frame.src=t.url}});
-  document.getElementById("tempBack").addEventListener("click",()=>{const t=active();if(!t||t.index<=0){status.textContent="No previous page in this tab.";return}t.index--;setTitle(t,t.history[t.index]);frame.src=t.url;urlInput.value=t.url;render()});
+  document.getElementById("tempBack").addEventListener("click",()=>{if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")});
   document.getElementById("tempFullscreen").addEventListener("click",async()=>{
     try{
       if(document.fullscreenElement){await document.exitFullscreen();return}
-      if(frame.requestFullscreen){await frame.requestFullscreen();status.textContent="Website fullscreen. Press Esc to return to the browser."}
+      if(frame.requestFullscreen){await frame.requestFullscreen()}
       else{status.textContent="Fullscreen is not supported by this browser."}
     }catch{status.textContent="This website or browser does not allow fullscreen."}
   });
-  document.addEventListener("fullscreenchange",()=>{const b=document.getElementById("tempFullscreen");if(b){const on=document.fullscreenElement===frame;b.textContent=on?"Exit fullscreen":"Fullscreen";b.setAttribute("aria-pressed",String(on))}});
+  document.addEventListener("fullscreenchange",()=>{const b=document.getElementById("tempFullscreen");if(b){const on=document.fullscreenElement===frame;b.setAttribute("aria-pressed",String(on));b.title=on?"Exit fullscreen":"Toggle fullscreen";b.setAttribute("aria-label",b.title)}});
   document.getElementById("tempBookmark").addEventListener("click",()=>{const url=normalize(urlInput.value);if(!url){status.textContent="Enter a valid website address first.";return}try{const saved=JSON.parse(localStorage.getItem("moonstone-bookmarks")||"[]");const name=prompt("Name this bookmark:",new URL(url).hostname.replace(/^www\./,""));if(!name||!name.trim())return;saved.push({name:name.trim().slice(0,30),url,icon:"link"});localStorage.setItem("moonstone-bookmarks",JSON.stringify(saved));status.textContent="Bookmark saved. Refresh the homepage to see it."}catch{status.textContent="Couldn't save the bookmark."}});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.body.classList.contains("browser-fullscreen")){setFullscreen(false);e.stopPropagation();return}if(e.key==="Escape"&&modal.classList.contains("open")){if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")}});
   window.moonstoneOpenSearch=query=>{if(activeId===null)createTab();navigate(query)};
