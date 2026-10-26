@@ -997,7 +997,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   <button class="browser-action" id="tempReload" type="button" title="Reload">Reload</button>
 </div>
 
-<div id="tempBrowser" role="region" aria-label="Embedded browser">
+<div id="tempBrowser" role="region" aria-label="MoonStone browser">
   <div class="temp-browser-window">
     <div class="temp-tabs" id="tempBrowserTabs" role="tablist" aria-label="Browser tabs"></div>
     <div class="temp-browser-head">
@@ -1005,8 +1005,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       <span style="flex:1"></span>
       <button id="tempFullscreen" type="button" title="Toggle browser fullscreen" aria-pressed="false">Fullscreen</button>
     </div>
-    <iframe id="tempBrowserFrame" title="Embedded website" sandbox="allow-scripts allow-forms allow-same-origin allow-popups" allow="fullscreen" referrerpolicy="no-referrer"></iframe>
-    <div class="temp-browser-note" id="tempBrowserStatus">Only sites that permit embedding will load. Some sites block iframes; this browser cannot bypass those restrictions.</div>
+    <iframe id="tempBrowserFrame" title="MoonStone browser" src="https://cosmic-dun-kappa.vercelcosmic-dun-kappa.vercel.app/p" allow="fullscreen; clipboard-read; clipboard-write" referrerpolicy="no-referrer"></iframe>
+    <div class="temp-browser-note" id="tempBrowserStatus">Powered by MoonStone's selected browser.</div>
   </div>
 </div>
 
@@ -2101,13 +2101,14 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   function createTab(){const t={id:nextId++,url:"",title:"New tab",history:[],index:-1};tabs.push(t);activeId=t.id;modal.classList.add("open");urlInput.value="";render();showNewTabPage();status.textContent="New tab: type a search or website address in the address bar.";requestAnimationFrame(()=>urlInput.focus());return t}
   function showNewTabPage(){
     sandbox();
-    frame.srcdoc = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-      *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0b0b;color:#eeeade;font:16px system-ui,sans-serif}
-      main{width:min(620px,calc(100% - 32px));text-align:center;margin-top:-7vh}h1{font-size:clamp(28px,6vw,42px);font-weight:500;letter-spacing:.12em;margin:0 0 8px}p{color:#929087;font-size:14px;margin:0 0 26px}
-      form{display:flex;gap:8px;padding:7px;border:1px solid #35352f;border-radius:15px;background:#151513;box-shadow:0 0 32px #7d94c51c}input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#f5f2e8;font:15px system-ui;padding:10px}button{border:0;border-radius:10px;background:#d9d3bd;color:#171713;padding:0 17px;font-weight:600;cursor:pointer}small{display:block;color:#74736d;margin-top:16px;font-size:12px}
-      </style></head><body><main><h1>MOONSTONE</h1><p>A little corner of the internet.</p><form id="search"><input id="q" autofocus autocomplete="off" placeholder="Search the web or enter a website…" aria-label="Search the web or enter a website"><button>Search</button></form><small>Enter a search or website address above</small></main><script>document.getElementById('search').addEventListener('submit',e=>{e.preventDefault();parent.postMessage({type:'moonstone-search',query:document.getElementById('q').value},'*')});<\/script></body></html>`;
+    frame.src = "https://cosmic-dun-kappa.vercelcosmic-dun-kappa.vercel.app/p";
+    status.textContent = "Opening MoonStone browser…";
   }
-  window.addEventListener("message",e=>{if(e.source!==frame.contentWindow||e.data?.type!=="moonstone-search")return;urlInput.value=e.data.query||"";navigate(urlInput.value)});
+  window.addEventListener("message",e=>{
+    if(e.source!==frame.contentWindow||e.data?.type!=="moonstone-search")return;
+    urlInput.value=e.data.query||"";
+    navigate(urlInput.value);
+  });
   function closeTab(id){const i=tabs.findIndex(t=>t.id===id);if(i<0)return;const wasActive=activeId===id;tabs.splice(i,1);if(!tabs.length){activeId=null;frame.src="about:blank";modal.classList.remove("open");setFullscreen(false);urlInput.value=window.location.pathname+window.location.search+window.location.hash||"/";render();return}if(wasActive)activeId=tabs[Math.max(0,i-1)].id;switchTab(activeId)}
   function navigate(value,addHistory=true){const entered=value.trim();if(!entered){status.textContent="Enter a search or website address.";return}let url;if(/^https?:\/\//i.test(entered)||/^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered))url=normalize(entered);else url="https://www.google.com/search?igu=1&q="+encodeURIComponent(entered);if(!url){status.textContent="Enter a valid http:// or https:// address.";return}let t=active()||createTab();setTitle(t,url);if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}sandbox();frame.src=url;urlInput.value=url;modal.classList.add("open");status.textContent="Loading "+t.title+". Sites may block iframe embedding.";render()}
   document.getElementById("tempGo").addEventListener("click",()=>navigate(urlInput.value));
