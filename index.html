@@ -2458,7 +2458,10 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   button.addEventListener("click", () => {
     if (ready && window.eruda) {
       if (button.getAttribute("aria-pressed") === "true") {
-        window.eruda.hide();
+        // Destroy Eruda instead of only hiding its panel; hiding can leave
+        // its overlay/container behind and cover the page with a grey layer.
+        window.eruda.destroy();
+        ready = false;
         setPressed(false);
       } else {
         window.eruda.show();
