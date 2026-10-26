@@ -2460,7 +2460,14 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
       if (button.getAttribute("aria-pressed") === "true") {
         // Destroy Eruda instead of only hiding its panel; hiding can leave
         // its overlay/container behind and cover the page with a grey layer.
-        window.eruda.destroy();
+        try { window.eruda.hide(); } catch (_) {}
+        try { window.eruda.destroy(); } catch (_) {}
+        // Eruda can leave its fixed-position host behind on some mobile browsers.
+        document.querySelectorAll("#eruda, #eruda-container, .eruda-entry-btn, [id^='eruda-']").forEach(node => {
+          if (node !== button && !node.contains(button)) node.remove();
+        });
+        document.body.style.removeProperty("overflow");
+        document.documentElement.style.removeProperty("overflow");
         ready = false;
         setPressed(false);
       } else {
