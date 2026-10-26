@@ -11,7 +11,8 @@ const stage = document.getElementById("browser-stage");
 const view = document.getElementById("view");
 const tabsEl = document.getElementById("tabs");
 const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-const scramjet = new $scramjetLoadController().ScramjetController({
+const { ScramjetController } = $scramjetLoadController();
+const scramjet = new ScramjetController({
   files: {
     wasm: "/scram/scramjet.wasm.wasm",
     all: "/scram/scramjet.all.js",
