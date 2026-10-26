@@ -819,7 +819,10 @@ main {
 }
 
 /* MoonStone in-site browser bar */
-.site-browser{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;padding:10px 16px;background:color-mix(in srgb,var(--bg,#090909) 88%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid var(--border,#292925)}
+.site-browser{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:8px;padding:10px 14px;background:color-mix(in srgb,var(--bg,#090909) 92%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid var(--border,#292925);min-width:0}
+.site-browser .browser-action{flex:0 0 auto}
+.site-browser .browser-address-wrap{flex:1 1 260px;max-width:760px}
+.site-browser #tempGo{min-width:52px}
 .browser-dots{display:flex;gap:6px;flex:0 0 auto}
 .browser-dot{width:10px;height:10px;border-radius:50%;background:#777}
 .browser-dot:nth-child(1){background:#ff6259}.browser-dot:nth-child(2){background:#ffc044}.browser-dot:nth-child(3){background:#35c96b}
@@ -828,14 +831,25 @@ main {
 #moonstoneAddress{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--text,#eeeade);font:12px ui-monospace,SFMono-Regular,Consolas,monospace}
 #moonstoneAddress:focus{outline:0}
 .browser-brand{font-size:12px;font-weight:650;letter-spacing:.02em;color:var(--muted,#85847d);white-space:nowrap}
-@media(max-width:520px){.site-browser{padding:8px 10px;gap:8px}.browser-brand{display:none}.browser-address-wrap{height:34px}}
+@media(max-width:620px){
+  .site-browser{padding:8px;gap:6px;flex-wrap:wrap}
+  .browser-dots{display:none}
+  .site-browser .browser-address-wrap{order:0;flex:1 1 calc(100% - 62px);max-width:none;height:38px}
+  .site-browser #tempGo{order:1;height:38px}
+  .site-browser #tempBookmark,.site-browser #closeTempBrowser,.site-browser #tempReload{order:2;flex:1 1 auto;height:32px;padding:0 8px}
+}
 
 /* Temporary embedded browser */
 .browser-action{height:36px;padding:0 12px;border:1px solid var(--border);border-radius:10px;background:var(--panel);color:var(--text);font-size:12px;cursor:pointer;white-space:nowrap}
 .browser-action:hover{border-color:var(--accent)}
-#tempBrowser{position:fixed;top:58px;left:0;right:0;bottom:0;z-index:40;display:none;padding:0;background:var(--bg,#090909)}
+#tempBrowser{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;display:none;padding:0;background:var(--bg,#090909)}
 #tempBrowser.open{display:flex}
-.temp-tabs{display:flex;align-items:center;gap:5px;min-height:38px;padding:5px 8px;background:var(--panel);border-bottom:1px solid var(--border);overflow-x:auto}
+.temp-tabs{display:flex;align-items:center;gap:5px;min-height:44px;padding:6px 10px;background:var(--panel);border-bottom:1px solid var(--border);overflow-x:auto;flex:0 0 auto}
+.temp-tab{flex:0 0 auto}
+.temp-browser-head{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--panel);border-bottom:1px solid var(--border);flex:0 0 auto}
+.temp-browser-head button{min-height:34px;padding:0 12px;border:1px solid var(--border);border-radius:9px;background:var(--hover);color:var(--text);cursor:pointer}
+.temp-browser-note{padding:7px 12px;border-top:1px solid var(--border);background:var(--panel);color:var(--muted);font-size:11px}
+@media(max-width:520px){.temp-tab{min-width:82px;max-width:160px}.temp-browser-head{padding:7px;gap:6px}.temp-browser-head button{padding:0 9px;font-size:12px}}
 .temp-tab{display:flex;align-items:center;gap:10px;max-width:220px;min-width:90px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);font-size:11px;cursor:pointer;white-space:nowrap}
 .temp-tab.active{background:var(--hover);color:var(--text);border-color:var(--accent)}
 .temp-tab-title{overflow:hidden;text-overflow:ellipsis}.temp-tab-close{font-size:14px;line-height:1}
@@ -2083,8 +2097,17 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   function sandbox(){if(allowRedirects){frame.removeAttribute("sandbox")}else{frame.setAttribute("sandbox","allow-scripts allow-forms allow-same-origin allow-popups")} frame.setAttribute("allow","fullscreen")}
   function render(){tabsEl.replaceChildren();tabs.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="temp-tab"+(t.id===activeId?" active":"");b.setAttribute("role","tab");b.setAttribute("aria-selected",String(t.id===activeId));const title=document.createElement("span");title.className="temp-tab-title";title.textContent=t.title;const close=document.createElement("span");close.className="temp-tab-close";close.textContent="×";close.setAttribute("aria-label","Close tab");b.append(title,close);b.addEventListener("click",e=>e.target===close?closeTab(t.id):switchTab(t.id));tabsEl.append(b)});const add=document.createElement("button");add.type="button";add.className="temp-tab-add";add.textContent="+";add.title="New tab";add.addEventListener("click",()=>createTab());tabsEl.append(add)}
   function setTitle(t,url){t.url=url;try{t.title=new URL(url).hostname.replace(/^www\./,"")||"New tab"}catch{t.title="New tab"}}
-  function switchTab(id){const t=tabs.find(x=>x.id===id);if(!t)return;activeId=id;modal.classList.add("open");urlInput.value=t.url||"";frame.src=t.url||"about:blank";render();status.textContent=t.url?"Loading "+t.title+". Some websites block embedded viewing.":"New tab: enter a search or website address."}
-  function createTab(){const t={id:nextId++,url:"",title:"New tab",history:[],index:-1};tabs.push(t);activeId=t.id;modal.classList.add("open");frame.src="about:blank";urlInput.value="";render();status.textContent="New tab: enter a search or website address.";urlInput.focus();return t}
+  function switchTab(id){const t=tabs.find(x=>x.id===id);if(!t)return;activeId=id;modal.classList.add("open");urlInput.value=t.url||"";if(t.url)frame.src=t.url;else showNewTabPage();render();status.textContent=t.url?"Loading "+t.title+". Some websites block embedded viewing.":"New tab: search the web or enter a website address."}
+  function createTab(){const t={id:nextId++,url:"",title:"New tab",history:[],index:-1};tabs.push(t);activeId=t.id;modal.classList.add("open");urlInput.value="";render();showNewTabPage();status.textContent="New tab: type a search or website address in the address bar.";requestAnimationFrame(()=>urlInput.focus());return t}
+  function showNewTabPage(){
+    sandbox();
+    frame.srcdoc = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+      *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0b0b;color:#eeeade;font:16px system-ui,sans-serif}
+      main{width:min(620px,calc(100% - 32px));text-align:center;margin-top:-7vh}h1{font-size:clamp(28px,6vw,42px);font-weight:500;letter-spacing:.12em;margin:0 0 8px}p{color:#929087;font-size:14px;margin:0 0 26px}
+      form{display:flex;gap:8px;padding:7px;border:1px solid #35352f;border-radius:15px;background:#151513;box-shadow:0 0 32px #7d94c51c}input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#f5f2e8;font:15px system-ui;padding:10px}button{border:0;border-radius:10px;background:#d9d3bd;color:#171713;padding:0 17px;font-weight:600;cursor:pointer}small{display:block;color:#74736d;margin-top:16px;font-size:12px}
+      </style></head><body><main><h1>MOONSTONE</h1><p>A little corner of the internet.</p><form id="search"><input id="q" autofocus autocomplete="off" placeholder="Search the web or enter a website…" aria-label="Search the web or enter a website"><button>Search</button></form><small>Enter a search or website address above</small></main><script>document.getElementById('search').addEventListener('submit',e=>{e.preventDefault();parent.postMessage({type:'moonstone-search',query:document.getElementById('q').value},'*')});<\/script></body></html>`;
+  }
+  window.addEventListener("message",e=>{if(e.source!==frame.contentWindow||e.data?.type!=="moonstone-search")return;urlInput.value=e.data.query||"";navigate(urlInput.value)});
   function closeTab(id){const i=tabs.findIndex(t=>t.id===id);if(i<0)return;const wasActive=activeId===id;tabs.splice(i,1);if(!tabs.length){activeId=null;frame.src="about:blank";modal.classList.remove("open");setFullscreen(false);urlInput.value=window.location.pathname+window.location.search+window.location.hash||"/";render();return}if(wasActive)activeId=tabs[Math.max(0,i-1)].id;switchTab(activeId)}
   function navigate(value,addHistory=true){const entered=value.trim();if(!entered){status.textContent="Enter a search or website address.";return}let url;if(/^https?:\/\//i.test(entered)||/^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered))url=normalize(entered);else url="https://www.google.com/search?igu=1&q="+encodeURIComponent(entered);if(!url){status.textContent="Enter a valid http:// or https:// address.";return}let t=active()||createTab();setTitle(t,url);if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}sandbox();frame.src=url;urlInput.value=url;modal.classList.add("open");status.textContent="Loading "+t.title+". Sites may block iframe embedding.";render()}
   document.getElementById("tempGo").addEventListener("click",()=>navigate(urlInput.value));
