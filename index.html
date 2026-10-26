@@ -1149,8 +1149,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   </button>
 </nav>
 <script>
-  // These sections are not available yet; keep clicks on MoonStone and show a clear notice.
-  document.querySelectorAll('.sidebar a.side-link[aria-label="Movies"], .sidebar a.side-link[aria-label="Apps"], .sidebar a.side-link[aria-label="Chatroom"]').forEach(link => {
+  // Movies now opens movies.html directly; keep Coming soon notices only for unfinished sections.
+  document.querySelectorAll('.sidebar a.side-link[aria-label="Apps"], .sidebar a.side-link[aria-label="Chatroom"]').forEach(link => {
     link.addEventListener("click", event => {
       event.preventDefault();
       window.alert("Coming soon");
