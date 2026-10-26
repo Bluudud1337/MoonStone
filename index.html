@@ -489,6 +489,15 @@ main {
   stroke-linejoin: round;
 }
 
+.bookmark-favicon-img{width:32px;height:32px;object-fit:contain;border-radius:8px}
+.favicon-bookmarks .bookmarks{grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:12px}
+.favicon-bookmarks .bookmark{min-height:102px;padding:12px 6px;border-color:transparent;background:transparent;gap:9px}
+.favicon-bookmarks .bookmark:hover{background:var(--hover);border-color:var(--border);box-shadow:none;transform:translateY(-2px)}
+.favicon-bookmarks .bookmark-icon{width:44px;height:44px;border-radius:12px;background:var(--panel);display:grid;place-items:center}
+.favicon-bookmarks .bookmark-icon svg{width:24px;height:24px}
+.favicon-bookmarks .bookmark-favicon-img{width:28px;height:28px}
+.favicon-bookmarks .bookmark-name{font-size:12px;text-align:center}
+.favicon-bookmarks .bookmark-remove{top:3px;right:3px}
 .bookmark-name {
   max-width: 100%;
   font-size: 11px;
@@ -1203,6 +1212,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           <div class="setting-row"><div class="setting-description"><strong>Confirm closing tab</strong><span>Show the browser’s confirmation when closing or reloading this tab. Following links and opening bookmarks will not trigger the warning.</span></div><button class="toggle" id="confirmLeaveToggle" role="switch" aria-checked="true" aria-label="Confirm leaving"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Keep this page open</strong><span>Block MoonStone bookmark navigation while enabled. This does not prevent closing the tab.</span></div><button class="toggle" id="cancelLeaveToggle" role="switch" aria-checked="false" aria-label="Cancel leaving automatically"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Compact bookmarks</strong><span>Use smaller shortcut tiles on the homepage</span></div><button class="toggle" id="compactToggle" role="switch" aria-checked="false" aria-label="Compact bookmarks"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Favicon bookmarks</strong><span>Show website icons with each bookmark name underneath, like browser shortcuts.</span></div><button class="toggle" id="faviconBookmarksToggle" role="switch" aria-checked="false" aria-label="Favicon bookmarks"></button></div>
         </section>
         <section class="settings-panel" data-settings-panel="privacy">
           <p class="settings-kicker">YOUR CONTROL</p><h3>Privacy</h3><p class="settings-intro">Manage how this page behaves on your device.</p>
@@ -1355,6 +1365,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     cancelLeave: savedSettings.cancelLeave === true,
     browserAllowRedirects: savedSettings.browserAllowRedirects === true,
     compactBookmarks: savedSettings.compactBookmarks === true,
+    faviconBookmarks: savedSettings.faviconBookmarks === true,
     dockPosition: ["left","right","bottom"].includes(savedSettings.dockPosition) ? savedSettings.dockPosition : "left",
     dockSpan: savedSettings.dockSpan === "full" ? "full" : "compact",
     siteFont: typeof savedSettings.siteFont === "string" ? savedSettings.siteFont.slice(0, 60) : "",
@@ -1603,6 +1614,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     $("#confirmLeaveToggle").setAttribute("aria-checked", settings.confirmLeave);
     $("#cancelLeaveToggle").setAttribute("aria-checked", settings.cancelLeave);
     $("#compactToggle").setAttribute("aria-checked", settings.compactBookmarks);
+    $("#faviconBookmarksToggle").setAttribute("aria-checked", settings.faviconBookmarks);
+    document.body.classList.toggle("favicon-bookmarks", settings.faviconBookmarks);
     document.body.classList.toggle("compact-bookmarks", settings.compactBookmarks);
     document.body.classList.remove("dock-left","dock-right","dock-bottom");
     document.body.classList.add("dock-" + settings.dockPosition);
@@ -1694,6 +1707,19 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       const icon = document.createElement("span");
       icon.className = "bookmark-icon";
       icon.innerHTML = iconSVG[bookmark.icon] || iconSVG.link;
+      if (settings.faviconBookmarks) {
+        const bookmarkUrl = safeUrl(bookmark.url);
+        if (bookmarkUrl) {
+          const favicon = document.createElement("img");
+          favicon.className = "bookmark-favicon-img";
+          favicon.alt = "";
+          favicon.loading = "lazy";
+          favicon.referrerPolicy = "no-referrer";
+          favicon.src = "https://www.google.com/s2/favicons?domain_url=" + encodeURIComponent(new URL(bookmarkUrl).origin) + "&sz=64";
+          favicon.addEventListener("error", () => { favicon.remove(); }, { once: true });
+          icon.replaceChildren(favicon);
+        }
+      }
 
       const name = document.createElement("span");
       name.className = "bookmark-name";
@@ -1890,6 +1916,13 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     settings.compactBookmarks = !settings.compactBookmarks;
     saveSettings();
     applySettings();
+  });
+
+  $("#faviconBookmarksToggle").addEventListener("click", () => {
+    settings.faviconBookmarks = !settings.faviconBookmarks;
+    saveSettings();
+    applySettings();
+    renderBookmarks();
   });
   $("#dockPositionSelect").addEventListener("change", event => {
     settings.dockPosition = ["left","right","bottom"].includes(event.target.value) ? event.target.value : "left";
