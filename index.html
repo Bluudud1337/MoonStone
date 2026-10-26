@@ -1010,7 +1010,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       <input id="tempBrowserAddress" type="text" aria-label="Current search or website" placeholder="Search or enter website address" autocomplete="off" spellcheck="false">
       <button id="tempFullscreen" class="temp-fullscreen-button" type="button" title="Toggle fullscreen" aria-label="Toggle fullscreen" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/></svg></button>
     </div>
-    <iframe id="tempBrowserFrame" title="MoonStone browser" src="https://cosmic-dun-kappa.vercelcosmic-dun-kappa.vercel.app/p" allow="fullscreen; clipboard-read; clipboard-write" referrerpolicy="no-referrer"></iframe>
+    <iframe id="tempBrowserFrame" title="MoonStone browser" src="https://cosmic-dun-kappa.vercel.app/p" allow="fullscreen; clipboard-read; clipboard-write" referrerpolicy="no-referrer"></iframe>
     <div class="temp-browser-note" id="tempBrowserStatus" aria-live="polite"></div>
   </div>
 </div>
@@ -2106,7 +2106,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   function createTab(){const t={id:nextId++,url:"",title:"New tab",history:[],index:-1};tabs.push(t);activeId=t.id;modal.classList.add("open");urlInput.value="";render();showNewTabPage();status.textContent="New tab: type a search or website address in the address bar.";requestAnimationFrame(()=>urlInput.focus());return t}
   function showNewTabPage(){
     sandbox();
-    const newTabUrl="https://cosmic-dun-kappa.vercelcosmic-dun-kappa.vercel.app/p";
+    const newTabUrl="https://cosmic-dun-kappa.vercel.app/p";
     if(browserAddress)browserAddress.value=newTabUrl;
     frame.src=newTabUrl;
   }
