@@ -1708,10 +1708,11 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           beginEdit(index);
           return;
         }
-        // Bookmarks navigate normally unless "Keep this page open" is enabled.
-        if (settings.cancelLeave) {
-          event.preventDefault();
-          return;
+        // Open bookmark URLs inside MoonStone's built-in browser.
+        event.preventDefault();
+        if (settings.cancelLeave) return;
+        if (typeof window.moonstoneOpenSearch === "function") {
+          window.moonstoneOpenSearch(safeUrl(bookmark.url));
         }
       });
 
@@ -2014,7 +2015,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
     if (matches.length === 1) {
       const destination = safeUrl(matches[0].url);
-      if (destination && shouldAllowNavigation()) location.href = destination;
+      if (destination && shouldAllowNavigation() && typeof window.moonstoneOpenSearch === "function") {
+        window.moonstoneOpenSearch(destination);
+      }
     } else if (matches.length > 1) {
       $("#bookmarks").innerHTML = "";
       matches.forEach(bookmark => {
@@ -2033,8 +2036,11 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
             clickEvent.preventDefault();
             return;
           }
-          // Only the explicit "Keep this page open" option blocks bookmark navigation.
-          if (settings.cancelLeave) clickEvent.preventDefault();
+          // Open search-result bookmarks in MoonStone's built-in browser.
+          clickEvent.preventDefault();
+          if (!settings.cancelLeave && typeof window.moonstoneOpenSearch === "function") {
+            window.moonstoneOpenSearch(safeUrl(bookmark.url));
+          }
         });
         $("#bookmarks").appendChild(link);
       });
