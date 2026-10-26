@@ -874,9 +874,10 @@ main {
 }
 
 /* MoonStone in-site browser bar */
-.site-browser{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:8px;padding:10px 14px;background:color-mix(in srgb,var(--bg,#090909) 92%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid var(--border,#292925);min-width:0}
+.site-browser{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:8px;padding:10px 14px;background:color-mix(in srgb,var(--bg,#090909) 92%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid var(--border,#292925);width:100%;box-sizing:border-box;min-width:0}
 .site-browser .browser-action{flex:0 0 auto}
-.site-browser .browser-address-wrap{flex:1 1 260px;max-width:760px}
+.site-browser .browser-address-wrap{flex:1 1 0;max-width:none;width:auto;min-width:0}
+.site-browser #tempGo{margin-left:auto}
 .site-browser #tempGo{min-width:36px}
 .browser-dots{display:flex;gap:6px;flex:0 0 auto}
 .browser-dot{width:10px;height:10px;border-radius:50%;background:#777}
