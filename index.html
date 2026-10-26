@@ -1340,6 +1340,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     animations: savedSettings.animations !== false,
     confirmLeave: savedSettings.confirmLeave !== false,
     cancelLeave: savedSettings.cancelLeave === true,
+    browserAllowRedirects: savedSettings.browserAllowRedirects === true,
     compactBookmarks: savedSettings.compactBookmarks === true,
     dockPosition: ["left","right","bottom"].includes(savedSettings.dockPosition) ? savedSettings.dockPosition : "left",
     dockSpan: savedSettings.dockSpan === "full" ? "full" : "compact",
@@ -1452,6 +1453,10 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   window.setTimeout(typeRandomMessage, 1800);
 
   function saveSettings() {
+    // The browser lives in its own script scope, so preserve its sandbox toggle
+    // when any of the main settings are saved.
+    const existing = loadJSON("moonstone-settings", {});
+    settings.browserAllowRedirects = existing.browserAllowRedirects === true;
     localStorage.setItem("moonstone-settings", JSON.stringify(settings));
   }
 
@@ -1962,6 +1967,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
         animations: backup.settings.animations !== false,
         confirmLeave: backup.settings.confirmLeave !== false,
         cancelLeave: backup.settings.cancelLeave === true,
+        browserAllowRedirects: backup.settings.browserAllowRedirects === true,
         compactBookmarks: backup.settings.compactBookmarks === true,
         dockPosition: ["left","right","bottom"].includes(backup.settings.dockPosition) ? backup.settings.dockPosition : "left",
         dockSpan: backup.settings.dockSpan === "full" ? "full" : "compact"
@@ -1982,7 +1988,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
   $("#resetSettingsButton").addEventListener("click", () => {
     if (!window.confirm("Reset MoonStone preferences to their defaults? Your bookmarks will be kept.")) return;
-    settings = {theme:"moonstone",particles:true,animations:true,confirmLeave:true,cancelLeave:false,compactBookmarks:false,dockPosition:"left",dockSpan:"compact",siteFont:"",layout:"classic",cursorStyle:"default",cursorImage:"",cursorImageUrl:""};
+    settings = {theme:"moonstone",particles:true,animations:true,confirmLeave:true,cancelLeave:false,browserAllowRedirects:false,compactBookmarks:false,dockPosition:"left",dockSpan:"compact",siteFont:"",layout:"classic",cursorStyle:"default",cursorImage:"",cursorImageUrl:""};
     saveSettings();
     applySettings();
     $("#settingsDataStatus").textContent = "Preferences reset. Your bookmarks are unchanged.";
