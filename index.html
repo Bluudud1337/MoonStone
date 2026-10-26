@@ -1710,9 +1710,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
         }
         // Open bookmark URLs inside MoonStone's built-in browser.
         event.preventDefault();
-        if (settings.cancelLeave) return;
-        if (typeof window.moonstoneOpenSearch === "function") {
-          window.moonstoneOpenSearch(safeUrl(bookmark.url));
+        const destination = safeUrl(bookmark.url);
+        if (destination && typeof window.moonstoneOpenSearch === "function") {
+          window.moonstoneOpenSearch(destination);
         }
       });
 
@@ -2015,7 +2015,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
     if (matches.length === 1) {
       const destination = safeUrl(matches[0].url);
-      if (destination && shouldAllowNavigation() && typeof window.moonstoneOpenSearch === "function") {
+      if (destination && typeof window.moonstoneOpenSearch === "function") {
         window.moonstoneOpenSearch(destination);
       }
     } else if (matches.length > 1) {
@@ -2038,8 +2038,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           }
           // Open search-result bookmarks in MoonStone's built-in browser.
           clickEvent.preventDefault();
-          if (!settings.cancelLeave && typeof window.moonstoneOpenSearch === "function") {
-            window.moonstoneOpenSearch(safeUrl(bookmark.url));
+          const destination = safeUrl(bookmark.url);
+          if (destination && typeof window.moonstoneOpenSearch === "function") {
+            window.moonstoneOpenSearch(destination);
           }
         });
         $("#bookmarks").appendChild(link);
