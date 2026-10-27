@@ -542,6 +542,9 @@ main#rows{margin-top:-52px}
  #hero.hero{min-height:660px}
 }
 
+
+/* Poster sharpness: let images render cleanly without blur or transforms */
+.card .poster img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;filter:none!important;transform:none!important;backface-visibility:hidden}
 </style>
 </head>
 <body data-layout="pc" data-card="m">
@@ -695,7 +698,7 @@ main#rows{margin-top:-52px}
 const suggestionLink = "https://forms.gle/y54pPNFBHGC6xTVd7";
 const movies = [
   {id:"Backrooms",title:"Backrooms",type:"movie",year:"2026",runtime:"1h 45m",rating:"95%",badge:"New",description:"I still havent watched this. - 9/6/26",poster:"https://th.bing.com/th/id/OIP.5XiPuzVrClP9Wg_3OQRn3AHaK9?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",embed:"https://shuttletv.su/watch/1083381",watched:0,likes:0},
-  {id:"MaM",title:"Minions and Monsters",type:"movie",year:"2026",runtime:"1h 45m",rating:"95%",badge:"New",description:"Another minion movie.",poster:"https://th.bing.com/th/id/OIP.nRcY7Cw_NLyMnI4MY0s5XwAAAA?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",embed:"https://player.videasy.to/movie/1315772?color=8834ec",watched:0,likes:0},
+  {id:"MaM",title:"Minions and Monsters",type:"movie",year:"2026",runtime:"1h 45m",rating:"95%",badge:"New",description:"Another minion movie.",poster:"https://images.contentstack.io/v3/assets/bltcedd8dbd5891265b/blt6c2f9cbeef5e0e2c/Minions&Monsters_keyart_desktop_2000x3000.jpg",embed:"https://player.videasy.to/movie/1315772?color=8834ec",watched:0,likes:0},
   {id:"AU",title:"Among Us",type:"show",year:"S1",runtime:"10 episodes",rating:"92%",badge:"",description:"amung us sus boi.",poster:"https://i.ebayimg.com/images/g/zC4AAeSwjgxqJVzZ/s-l1600.webp",embed:"https://player.videasy.to/tv/229544/1/1?color=8834ec",watched:0,likes:0,
     seasons:[Array.from({length:10},(_,i)=>`https://player.videasy.to/tv/229544/1/${i+1}?color=8834ec`)]},
   {id:"JJK",title:"Jujutsu Kaisen",type:"show",year:"2020",runtime:"3 seasons",rating:"92%",badge:"",description:"'when does the idl women guy show up?'",poster:"https://i.pinimg.com/736x/24/45/7d/24457d7e880f74bd7f4e3fb6adf7730d.jpg",
@@ -708,7 +711,7 @@ const movies = [
   {id:"OP",title:"One Piece",type:"show",year:"1999",runtime:"1100+ episodes",rating:"95%",badge:"New",description:"Slop Piece",poster:"https://v3.fal.media/files/koala/XHpoYbHsQUytj1vyGWfXz_output.png",
     embed:"https://waves.lat/stream/anime?title=ONE+PIECE&poster=%2F%21cover%21%2FGUMuCFIcQw1UBRxdE38DeF9WNBFNUAM4X1Q1XRN_FiUdUn9KZ1geJR1eKQxCXR5pQ3E3HUVQEWlDcTsWSFQVaUNxORdXXAJpQ3E3HUVQBSFUBRwaWQtBYTR7CSFZCgkBIVQRNQ9TACs%2F&episode=1&episodeName=E1&language=sub&anilist_id=21&mal_id=21&anikoto_episode_id=2142&year=1999&episode_count=1177&format=TV",watched:0,likes:0,
     seasons:[["https://waves.lat/stream/anime?title=ONE+PIECE&poster=%2F%21cover%21%2FGUMuCFIcQw1UBRxdE38DeF9WNBFNUAM4X1Q1XRN_FiUdUn9KZ1geJR1eKQxCXR5pQ3E3HUVQEWlDcTsWSFQVaUNxORdXXAJpQ3E3HUVQBSFUBRwaWQtBYTR7CSFZCgkBIVQRNQ9TACs%2F&episode=1&episodeName=E1&language=sub&anilist_id=21&mal_id=21&anikoto_episode_id=2142&year=1999&episode_count=1177&format=TV"]]},
-  {id:"OB",title:"Obsession",type:"movie",year:"2026",runtime:"1h 45m",rating:"95%",badge:"New",description:"THE OBSESSION DANCE!!!!!",poster:"https://th.bing.com/th/id/OIP.MgMzuOHIccHc84MHu-O6MQAAAA?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",embed:"https://vidcore.io/movie/1339713?autoPlay=true",watched:0,likes:0},
+  {id:"OB",title:"Obsession",type:"movie",year:"2026",runtime:"1h 45m",rating:"95%",badge:"New",description:"THE OBSESSION DANCE!!!!!",poster:"https://images.contentstack.io/v3/assets/bltcedd8dbd5891265b/blt7f0e8b3c4a9a7d50/GS_FOCUS_OBS_1080x1600_PAYOFF_DIGI_FIN01_Sm.jpg",embed:"https://vidcore.io/movie/1339713?autoPlay=true",watched:0,likes:0},
   {id:"BUDDY",title:"Buddy",type:"movie",year:"2026",runtime:"1h 45m",rating:"95%",badge:"New",description:"That One Movie",poster:"https://d220mw8ugsbr4n.cloudfront.net/film-assets/posters/BorZUhmLcEha4-WqDzn--",embed:"https://vidfast.vc/movie/1514026",watched:0,likes:0},
   {id:"DANIEL",title:"Re:Zero",type:"show",year:"2016",runtime:"25 episodes",rating:"92%",badge:"BIRTHDAY",description:"yoo its daniel",poster:"https://www.panzer-command.co.uk/user/products/large/HEO/Anime/ReZero/x_gye-fp4472.jpg",
     embed:"https://waves.lat/stream/anime?title=Re%3AZERO+-Starting+Life+in+Another+World-&poster=%2F%21cover%21%2FGUMuCFIcQw1UBRxdE38DeF9WNBFNUAM4X1Q1XRN_FiUdUn9KZ1geJR1eKQxCXR5pQ3E3HUVQEWlDcTsWSFQVaUNxORdXXAJpQ3E3HUVQBSFUBRwaWQtBf0QCdw9zbyU-Nk8qDmhoIWIbRz0%2F&episode=1&episodeName=E1&language=sub&anilist_id=21355&mal_id=31240&year=2016&episode_count=25&format=TV",watched:0,likes:0,
