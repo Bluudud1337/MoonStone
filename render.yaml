@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: moonstone-scramjet-browser
+    runtime: node
+    rootDir: scramjet-browser
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    plan: free
