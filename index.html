@@ -1264,6 +1264,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           <p class="settings-kicker">BROWSING</p><h3>Browser</h3><p class="settings-intro">Control how the built-in browser opens websites and uses fullscreen.</p>
           <div class="setting-row"><div class="setting-description"><strong>Disable browser sandbox</strong><span>Allows sites to redirect the main page and removes iframe sandbox restrictions. Only enable for sites you trust.</span></div><button class="toggle" id="settingsBrowserAllowRedirects" role="switch" aria-checked="false" aria-label="Disable browser sandbox"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Browser fullscreen</strong><span>Use the Fullscreen button in the browser toolbar to expand tabs and the page to the entire screen.</span></div><span class="settings-status">IN TOOLBAR</span></div>
+          <div class="setting-row"><div class="setting-description"><strong>Open MoonStone as Blob</strong><span>Open a copy of this page through a temporary blob: URL. Some relative navigation and browser features may behave differently.</span></div><button class="settings-action" id="openMoonstoneBlob" type="button">Open as Blob</button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Always open as Blob</strong><span>When MoonStone is opened from its normal website URL, automatically create and open a Blob copy. Blob URLs are temporary and are recreated when you revisit the website.</span></div><button class="toggle" id="alwaysMoonstoneBlob" role="switch" aria-checked="false" aria-label="Always open MoonStone as Blob"></button></div>
+          <p class="settings-intro" id="blobModeStatus" role="status">Blob mode is off.</p>
         </section>
         <section class="settings-panel" data-settings-panel="data">
           <p class="settings-kicker">BACKUP & RESTORE</p><h3>Your data</h3><p class="settings-intro">Keep a backup of your preferences and bookmarks.</p>
@@ -1420,6 +1423,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     confirmLeave: savedSettings.confirmLeave !== false,
     cancelLeave: savedSettings.cancelLeave === true,
     browserAllowRedirects: savedSettings.browserAllowRedirects === true,
+    alwaysMoonstoneBlob: savedSettings.alwaysMoonstoneBlob === true,
     compactBookmarks: savedSettings.compactBookmarks === true,
     faviconBookmarks: savedSettings.faviconBookmarks === true,
     dockPosition: ["left","right","bottom"].includes(savedSettings.dockPosition) ? savedSettings.dockPosition : "left",
@@ -1535,11 +1539,56 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
   window.setTimeout(typeRandomMessage, 1800);
 
+  async function openMoonstoneAsBlob() {
+    const status = $("#blobModeStatus");
+    if (location.protocol === "blob:") {
+      if (status) status.textContent = "MoonStone is already running from a Blob URL.";
+      return;
+    }
+    if (!/^https?:$/.test(location.protocol)) {
+      if (status) status.textContent = "Blob mode requires MoonStone to be opened from its hosted website (HTTP or HTTPS).";
+      return;
+    }
+    const button = $("#openMoonstoneBlob");
+    if (button) { button.disabled = true; button.textContent = "Preparing…"; }
+    if (status) status.textContent = "Preparing a temporary Blob copy of MoonStone…";
+    try {
+      const response = await fetch(location.href, { cache: "no-store", credentials: "same-origin" });
+      if (!response.ok) throw new Error("Could not fetch the current page.");
+      let html = await response.text();
+      const baseUrl = new URL(".", location.href).href;
+      const baseTag = '<base href="' + baseUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;") + '">';
+      if (/<head(?:\s[^>]*)?>/i.test(html)) {
+        html = html.replace(/<head(?:\s[^>]*)?>/i, match => match + "\\n" + baseTag);
+      } else {
+        html = '<!doctype html><html><head>' + baseTag + '</head>' + html + '</html>';
+      }
+      const blobUrl = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+      location.assign(blobUrl);
+    } catch (error) {
+      if (status) status.textContent = "Couldn't open Blob mode. The host may block fetching this page, or the page may have unsupported dependencies.";
+      if (button) { button.disabled = false; button.textContent = "Open as Blob"; }
+    }
+  }
+
+  // Auto-open only when loaded from the normal hosted URL. A Blob document skips
+  // this branch, preventing an automatic Blob-to-Blob redirect loop.
+  if (location.protocol !== "blob:" && /^https?:$/.test(location.protocol)) {
+    try {
+      const initialBlobSettings = JSON.parse(localStorage.getItem("moonstone-settings") || "{}");
+      if (initialBlobSettings.alwaysMoonstoneBlob === true) {
+        // Delay until this script has finished registering the site's handlers.
+        window.setTimeout(() => openMoonstoneAsBlob(), 0);
+      }
+    } catch (_) {}
+  }
+
   function saveSettings() {
     // The browser lives in its own script scope, so preserve its sandbox toggle
     // when any of the main settings are saved.
     const existing = loadJSON("moonstone-settings", {});
     settings.browserAllowRedirects = existing.browserAllowRedirects === true;
+    settings.alwaysMoonstoneBlob = existing.alwaysMoonstoneBlob === true;
     localStorage.setItem("moonstone-settings", JSON.stringify(settings));
   }
 
@@ -1576,6 +1625,25 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   }
 
   function applySettings() {
+    const blobToggle = $("#alwaysMoonstoneBlob");
+    if (blobToggle) {
+      blobToggle.setAttribute("aria-checked", String(settings.alwaysMoonstoneBlob));
+      blobToggle.addEventListener("click", () => {
+        settings.alwaysMoonstoneBlob = !settings.alwaysMoonstoneBlob;
+        blobToggle.setAttribute("aria-checked", String(settings.alwaysMoonstoneBlob));
+        saveSettings();
+        const blobStatus = $("#blobModeStatus");
+        if (blobStatus) blobStatus.textContent = settings.alwaysMoonstoneBlob
+          ? "Always open as Blob is enabled. It takes effect when you next open MoonStone at its normal website address."
+          : "Always open as Blob is disabled.";
+      });
+    }
+    const blobStatus = $("#blobModeStatus");
+    if (blobStatus) blobStatus.textContent = settings.alwaysMoonstoneBlob
+      ? "Always open as Blob is enabled. This page is not a blob: URL."
+      : (location.protocol === "blob:" ? "MoonStone is currently open as a Blob URL." : "Blob mode is off.");
+    const openBlobButton = $("#openMoonstoneBlob");
+    if (openBlobButton) openBlobButton.addEventListener("click", () => openMoonstoneAsBlob());
     document.body.dataset.theme = settings.theme;
     document.body.classList.toggle("layout-browser", settings.layout === "browser");
     document.body.dataset.cursor = settings.cursorStyle === "custom" && !settings.cursorImage ? "default" : settings.cursorStyle;
