@@ -458,6 +458,11 @@ main#rows{margin-top:-52px}
 }
 
 
+/* Poster fallback fix: placeholders must not cover loaded artwork */
+.card .poster .ph{display:none}
+.card .poster img{position:relative;z-index:1}
+.card .poster .ph[style*="display:grid"]{z-index:2;background:var(--panel2)}
+.card .poster .badge,.card .poster .over{z-index:3}
 /* ShuttleTV reference pass: floating glass navigation, full-bleed feature, poster rails */
 :root{--card:clamp(170px,16vw,245px)}
 #moonstoneDock{display:none!important}
@@ -882,7 +887,7 @@ function setupHero(){
 function card(t){
   const on=liked().includes(t.id);
   return `<div class="card" tabindex="0" data-id="${esc(t.id)}">
-    <div class="poster">${t.poster?`<img src="${esc(t.poster)}" alt="" loading="lazy" onerror="this.remove()">`:""}<div class="ph">${esc(t.title)}</div>
+    <div class="poster">${t.poster?`<img src="${esc(t.poster)}" alt="" loading="lazy" onerror="this.remove();this.nextElementSibling.style.display=\'grid\'">`:""}<div class="ph" style="display:${t.poster?\'none\':\'grid\'}">${esc(t.title)}</div>
     ${t.badge?`<span class="badge">${esc(t.badge)}</span>`:""}
     <div class="over"><button class="circ" data-play="${esc(t.id)}" aria-label="Play ${esc(t.title)}">▶</button><button class="circ ${on?"on":""}" data-like="${esc(t.id)}" aria-label="${on?"Remove from":"Add to"} My List">${on?"✓":"＋"}</button></div></div>
     <div class="t">${esc(t.title)}</div><div class="s">${esc(t.year)} · ${t.type==="show"?"Show":"Movie"}</div></div>`;
