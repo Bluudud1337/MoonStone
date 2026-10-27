@@ -422,6 +422,41 @@ main{margin-top:-3.5rem;padding-bottom:64px}
  .form{padding:20px}
 }
 
+
+/* ShuttleTV-inspired browsing layout, adapted to MoonStone's theme system */
+.top{background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 96%,transparent),color-mix(in srgb,var(--bg) 72%,transparent));backdrop-filter:blur(14px)}
+.top.solid{background:color-mix(in srgb,var(--bg) 94%,transparent)}
+.top .logo{letter-spacing:-.045em}
+#top .nav button{border-radius:999px}
+.hero{min-height:min(76vh,700px);padding-top:115px;padding-bottom:105px}
+.hero .bg{filter:none;transform:none;opacity:.56;background-position:center 28%}
+.hero::after{background:linear-gradient(90deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 84%,transparent) 28%,color-mix(in srgb,var(--bg) 20%,transparent) 72%,var(--bg) 100%),linear-gradient(0deg,var(--bg) 0%,transparent 46%)}
+.hero h1{max-width:680px;font-size:clamp(2.8rem,6.7vw,6.2rem);line-height:.98;letter-spacing:-.065em}
+.hero p{max-width:490px;font-size:.94rem;line-height:1.8}
+.hero-poster{transform:none;border-radius:12px;border:1px solid color-mix(in srgb,var(--ink) 12%,transparent);box-shadow:0 24px 65px #0008}
+main#rows{margin-top:-52px}
+.row{margin-bottom:38px}
+.row h2{display:flex;align-items:center;gap:10px}
+.row h2::after{content:"";height:1px;flex:1;background:color-mix(in srgb,var(--line) 70%,transparent);margin-left:6px}
+.card{width:var(--card);border-radius:9px}
+.card .poster{border-radius:9px;overflow:hidden}
+.card .t{font-weight:650}
+.card .over{backdrop-filter:blur(2px)}
+.grid-h{letter-spacing:-.05em}
+@media(max-width:650px){
+ .hero{min-height:610px;padding:100px 20px 95px;align-items:flex-end}
+ .hero .bg{opacity:.42;background-position:center top}
+ .hero::after{background:linear-gradient(0deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 76%,transparent) 48%,color-mix(in srgb,var(--bg) 10%,transparent) 100%)}
+ .hero h1{font-size:clamp(2.8rem,13vw,4.5rem)}
+ .hero p{font-size:.84rem;line-height:1.7}
+ .hero .acts .btn{flex:initial}
+ main#rows{margin-top:-36px;padding-left:16px;padding-right:16px}
+ .row{margin-bottom:29px}
+ .row h2{font-size:1rem;padding:0}
+ .card{width:min(var(--card),36vw)}
+ .grid{gap:18px 10px}
+}
+
 </style>
 </head>
 <body data-layout="pc" data-card="m">
