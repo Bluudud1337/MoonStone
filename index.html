@@ -2494,6 +2494,8 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.body.classList.contains("browser-fullscreen")){setFullscreen(false);e.stopPropagation();return}if(e.key==="Escape"&&modal.classList.contains("open")){if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")}});
   window.moonstoneOpenSearch=query=>{if(activeId===null)createTab();navigate(query)};
   render();
+  const appToOpen = new URLSearchParams(location.search).get("openApp");
+  if (appToOpen) { try { const target = new URL(appToOpen); if (["http:","https:"].includes(target.protocol)) setTimeout(() => navigate(target.href), 120); } catch {} }
 })();</script>
 
 
