@@ -691,7 +691,7 @@ main#rows{margin-top:-52px}
     <h2 style="padding:24px 26px 0">Add profile</h2>
     <div class="form">
       <label>Name<input id="nName" maxlength="24" placeholder="Jordan" required /></label>
-      <label>Email (saved on this device only)<input id="nEmail" type="email" placeholder="you@example.com" required /></label>
+      <label>Email (optional, saved on this device only)<input id="nEmail" type="email" placeholder="you@example.com" /></label>
       <p class="err hidden" id="nErr" role="alert"></p>
       <button class="btn btn-a" type="submit">Save profile</button>
     </div>
@@ -870,7 +870,6 @@ function chooseProfile(id){
 function openCreate(){closeAll();$("#createForm").reset();$("#nErr").classList.add("hidden");open("#mCreate");$("#nName").focus()}
 $("#gateNew").addEventListener("click",e=>{e.preventDefault();openCreate()});
 $("#modalNew").addEventListener("click",e=>{e.preventDefault();openCreate()});
-document.addEventListener("click",e=>{if(e.target.closest("[data-add-profile]")){e.preventDefault();openCreate()}});
 $("#createForm").onsubmit=e=>{
   e.preventDefault();
   const name=$("#nName").value.trim(),email=$("#nEmail").value.trim().toLowerCase();
@@ -898,7 +897,7 @@ function setupHero(){
 function card(t){
   const on=liked().includes(t.id);
   return `<div class="card" tabindex="0" data-id="${esc(t.id)}">
-    <div class="poster">${t.poster?`<img src="${esc(t.poster)}" alt="" loading="lazy" onerror="this.remove();this.nextElementSibling.style.display=\'grid\'">`:""}<div class="ph" style="display:${t.poster?\'none\':\'grid\'}">${esc(t.title)}</div>
+    <div class="poster">${t.poster?`<img src="${esc(t.poster)}" alt="" loading="lazy" onerror="this.remove();this.nextElementSibling.style.display='grid'">`:""}<div class="ph" style="display:${t.poster?'none':'grid'}">${esc(t.title)}</div>
     ${t.badge?`<span class="badge">${esc(t.badge)}</span>`:""}
     <div class="over"><button class="circ" data-play="${esc(t.id)}" aria-label="Play ${esc(t.title)}">▶</button><button class="circ ${on?"on":""}" data-like="${esc(t.id)}" aria-label="${on?"Remove from":"Add to"} My List">${on?"✓":"＋"}</button></div></div>
     <div class="t">${esc(t.title)}</div><div class="s">${esc(t.year)} · ${t.type==="show"?"Show":"Movie"}</div></div>`;
