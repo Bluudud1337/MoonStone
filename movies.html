@@ -457,6 +457,91 @@ main#rows{margin-top:-52px}
  .grid{gap:18px 10px}
 }
 
+
+/* ShuttleTV reference pass: floating glass navigation, full-bleed feature, poster rails */
+:root{--card:clamp(170px,16vw,245px)}
+#moonstoneDock{display:none!important}
+#top.top{
+ position:fixed;z-index:60;top:22px;left:50%;transform:translateX(-50%);
+ width:max-content;max-width:calc(100vw - 36px);height:64px;
+ padding:8px 14px;gap:18px;border:1px solid #ffffff20;border-radius:999px;
+ background:linear-gradient(110deg,#151719df,#292b2dcc,#111314e8);
+ box-shadow:0 12px 42px #0007,inset 0 1px #ffffff18;
+ backdrop-filter:blur(24px) saturate(135%);-webkit-backdrop-filter:blur(24px) saturate(135%);
+}
+#top .logo{font-size:0;letter-spacing:0;flex:0 0 42px;width:42px;height:42px;justify-content:center}
+#top .logo i{width:38px;height:38px;border-radius:50%;font-size:17px;background:#ffffff14;color:var(--ink)}
+#top .nav{display:flex;align-items:center;gap:4px}
+#top .nav button{padding:11px 17px;border-radius:999px;color:#d0d0d0;font-size:14px;white-space:nowrap}
+#top .nav button.on,#top .nav button:hover{background:#ffffff12;color:#fff}
+#top .right{gap:4px}
+#top .search{width:40px;min-width:40px;background:transparent;border:0;padding:0}
+#top .search:focus-within{width:190px;background:#0005;border:1px solid #ffffff22;padding:0 9px}
+#top .search input{width:0;padding:0;opacity:0}
+#top .search:focus-within input{width:100%;opacity:1}
+#top .ib,#top .me{width:38px;height:38px;border-radius:50%;color:#ddd}
+#top .ib:hover,#top .me:hover{background:#ffffff16}
+#hero.hero{position:relative;min-height:min(92vh,850px);height:min(92vh,850px);padding:150px clamp(26px,7vw,120px) 150px;align-items:center}
+#hero .bg{inset:0;opacity:.92;background-position:center 30%;background-size:cover;filter:none}
+#hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#000b 0%,#0008 35%,#0002 72%,#0005 100%),linear-gradient(0deg,var(--bg) 0%,transparent 45%,#0005 100%)}
+#hero .hero-in{position:relative;z-index:1;width:100%;max-width:1380px;margin:0 auto;align-items:center}
+#hero .hero-copy{max-width:min(70%,900px)}
+#hero .tag{display:none}
+#hero h1{font-size:clamp(3.3rem,8vw,7.8rem);line-height:.91;letter-spacing:-.065em;max-width:100%;text-transform:uppercase;text-shadow:0 3px 25px #0005}
+#hero .meta{display:flex;gap:22px;align-items:center;font-size:clamp(13px,1.4vw,20px);color:#f0f0f0}
+#hero p{max-width:850px;font-size:clamp(14px,1.6vw,22px);line-height:1.7;color:#e0e0e0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#hero .acts{gap:12px}
+#hero .acts .btn{border-radius:999px;min-height:52px;padding:0 26px;font-size:16px;font-weight:700}
+#hero .btn-w{background:#f6f6f6;color:#111}
+#hero .btn-g{background:#15191bd9;color:#fff;border:1px solid #ffffff20}
+#hero .hero-poster{display:none}
+#rows{position:relative;z-index:2;margin-top:-92px!important;padding:0 clamp(22px,5.5vw,92px) 70px!important;max-width:1800px}
+.row{margin-bottom:35px}
+.row h2{padding:0!important;display:flex;justify-content:space-between;gap:18px;font-size:clamp(19px,2vw,29px);font-weight:650;letter-spacing:-.045em}
+.row h2::after{display:none}
+.scroller{gap:22px;padding:12px 2px 22px}
+.card{width:var(--card);flex:0 0 var(--card);border-radius:17px}
+.card .poster{aspect-ratio:2/3;border-radius:17px;overflow:hidden;background:#151515;border:1px solid #ffffff12}
+.card .poster img{width:100%;height:100%;object-fit:cover}
+.card .t{font-size:clamp(12px,1.05vw,16px);font-weight:600;margin-top:10px;letter-spacing:-.02em}
+.card .s{font-size:12px;color:#858585;margin-top:5px}
+.card .circ{width:42px;height:42px;border-radius:50%;background:#101315d9;border:1px solid #ffffff18;color:#fff;font-size:24px;backdrop-filter:blur(10px)}
+.card:hover{transform:translateY(-4px)}
+@media(max-width:760px){
+ #top.top{top:12px;width:calc(100vw - 20px);max-width:none;height:56px;padding:6px 8px;gap:5px;justify-content:space-between}
+ #top .logo{flex-basis:34px;width:34px;height:34px}
+ #top .logo i{width:32px;height:32px;font-size:15px}
+ #top .nav{flex:1;justify-content:center;gap:0}
+ #top .nav button{padding:10px 9px;font-size:12px}
+ #top .right{gap:0}
+ #top .ib,#top .me{width:32px;height:34px}
+ #top .search{width:32px;min-width:32px}
+ #top .search:focus-within{position:absolute;left:8px;right:8px;top:7px;width:auto;background:#111;border-radius:999px;z-index:3}
+ #hero.hero{height:auto;min-height:720px;padding:130px 22px 145px;align-items:flex-end}
+ #hero .bg{background-position:58% center;opacity:.8}
+ #hero::after{background:linear-gradient(0deg,var(--bg) 0%,#0009 42%,#0002 100%),linear-gradient(90deg,#0005,transparent)}
+ #hero .hero-in{align-items:flex-end}
+ #hero .hero-copy{max-width:100%;width:100%}
+ #hero h1{font-size:clamp(2.9rem,13vw,5rem)}
+ #hero .meta{gap:12px;flex-wrap:wrap;font-size:13px}
+ #hero p{font-size:14px;line-height:1.65;-webkit-line-clamp:4}
+ #hero .acts .btn{min-height:46px;padding:0 19px;font-size:14px}
+ #rows{margin-top:-70px!important;padding:0 17px 50px!important}
+ .row{margin-bottom:27px}
+ .row h2{font-size:19px}
+ .scroller{gap:13px;padding:10px 1px 20px}
+ .card{width:clamp(135px,39vw,190px);flex-basis:clamp(135px,39vw,190px)}
+ .card .poster{border-radius:12px}
+ .card .t{font-size:13px}
+ .card .s{font-size:11px}
+ .card .circ{width:35px;height:35px;font-size:20px}
+}
+@media(max-width:390px){
+ #top .nav button{padding:9px 6px;font-size:11px}
+ #top .right .ib{width:28px}
+ #hero.hero{min-height:660px}
+}
+
 </style>
 </head>
 <body data-layout="pc" data-card="m">
