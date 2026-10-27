@@ -357,6 +357,71 @@ body.no-animations .moonstone-dock *,body.calm .moonstone-dock *{transition:none
 }
 @media(max-width:390px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{min-height:590px}.dock-item{width:35px}.moonstone-dock{gap:2px}}
 
+
+/* MoonStone Movies: cinematic layout refresh */
+body{background:radial-gradient(ellipse at 82% -10%,color-mix(in srgb,var(--accent) 11%,transparent),transparent 42%),var(--bg);letter-spacing:-.018em}
+.logo{letter-spacing:.12em}
+.top{height:76px;padding:0 clamp(16px,4.5vw,64px);background:linear-gradient(var(--bg),color-mix(in srgb,var(--bg) 0%,transparent))}
+.nav{gap:5px}
+.nav button{border-radius:8px;padding:10px 12px}
+.hero{min-height:min(82vh,760px);padding:8rem clamp(18px,5vw,72px) 6rem}
+.hero::after{background:linear-gradient(90deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 80%,transparent) 30%,color-mix(in srgb,var(--bg) 18%,transparent) 76%),linear-gradient(0deg,var(--bg),transparent 48%)}
+.hero h1{font-size:clamp(3rem,8vw,7rem);line-height:.93;letter-spacing:-.075em;max-width:740px}
+.hero p{max-width:530px;line-height:1.65}
+.hero .tag{color:var(--accent);letter-spacing:.16em;text-transform:uppercase;font-size:.74rem}
+main{margin-top:-3.5rem;padding-bottom:64px}
+.row{margin-bottom:38px}
+.row h2{padding:0 clamp(18px,5vw,72px);font-size:clamp(1.1rem,2vw,1.45rem);letter-spacing:-.04em}
+.scroller{gap:14px;padding:12px clamp(18px,5vw,72px) 22px}
+.card{border-radius:11px;transition:transform .2s ease,filter .2s}
+.card:hover{transform:translateY(-5px) scale(1.025);filter:brightness(1.07)}
+.card .poster{border-radius:11px;background:var(--panel2)}
+.card .t{font-size:.88rem;font-weight:700}
+.grid{gap:24px 15px;padding:1.5rem clamp(18px,5vw,72px) 24px}
+.grid-h{padding:7rem clamp(18px,5vw,72px) 0;font-size:clamp(2rem,4vw,3.2rem);letter-spacing:-.06em}
+.btn,.ib,.circ{transition:transform .16s ease,filter .16s ease}
+.btn:active,.ib:active,.circ:active{transform:scale(.96)}
+.back{backdrop-filter:blur(12px);padding:12px}
+.modal{border:1px solid var(--line);border-radius:16px;box-shadow:0 30px 100px #0009}
+.gate{background:radial-gradient(ellipse at 50% 0,color-mix(in srgb,var(--accent) 13%,transparent),transparent 55%),var(--bg);padding:28px 16px}
+.gate h1{font-size:clamp(2.5rem,7vw,4.6rem);letter-spacing:-.07em}
+.profiles{gap:clamp(10px,2.5vw,24px);max-width:900px}
+.pchoice{width:clamp(94px,14vw,140px);padding:7px 5px;border-radius:13px}
+.pchoice .av{aspect-ratio:1;border-radius:16px;box-shadow:0 12px 30px #0003;transition:transform .2s,box-shadow .2s}
+.pchoice:hover .av{transform:translateY(-4px);box-shadow:0 0 0 2px var(--accent),0 15px 36px #0005}
+.profile-add-tile .av{background:var(--panel2)!important;border:2px dashed var(--mute);color:var(--ink);font-size:2.5rem}
+.profile-add-tile:hover .av{background:var(--accent)!important;color:var(--bg);border-color:var(--accent)}
+.form input,.form select{max-width:100%;min-width:0}
+@media(max-width:700px){
+ .top{height:62px;padding:0 12px;gap:7px}
+ .top .logo{font-size:.84rem;letter-spacing:.07em}
+ .nav{display:none}
+ .right{gap:2px}
+ .ib{width:38px;height:38px}
+ .hero{min-height:590px;padding:6.5rem 18px 4.8rem;align-items:flex-end}
+ .hero::after{background:linear-gradient(0deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 65%,transparent) 55%,color-mix(in srgb,var(--bg) 12%,transparent) 100%)}
+ .hero h1{font-size:clamp(2.8rem,13vw,4.5rem)}
+ .hero p{font-size:.92rem}
+ .hero .acts{display:flex;gap:8px;flex-wrap:wrap}
+ .hero .acts .btn{flex:1;min-height:44px}
+ main{margin-top:-2rem}
+ .row{margin-bottom:27px}
+ .row h2{padding:0 16px;font-size:1.08rem}
+ .scroller{gap:11px;padding:10px 16px 20px}
+ .card{width:clamp(126px,39vw,174px)}
+ .card .poster{border-radius:9px}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 11px;padding:1.2rem 14px 22px}
+ .grid .card{width:auto;min-width:0}
+ .grid-h{padding:6rem 16px 0;font-size:2rem}
+ .back{padding:8px}
+ .modal{max-height:96dvh;border-radius:14px}
+ .profiles{gap:9px;justify-content:center}
+ .pchoice{width:calc(33.333% - 8px);max-width:118px;padding:4px 2px;font-size:.82rem}
+ .pchoice .av{border-radius:13px;margin-bottom:8px}
+ .gate h1{margin-top:30px}
+ .form{padding:20px}
+}
+
 </style>
 </head>
 <body data-layout="pc" data-card="m">
@@ -618,7 +683,7 @@ const jset=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 const COLORS=["#ff6b4a","#e50914","#8b5cf6","#3b82f6","#10b981","#f5b301"];
 const DEFAULTS={block:true,layout:"pc",accent:COLORS[0],card:"m",calm:false};
 let S={...DEFAULTS,...jget("cf-settings",{})};
-let profiles=jget("coralflix-saved-profiles",[]).filter(p=>p&&p.id&&p.email);
+let profiles=jget("coralflix-saved-profiles",[]).filter(p=>p&&p.id&&p.name).map(p=>({...p,email:p.email||""}));
 let me=localStorage.getItem("coralflix-profile")||"";
 let view="home",cur=null,epCtx=null,hero=null;
 const touchy=matchMedia("(pointer:coarse)").matches;
@@ -652,12 +717,13 @@ function toast(t){const e=document.createElement("div");e.className="toast";e.te
 const COLS=["#ff6b4a","#6d28d9","#2563eb","#b45309","#059669"];
 const pm=p=>`<button class="pchoice" data-p="${esc(p.id)}"><div class="av" style="background:${p.color}">${esc(p.initials)}</div>${esc(p.name)}</button>`;
 function renderProfiles(){
-  const h=profiles.length?profiles.map(pm).join(""):`<div class="empty">No profiles yet. Add one to start.</div>`;
+  const addTile=`<button class="pchoice profile-add-tile" data-add-profile aria-label="Add profile"><div class="av">＋</div><span>Add profile</span></button>`;
+  const h=profiles.map(pm).join("")+addTile;
   $("#gateProfiles").innerHTML=h;$("#modalProfiles").innerHTML=h;
   const p=profiles.find(x=>x.id===me);
   $("#meBtn").innerHTML=p?`<span class="av" style="background:${p.color}">${esc(p.initials)}</span><span>${esc(p.name)}</span>`:"";
 }
-document.addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(b)chooseProfile(b.dataset.p)});
+document.addEventListener("click",e=>{const add=e.target.closest("[data-add-profile]");if(add){openCreate();return}const b=e.target.closest("[data-p]");if(b)chooseProfile(b.dataset.p)});
 function chooseProfile(id){
   if(!profiles.some(p=>p.id===id))return;
   me=id;localStorage.setItem("coralflix-profile",id);
@@ -669,7 +735,7 @@ $("#gateNew").onclick=openCreate;$("#modalNew").onclick=openCreate;
 $("#createForm").onsubmit=e=>{
   e.preventDefault();
   const name=$("#nName").value.trim(),email=$("#nEmail").value.trim().toLowerCase();
-  if(profiles.some(p=>p.email.toLowerCase()===email)){const r=$("#nErr");r.textContent="That email already has a profile on this device.";r.classList.remove("hidden");return}
+  if(email&&profiles.some(p=>(p.email||"").toLowerCase()===email)){const r=$("#nErr");r.textContent="That email already has a profile on this device.";r.classList.remove("hidden");return}
   const p={id:"custom-"+Date.now(),name,email,subtitle:"",initials:name.split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"CF",color:COLS[profiles.length%COLS.length]};
   profiles.push(p);jset("coralflix-saved-profiles",profiles);renderProfiles();chooseProfile(p.id);
 };
