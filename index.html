@@ -1027,6 +1027,11 @@ body[data-cursor="custom"] button,body[data-cursor="custom"] a,body[data-cursor=
 .classic-preview b{left:20%;right:20%;top:38px;height:10px;border-radius:8px;background:#252525}
 .classic-preview em{top:56px;width:13px;height:13px;border-radius:4px;background:#202020}
 .classic-preview em:nth-of-type(1){left:26%}.classic-preview em:nth-of-type(2){left:calc(50% - 6px)}.classic-preview em:nth-of-type(3){right:26%}
+.edge-preview{background:linear-gradient(135deg,#111827,#0c111a)}
+.edge-preview i{left:7px;top:8px;width:18px;height:18px;border-radius:50%;background:conic-gradient(from 210deg,#00c6a2,#0aa4e8,#1768d2,#00c6a2)}
+.edge-preview b{left:32px;right:7px;top:8px;height:18px;border-radius:9px;background:#252d3a}
+.edge-preview em{left:7px;right:7px;top:34px;height:13px;border-radius:7px;background:#202735}
+.edge-preview span{position:absolute;left:7px;right:7px;top:53px;bottom:7px;border-radius:4px;background:linear-gradient(90deg,#1b2635 0 22%,#111722 22% 100%)}
 .layout-choice-copy{display:flex;flex-direction:column;gap:4px}
 .layout-choice-copy strong{font-size:12px;font-weight:600}.layout-choice-copy small{font-size:10px;line-height:1.5;color:var(--muted)}
 .layout-choice-check{display:none;align-self:flex-end;font-size:11px;color:var(--accent)}
@@ -1039,6 +1044,21 @@ body.layout-browser .home{padding-top:8px}
 body.layout-browser .corner-actions{top:68px;right:18px;z-index:55}
 @media(max-width:620px){body.layout-browser .corner-actions{top:66px;right:12px}}
 body.layout-browser .browser-action{height:36px}
+/* Microsoft Edge-inspired homepage chrome */
+body.layout-edge .site-browser{display:flex;position:fixed;inset:0 0 auto 0;z-index:60;height:64px;padding:10px 20px;gap:10px;background:color-mix(in srgb,#101820 94%,var(--bg));border-bottom:1px solid #293641;box-shadow:0 2px 14px #0002}
+body.layout-edge .browser-dots{display:none}
+body.layout-edge .browser-brand{display:flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;background:conic-gradient(from 210deg,#00c6a2,#0aa4e8,#1768d2,#00c6a2);color:transparent;font-size:0;position:relative}
+body.layout-edge .browser-brand:after{content:"";width:15px;height:15px;border-radius:50%;border:3px solid #eafaff;border-left-color:transparent;transform:rotate(-30deg)}
+body.layout-edge .browser-address-wrap{max-width:760px;height:40px;margin:0 auto;padding:0 15px;border-radius:22px;background:#202b36;border:1px solid #344452;transition:background .18s,border-color .18s,box-shadow .18s}
+body.layout-edge .browser-address-wrap:focus-within{background:#263442;border-color:#1788c9;box-shadow:0 0 0 2px #1788c933}
+body.layout-edge #moonstoneAddress{font-family:inherit;font-size:13px;color:#eaf1f7}
+body.layout-edge .browser-lock{color:#8fa5b6}
+body.layout-edge .browser-action{width:38px;min-width:38px;height:38px;flex:0 0 38px;border-radius:50%;border:1px solid transparent;background:transparent;color:#c9d5df}
+body.layout-edge .browser-action:hover{background:#263442;border-color:#344452;color:#fff}
+body.layout-edge #tempGo{margin-left:0}
+body.layout-edge .corner-actions{top:76px;right:18px}
+body.layout-edge main{padding-top:88px}
+@media(max-width:620px){body.layout-edge .site-browser{height:auto;min-height:58px;padding:9px;gap:6px;flex-wrap:nowrap}body.layout-edge .browser-brand{display:none}body.layout-edge .browser-address-wrap{flex:1 1 auto;max-width:none;height:39px}body.layout-edge .site-browser .browser-action{width:34px;min-width:34px;flex-basis:34px;height:34px;padding:0}body.layout-edge .corner-actions{top:66px;right:10px}body.layout-edge main{padding-top:100px}}
 @media(max-width:620px){.layout-choice-list{grid-template-columns:1fr}.layout-choice{flex-direction:row;align-items:center}.layout-choice-preview{width:105px;min-width:105px;height:66px}.layout-choice-copy{flex:1}.layout-choice-check{align-self:center}body.layout-browser .site-browser{padding-left:10px;padding-right:10px}.browser-dots{display:none}.site-browser .browser-action{padding:0 8px}body.layout-browser main{padding-top:70px}}
 /* Settings redesign */
 #settingsModal .modal{width:min(880px,100%);max-height:min(88svh,760px);padding:0;overflow:hidden;display:flex;flex-direction:column}
@@ -1218,6 +1238,11 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
             <button class="layout-choice" type="button" data-layout-choice="classic" aria-pressed="false">
               <span class="layout-choice-preview classic-preview"><i></i><b></b><em></em><em></em><em></em></span>
               <span class="layout-choice-copy"><strong>Classic</strong><small>Hide the browser toolbar for a cleaner homepage.</small></span>
+              <span class="layout-choice-check" aria-hidden="true">✓</span>
+            </button>
+            <button class="layout-choice" type="button" data-layout-choice="edge" aria-pressed="false">
+              <span class="layout-choice-preview edge-preview"><i></i><b></b><em></em><span></span></span>
+              <span class="layout-choice-copy"><strong>Edge style</strong><small>Use a Microsoft Edge-inspired browser toolbar.</small></span>
               <span class="layout-choice-check" aria-hidden="true">✓</span>
             </button>
           </div>
@@ -1636,7 +1661,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     const openBlobButton = $("#openMoonstoneBlob");
     if (openBlobButton) openBlobButton.addEventListener("click", () => openMoonstoneAsBlob());
     document.body.dataset.theme = settings.theme;
-    document.body.classList.toggle("layout-browser", settings.layout === "browser");
+    document.body.classList.toggle("layout-browser", settings.layout === "browser" || settings.layout === "edge");
+    document.body.classList.toggle("layout-edge", settings.layout === "edge");
     document.body.dataset.cursor = settings.cursorStyle === "custom" && !settings.cursorImage ? "default" : settings.cursorStyle;
     if ((settings.cursorStyle === "custom" && settings.cursorImage) || (settings.cursorStyle === "link" && settings.cursorImageUrl)) {
       const cursorUrl = settings.cursorStyle === "link" ? settings.cursorImageUrl : settings.cursorImage;
@@ -1973,7 +1999,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 
   document.querySelectorAll("[data-layout-choice]").forEach(button => {
     button.addEventListener("click", () => {
-      settings.layout = button.dataset.layoutChoice === "browser" ? "browser" : "classic";
+      settings.layout = ["browser", "edge"].includes(button.dataset.layoutChoice) ? button.dataset.layoutChoice : "classic";
       saveSettings();
       applySettings();
     });
