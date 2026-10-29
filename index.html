@@ -2542,8 +2542,23 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
       bookmarks: parse("moonstone-bookmarks", null)
     };
   }
-  function applyCloudData(payload) {
+  function applyCloudData(payload, userId) {
     if (!payload || typeof payload !== "object") return;
+    const local = readLocalData();
+    const sameSettings = JSON.stringify(local.settings) === JSON.stringify(payload.settings || {});
+    const sameBookmarks = JSON.stringify(local.bookmarks) === JSON.stringify(payload.bookmarks === undefined ? null : payload.bookmarks);
+    if (sameSettings && sameBookmarks) {
+      cloudStatus.textContent = "Cloud sync is on";
+      setStatus("Your settings and bookmarks are synced to your account.");
+      return;
+    }
+    // Avoid a reload loop if the cloud copy is restored during startup.
+    const restoreKey = "moonstone-cloud-restored-user";
+    if (sessionStorage.getItem(restoreKey) === userId) {
+      cloudStatus.textContent = "Cloud sync is on";
+      setStatus("Cloud data is loaded. If a setting looks outdated, refresh once.");
+      return;
+    }
     syncing = true;
     try {
       if (payload.settings && typeof payload.settings === "object") {
@@ -2552,8 +2567,9 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
       if (Array.isArray(payload.bookmarks)) {
         localStorage.setItem("moonstone-bookmarks", JSON.stringify(payload.bookmarks));
       }
+      sessionStorage.setItem(restoreKey, userId);
     } finally { syncing = false; }
-    // Refresh the page so existing MoonStone controls apply the restored preferences consistently.
+    // Refresh once so existing controls apply restored preferences consistently.
     location.reload();
   }
   async function saveCloudData(userId) {
@@ -2598,7 +2614,7 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
       const cloudHasData = (cloud.bookmarks !== null && cloud.bookmarks !== undefined) || (cloud.settings && Object.keys(cloud.settings).length > 0);
       if (cloudHasData) {
         // Cloud data is the shared account copy; restore it on this device.
-        applyCloudData(cloud);
+        applyCloudData(cloud, user.id);
         return;
       }
       if (localHasData) {
