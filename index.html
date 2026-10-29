@@ -1225,6 +1225,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
         <button class="settings-nav-item" data-settings-tab="privacy" type="button"><span>◇</span> Privacy</button>
         <button class="settings-nav-item" data-settings-tab="browser" type="button"><span>▣</span> Browser</button>
         <button class="settings-nav-item" data-settings-tab="data" type="button"><span>↗</span> Your data</button>
+        <button class="settings-nav-item" data-settings-tab="account" type="button"><span>◉</span> Account</button>
       </nav>
       <div class="settings-content">
         <section class="settings-panel active" data-settings-panel="appearance">
@@ -1292,6 +1293,24 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           <input id="importSettingsFile" type="file" accept="application/json,.json" hidden>
           <div class="data-card danger-card"><div><strong>Reset preferences</strong><span>Restore default settings. Bookmarks will not be deleted.</span></div><button class="settings-action danger-action" id="resetSettingsButton" type="button">Reset</button></div>
           <p class="modal-note" id="settingsDataStatus" aria-live="polite">Your preferences are saved automatically on this device.</p>
+        <section class="settings-panel" data-settings-panel="account">
+          <p class="settings-kicker">MOONSTONE CLOUD</p><h3>Account</h3>
+          <p class="settings-intro">Sign in to sync your MoonStone settings and bookmarks across devices.</p>
+          <div id="moonstoneAccountSignedOut">
+            <label class="section-label" for="moonstoneAccountEmail">Email</label>
+            <input class="field" id="moonstoneAccountEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+            <label class="section-label" for="moonstoneAccountPassword">Password</label>
+            <input class="field" id="moonstoneAccountPassword" type="password" autocomplete="current-password" minlength="6" placeholder="At least 6 characters" required>
+            <div class="font-custom-controls" style="margin-top:12px">
+              <button class="primary-button" id="moonstoneSignIn" type="button">Sign in</button>
+              <button class="settings-action" id="moonstoneSignUp" type="button">Create account</button>
+            </div>
+          </div>
+          <div id="moonstoneAccountSignedIn" hidden>
+            <div class="data-card"><div><strong id="moonstoneAccountEmailLabel">Signed in</strong><span id="moonstoneCloudStatus">Preparing cloud sync…</span></div><button class="settings-action" id="moonstoneSignOut" type="button">Sign out</button></div>
+          </div>
+          <p class="modal-note" id="moonstoneAccountStatus" role="status" aria-live="polite">Your existing local data stays on this device until you sign in.</p>
+        </section>
         </section>
       </div>
     </div>
@@ -2484,7 +2503,170 @@ body{display:grid;place-items:center;background:#111;color:#f3eee4;font-family:s
 p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-weight:500;letter-spacing:.01em}
 </style>
 </head>
-<body><p>Use the bar uptop to search.</p></body>
+<body><p>Use the bar uptop to search.</p>
+<!-- MoonStone Supabase account + cloud save integration -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  const SUPABASE_URL = "https://wzlofdddzlqylhubimrm.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_-t5UKfdGxVhLLd0WPSHdOg_-bwXg-iw";
+  const status = document.getElementById("moonstoneAccountStatus");
+  const signedOut = document.getElementById("moonstoneAccountSignedOut");
+  const signedIn = document.getElementById("moonstoneAccountSignedIn");
+  const emailLabel = document.getElementById("moonstoneAccountEmailLabel");
+  const cloudStatus = document.getElementById("moonstoneCloudStatus");
+  const emailInput = document.getElementById("moonstoneAccountEmail");
+  const passwordInput = document.getElementById("moonstoneAccountPassword");
+  if (!status || !signedOut || !signedIn) return;
+
+  const setStatus = (message) => { status.textContent = message; };
+  if (!window.supabase || !window.supabase.createClient) {
+    setStatus("Account system couldn't load. Check your connection and refresh.");
+    return;
+  }
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  });
+  let activeUserId = null;
+  let syncing = false;
+  let saveTimer = null;
+  let authReady = false;
+
+  function readLocalData() {
+    const parse = (key, fallback) => {
+      try { const value = localStorage.getItem(key); return value ? JSON.parse(value) : fallback; }
+      catch (_) { return fallback; }
+    };
+    return {
+      settings: parse("moonstone-settings", {}),
+      bookmarks: parse("moonstone-bookmarks", null)
+    };
+  }
+  function applyCloudData(payload) {
+    if (!payload || typeof payload !== "object") return;
+    syncing = true;
+    try {
+      if (payload.settings && typeof payload.settings === "object") {
+        localStorage.setItem("moonstone-settings", JSON.stringify(payload.settings));
+      }
+      if (Array.isArray(payload.bookmarks)) {
+        localStorage.setItem("moonstone-bookmarks", JSON.stringify(payload.bookmarks));
+      }
+    } finally { syncing = false; }
+    // Refresh the page so existing MoonStone controls apply the restored preferences consistently.
+    location.reload();
+  }
+  async function saveCloudData(userId) {
+    if (!userId || syncing) return;
+    const payload = readLocalData();
+    cloudStatus.textContent = "Saving your settings and bookmarks…";
+    const { error } = await client.from("moonstone_user_data").upsert({
+      user_id: userId,
+      payload,
+      updated_at: new Date().toISOString()
+    }, { onConflict: "user_id" });
+    if (error) {
+      cloudStatus.textContent = "Cloud save failed. " + error.message;
+      setStatus("You're signed in, but cloud saving failed. Check that you ran supabase/schema.sql in the Supabase SQL Editor.");
+      return;
+    }
+    cloudStatus.textContent = "Cloud sync is on";
+    setStatus("Your settings and bookmarks are synced to your account.");
+  }
+  async function syncAccount(user) {
+    activeUserId = user ? user.id : null;
+    signedOut.hidden = !!user;
+    signedIn.hidden = !user;
+    if (!user) {
+      if (authReady) setStatus("Signed out. Your local settings and bookmarks remain on this device.");
+      return;
+    }
+    emailLabel.textContent = user.email || "MoonStone account";
+    cloudStatus.textContent = "Checking your cloud save…";
+    setStatus("Signed in. Checking saved MoonStone data…");
+    const { data, error } = await client.from("moonstone_user_data")
+      .select("payload").eq("user_id", user.id).maybeSingle();
+    if (error) {
+      cloudStatus.textContent = "Cloud sync needs setup";
+      setStatus("Account is active, but cloud data couldn't load. Run supabase/schema.sql in your Supabase SQL Editor. Details: " + error.message);
+      return;
+    }
+    if (data && data.payload && typeof data.payload === "object") {
+      const local = readLocalData();
+      const cloud = data.payload;
+      const localHasData = local.bookmarks !== null || Object.keys(local.settings || {}).length > 0;
+      const cloudHasData = (cloud.bookmarks !== null && cloud.bookmarks !== undefined) || (cloud.settings && Object.keys(cloud.settings).length > 0);
+      if (cloudHasData) {
+        // Cloud data is the shared account copy; restore it on this device.
+        applyCloudData(cloud);
+        return;
+      }
+      if (localHasData) {
+        await saveCloudData(user.id);
+      } else {
+        cloudStatus.textContent = "Cloud sync is on";
+        setStatus("Signed in. Your cloud save is ready.");
+      }
+    } else {
+      // First login: upload this browser's current preferences and bookmarks.
+      await saveCloudData(user.id);
+    }
+  }
+
+  // Existing MoonStone scripts save preferences/bookmarks through localStorage.
+  // Observe only these two known keys, leaving all other site behavior unchanged.
+  const originalSetItem = Storage.prototype.setItem;
+  Storage.prototype.setItem = function(key, value) {
+    originalSetItem.call(this, key, value);
+    if (this === localStorage && (key === "moonstone-settings" || key === "moonstone-bookmarks") &&
+        activeUserId && !syncing) {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => saveCloudData(activeUserId), 700);
+    }
+  };
+
+  async function credentials() {
+    const email = (emailInput.value || "").trim();
+    const password = passwordInput.value || "";
+    if (!email || !password) {
+      setStatus("Enter your email and password first.");
+      return null;
+    }
+    return { email, password };
+  }
+  document.getElementById("moonstoneSignUp").addEventListener("click", async () => {
+    const values = await credentials(); if (!values) return;
+    setStatus("Creating your account…");
+    const { data, error } = await client.auth.signUp(values);
+    if (error) { setStatus(error.message); return; }
+    if (data.session) setStatus("Account created. Signing you in…");
+    else setStatus("Account created. Check your email for a confirmation link, then return here to sign in.");
+  });
+  document.getElementById("moonstoneSignIn").addEventListener("click", async () => {
+    const values = await credentials(); if (!values) return;
+    setStatus("Signing in…");
+    const { error } = await client.auth.signInWithPassword(values);
+    if (error) setStatus(error.message);
+  });
+  document.getElementById("moonstoneSignOut").addEventListener("click", async () => {
+    setStatus("Signing out…");
+    const { error } = await client.auth.signOut();
+    if (error) setStatus(error.message);
+  });
+
+  client.auth.onAuthStateChange((event, session) => {
+    // Defer database requests out of the auth callback to avoid blocking auth events.
+    setTimeout(() => { authReady = true; syncAccount(session ? session.user : null); }, 0);
+  });
+  client.auth.getSession().then(({ data, error }) => {
+    if (error) { setStatus("Couldn't restore your session: " + error.message); return; }
+    authReady = true;
+    syncAccount(data.session ? data.session.user : null);
+  });
+})();
+</script>
+
+</body>
 </html>`;
   }
   function closeTab(id){const i=tabs.findIndex(t=>t.id===id);if(i<0)return;const wasActive=activeId===id;tabs.splice(i,1);if(!tabs.length){activeId=null;frame.src="about:blank";modal.classList.remove("open");setFullscreen(false);urlInput.value=window.location.pathname+window.location.search+window.location.hash||"/";render();return}if(wasActive)activeId=tabs[Math.max(0,i-1)].id;switchTab(activeId)}
