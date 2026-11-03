@@ -1138,6 +1138,23 @@ body[data-dock-span="full"][data-dock-position="right"] main.apps-main{padding-r
 body.no-particles #particles{display:none}
 body.no-animations *,body.no-animations *::before,body.no-animations *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 @media(max-width:600px){main.apps-main{padding:30px 16px 100px!important}.apps-header{align-items:flex-start}.apps-grid{grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:9px}.app-card{min-height:122px;padding:12px 7px}.app-icon-wrap{width:46px;height:46px}body[data-dock-position="left"] main.apps-main{padding-left:72px!important}body[data-dock-position="right"] main.apps-main{padding-right:72px!important}body[data-dock-position="bottom"] main.apps-main{padding-bottom:100px!important}}
+/* Mobile usability and safe-area support */
+@media(max-width:600px){
+  main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+  .sidebar{bottom:calc(8px + env(safe-area-inset-bottom));max-width:calc(100vw - 16px)}
+  .side-link,.side-button{width:40px;height:40px}
+  .app-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,105px),1fr));gap:9px}
+  .app-card{min-width:0}
+  .app-name{overflow-wrap:anywhere}
+  .app-window,.modal,.overlay-panel{max-width:100%;max-height:calc(100svh - 16px - env(safe-area-inset-top))}
+  .toolbar,.app-toolbar{flex-wrap:wrap}
+  input,select,button{touch-action:manipulation}
+}
+@media(max-width:380px){
+  main{padding-left:10px;padding-right:10px}
+  .app-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
 </style>
 </head>
 <body>
