@@ -116,6 +116,17 @@ body[data-theme="terminal"] {
   --particle: #39ff14;
 }
 
+body[data-theme="cherry"] {
+  --bg: #0d0307;
+  --panel: #17080d;
+  --hover: #2a0d18;
+  --text: #ffe8ef;
+  --muted: #a66b7b;
+  --border: #3d1725;
+  --accent: #ff4f83;
+  --particle: #ff5a8a;
+}
+
 body[data-theme="garnet"] {
   --bg: #100709;
   --panel: #1a0d12;
@@ -1269,7 +1280,7 @@ body.no-animations *,body.no-animations *::before,body.no-animations *::after{an
 (() => {
  const $=s=>document.querySelector(s);
  let settings={};try{settings=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")}catch{}
- const themes=["moonstone","moonlight","midnight","terminal","garnet","paper","astralsync","eclipse","void-purple","void-white","flowery","halloween","frogies"];
+ const themes=["moonstone","moonlight","midnight","terminal","garnet","cherry","paper","astralsync","eclipse","void-purple","void-white","flowery","halloween","frogies"];
  document.body.dataset.theme=themes.includes(settings.theme)?settings.theme:"moonstone";
  document.body.dataset.dockPosition=["left","right","bottom"].includes(settings.dockPosition)?settings.dockPosition:"left";
  document.body.dataset.dockSpan=settings.dockSpan==="full"?"full":"compact";
