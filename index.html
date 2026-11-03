@@ -2520,6 +2520,38 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 html,body{width:100%;height:100%;margin:0}
 body{display:grid;place-items:center;background:#111;color:#f3eee4;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-weight:500;letter-spacing:.01em}
+/* Mobile layout polish */
+@media(max-width:600px){
+  html{ -webkit-text-size-adjust:100%; }
+  body{ min-height:100svh; }
+  main{ min-height:100svh; padding:42px 16px calc(112px + env(safe-area-inset-bottom)); }
+  .home{ width:100%; max-width:570px; }
+  .brand{ gap:9px; margin-bottom:25px; }
+  .brand-icon{ width:56px; height:63px; }
+  .brand-message{ font-size:clamp(14px,4vw,18px); line-height:1.45; overflow-wrap:anywhere; }
+  .bookmarks{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+  .bookmark{ min-height:70px; padding:10px 5px; gap:7px; }
+  .bookmark-name{font-size:11px}
+  .favicon-bookmarks .bookmarks{grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px}
+  .favicon-bookmarks .bookmark{min-height:86px}
+  .sidebar{bottom:calc(8px + env(safe-area-inset-bottom));gap:3px;padding:5px;max-width:calc(100vw - 16px)}
+  .side-link,.side-button{width:38px;height:38px}
+  .home-status{left:10px;right:10px;bottom:calc(65px + env(safe-area-inset-bottom));justify-content:center;flex-wrap:wrap}
+  .corner-actions{top:calc(10px + env(safe-area-inset-top));right:10px}
+  .modal-backdrop{padding:8px}
+  .modal{max-height:calc(100svh - 16px - env(safe-area-inset-top));padding:16px}
+  #settingsModal .settings-content{min-width:0}
+  .settings-content,.settings-panel,.settings-section{min-width:0;max-width:100%}
+  input,select,textarea,button{touch-action:manipulation}
+}
+@media(max-width:380px){
+  main{padding-left:10px;padding-right:10px}
+  .bookmarks{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .search{gap:8px;padding:0 11px}
+  .search-mode{font-size:10px;padding:6px 7px}
+  .home-status-item{font-size:10px;padding:6px 8px}
+}
+
 </style>
 </head>
 <body><p>Use the bar uptop to search.</p>
