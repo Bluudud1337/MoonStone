@@ -575,6 +575,26 @@ body.sidebar-pushed #moonstoneDock{display:none!important}
  body.sidebar-pushed #moonstoneDock{display:none!important}
 }
 
+/* Mobile usability and safe-area support */
+@media(max-width:600px){
+  body{min-height:100svh}
+  .top{padding-top:env(safe-area-inset-top);height:auto;min-height:3.7rem;gap:8px}
+  .nav{gap:1px;flex-wrap:wrap}
+  .nav button{padding:.45em .55em;font-size:.78rem}
+  .hero{padding:6rem 16px 3rem;min-height:62svh}
+  .hero-in{gap:18px;flex-wrap:wrap}
+  .right{gap:3px}
+  .search.open input{width:min(42vw,180px)}
+  .moonstone-dock{padding-bottom:env(safe-area-inset-bottom)}
+  .modal,.dialog,.profile-modal{max-width:calc(100vw - 16px);max-height:calc(100svh - 16px - env(safe-area-inset-top));overflow:auto}
+}
+@media(max-width:420px){
+  .top{padding-left:10px;padding-right:10px}
+  .nav button{font-size:.72rem;padding:.4em .45em}
+  .hero{padding-left:12px;padding-right:12px}
+  .search.open input{width:34vw}
+}
+
 </style>
 </head>
 <body data-layout="pc" data-card="m">
