@@ -15,6 +15,7 @@ body[data-theme="moonlight"]{--bg:#0c0e15;--panel:#131621;--panel2:#202435;--ink
 body[data-theme="midnight"]{--bg:#080808;--panel:#101010;--panel2:#1b1b1b;--ink:#e8e8e8;--mute:#858585;--line:#292929;--accent:#bdbdbd}
 body[data-theme="terminal"]{--bg:#000;--panel:#050805;--panel2:#0a190a;--ink:#39ff14;--mute:#18b80b;--line:#14520b;--accent:#39ff14}
 body[data-theme="garnet"]{--bg:#100709;--panel:#1a0d12;--panel2:#2b121b;--ink:#f5e8eb;--mute:#b28b96;--line:#47202d;--accent:#e16b88}
+body[data-theme="cherry"]{--bg:#0d0307;--panel:#17080d;--panel2:#2a0d18;--ink:#ffe8ef;--mute:#a66b7b;--line:#3d1725;--accent:#ff4f83}
 body[data-theme="paper"]{color-scheme:light;--bg:#eeeade;--panel:#e4e0d2;--panel2:#d9d4c4;--ink:#171714;--mute:#777469;--line:#d0cbbb;--accent:#24241f}
 body[data-theme="flowery"]{--bg:#17120d;--panel:#211a13;--panel2:#33271a;--ink:#fff3d3;--mute:#d5b99a;--line:#675033;--accent:#f4d34e}
 body[data-theme="astralsync"]{--bg:#070b18;--panel:#0d1428;--panel2:#172342;--ink:#e8edff;--mute:#8f9bc4;--line:#26365f;--accent:#7897ff}
@@ -1069,7 +1070,7 @@ function setMoonStoneParticles(enabled){
 function applyMoonStoneSettings(){
   let prefs={};
   try{prefs=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")||{}}catch{}
-  const themeNames=["moonstone","moonlight","midnight","terminal","garnet","paper","flowery","astralsync","halloween","frogies","eclipse","void-purple","void-white"];
+  const themeNames=["moonstone","moonlight","midnight","terminal","garnet","cherry","paper","flowery","astralsync","halloween","frogies","eclipse","void-purple","void-white"];
   document.body.dataset.theme=themeNames.includes(prefs.theme)?prefs.theme:"moonstone";
   document.body.classList.toggle("calm",prefs.animations===false);
   document.body.dataset.cursor=prefs.cursorStyle||"default";
