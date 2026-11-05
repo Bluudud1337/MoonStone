@@ -128,6 +128,7 @@ async function openUrl(value) {
       const wispUrl = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/wisp/";
       await connection.setTransport("/libcurl/index.mjs", [{ websocket: wispUrl }]);
       ready = true;
+      sessionStorage.removeItem(recoveryKey);
     }
     let tab = activeTab();
     if (!tab) {
