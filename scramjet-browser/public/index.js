@@ -154,21 +154,14 @@ async function openUrl(value) {
   } catch (err) {
     status.textContent = "Browser error";
 
-    // Recover once from a stale/malformed Scramjet IndexedDB schema.
+    // Scramjet may keep its own IndexedDB connection open after a failed init.
+    // Reload first so the browser releases that connection, then clean storage.
     if (isMissingObjectStoreError(err) && !sessionStorage.getItem(recoveryKey)) {
       sessionStorage.setItem(recoveryKey, "1");
-      status.textContent = "Repairing browser storage…";
-      error.textContent = "Scramjet storage is damaged. Resetting its local cache and restarting…";
-      try {
-        await resetScramjetSiteData();
-        location.reload();
-        return;
-      } catch (resetError) {
-        error.textContent = "Automatic repair could not finish: " +
-          (resetError?.message || String(resetError)) +
-          ". Please clear site data for moonstone-scramjet-browser.onrender.com and reopen it.";
-        return;
-      }
+      status.textContent = "Restarting to repair browser storage…";
+      error.textContent = "Scramjet storage is damaged. Restarting before cleanup…";
+      location.reload();
+      return;
     }
 
     if (ready) sessionStorage.removeItem(recoveryKey);
@@ -247,18 +240,37 @@ document.getElementById("back").addEventListener("click", () => {
   renderTabs();
 });
 
-// Accept any HTTP(S) destination URL from MoonStone.
-const initialUrl = new URLSearchParams(location.search).get("url");
-if (initialUrl) {
-  try {
-    const target = new URL(initialUrl);
-    if (target.protocol === "https:" || target.protocol === "http:") {
-      address.value = target.href;
-      openUrl(target.href);
-    } else {
-      document.getElementById("error").textContent = "Only HTTP and HTTPS websites can be opened.";
+// Recover on a fresh page load, after failed Scramjet connections have been released.
+async function startBrowserFromQuery() {
+  if (sessionStorage.getItem(recoveryKey)) {
+    status.textContent = "Repairing browser storage…";
+    error.textContent = "Cleaning damaged browser storage…";
+    try {
+      await resetScramjetSiteData();
+      sessionStorage.removeItem(recoveryKey);
+      error.textContent = "";
+    } catch (resetError) {
+      error.textContent = "Storage cleanup is still blocked. Close every tab open to this browser site, then reload. " +
+        (resetError?.message || String(resetError));
+      return;
     }
-  } catch {
-    document.getElementById("error").textContent = "The website URL is invalid.";
+  }
+
+  // Accept any HTTP(S) destination URL from MoonStone.
+  const initialUrl = new URLSearchParams(location.search).get("url");
+  if (initialUrl) {
+    try {
+      const target = new URL(initialUrl);
+      if (target.protocol === "https:" || target.protocol === "http:") {
+        address.value = target.href;
+        openUrl(target.href);
+      } else {
+        document.getElementById("error").textContent = "Only HTTP and HTTPS websites can be opened.";
+      }
+    } catch {
+      document.getElementById("error").textContent = "The website URL is invalid.";
+    }
   }
 }
+
+startBrowserFromQuery();
