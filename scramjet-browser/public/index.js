@@ -75,6 +75,44 @@ function showBrowser() {
   status.textContent = "Browser ready";
 }
 
+const recoveryKey = "moonstone-scramjet-idb-recovery";
+
+function isMissingObjectStoreError(err) {
+  const message = String(err?.message || err || "");
+  return err?.name === "NotFoundError" ||
+    message.includes("One of the specified object stores was not found");
+}
+
+function deleteIndexedDB(name) {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.deleteDatabase(name);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error || new Error("Could not delete IndexedDB database"));
+    request.onblocked = () => reject(new Error("IndexedDB is still open in another browser tab"));
+  });
+}
+
+// This app's origin is dedicated to the Scramjet browser. Reset only its local
+// proxy databases, service worker, and cached app assets when its DB schema is broken.
+async function resetScramjetSiteData() {
+  if (!indexedDB.databases) {
+    throw new Error("This browser cannot list IndexedDB databases for automatic recovery.");
+  }
+
+  const databases = await indexedDB.databases();
+  await Promise.all(databases.map((database) =>
+    database.name ? deleteIndexedDB(database.name) : Promise.resolve()
+  ));
+
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(registrations.map((registration) => registration.unregister()));
+
+  if ("caches" in window) {
+    const cacheNames = await caches.keys();
+    await Promise.all(cacheNames.map((name) => caches.delete(name)));
+  }
+}
+
 async function openUrl(value) {
   const url = normalizeInput(value);
   if (!url) {
@@ -114,7 +152,29 @@ async function openUrl(value) {
     status.textContent = "Loading " + tab.title;
   } catch (err) {
     status.textContent = "Browser error";
-    error.textContent = "Could not start the browser. " + (err?.message || String(err));
+
+    // Recover once from a stale/malformed Scramjet IndexedDB schema.
+    if (isMissingObjectStoreError(err) && !sessionStorage.getItem(recoveryKey)) {
+      sessionStorage.setItem(recoveryKey, "1");
+      status.textContent = "Repairing browser storage…";
+      error.textContent = "Scramjet storage is damaged. Resetting its local cache and restarting…";
+      try {
+        await resetScramjetSiteData();
+        location.reload();
+        return;
+      } catch (resetError) {
+        error.textContent = "Automatic repair could not finish: " +
+          (resetError?.message || String(resetError)) +
+          ". Please clear site data for moonstone-scramjet-browser.onrender.com and reopen it.";
+        return;
+      }
+    }
+
+    if (ready) sessionStorage.removeItem(recoveryKey);
+    error.textContent = "Could not start the browser. " + (err?.message || String(err)) +
+      (sessionStorage.getItem(recoveryKey)
+        ? " Automatic storage repair was already attempted. Clear site data for this browser site, then reopen it."
+        : "");
   }
 }
 
