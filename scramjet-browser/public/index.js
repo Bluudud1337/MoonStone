@@ -186,18 +186,18 @@ document.getElementById("back").addEventListener("click", () => {
   renderTabs();
 });
 
-// Accept a destination URL from MoonStone's TikTok shortcut.
+// Accept any HTTP(S) destination URL from MoonStone.
 const initialUrl = new URLSearchParams(location.search).get("url");
 if (initialUrl) {
   try {
     const target = new URL(initialUrl);
-    if (target.protocol === "https:" && (target.hostname === "tiktok.com" || target.hostname.endsWith(".tiktok.com"))) {
+    if (target.protocol === "https:" || target.protocol === "http:") {
       address.value = target.href;
       openUrl(target.href);
     } else {
-      document.getElementById("error").textContent = "Only TikTok HTTPS URLs can be opened through this shortcut.";
+      document.getElementById("error").textContent = "Only HTTP and HTTPS websites can be opened.";
     }
   } catch {
-    document.getElementById("error").textContent = "The TikTok URL is invalid.";
+    document.getElementById("error").textContent = "The website URL is invalid.";
   }
 }
