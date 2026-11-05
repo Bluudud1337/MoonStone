@@ -1116,16 +1116,16 @@ main.apps-main{display:block;min-height:100svh;padding:54px 32px 48px 88px;posit
 .apps-search input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font-size:14px}
 .apps-search input::placeholder{color:var(--muted)}
 .apps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:12px}
-/* Apps use the same artwork-card layout as the Games library. */
-.app-card{min-width:0;position:relative;display:flex;flex-direction:column;align-items:stretch;gap:0;padding:0;border:1px solid var(--border);border-radius:16px;background:var(--panel);color:var(--text);overflow:hidden;cursor:pointer;animation:appear .35s ease both;transition:border-color .2s,transform .2s,background .2s}
-.app-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 48%,var(--border));background:color-mix(in srgb,var(--panel) 75%,var(--hover))}
-.app-card:active{transform:scale(.98)}
-.app-icon-wrap{width:100%;height:132px;flex:0 0 132px;display:grid;place-items:center;position:relative;overflow:hidden;background:#151512;border-bottom:1px solid var(--border);border-radius:0;border-left:0;border-right:0;border-top:0}
-.app-icon-wrap:before,.app-icon-wrap:after{content:"";position:absolute;border:1px solid color-mix(in srgb,var(--accent) 24%,transparent);border-radius:50%;width:125px;height:125px;pointer-events:none}
-.app-icon-wrap:after{width:170px;height:170px}
-.app-icon{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;padding:22px;border-radius:0}
-.app-icon-fallback{position:relative;z-index:1;width:100%;height:100%;place-items:center;color:var(--accent);font-size:38px;font-weight:300}
-.app-name{display:block;max-width:100%;padding:14px;font-size:14px;font-weight:600;line-height:1.4;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Match the Games page's exact icon-grid layout and spacing. */
+.apps-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
+.app-card{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;text-align:center;background:transparent!important;border:0!important;border-radius:0;overflow:visible;gap:7px;transform:none!important;min-width:0;padding:0;color:inherit;font:inherit;cursor:pointer;animation:appear .35s ease both}
+.app-card:hover{background:transparent!important}
+.app-icon-wrap{position:relative;width:100%;height:auto;aspect-ratio:1/1;flex:none;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;border:0;border-radius:10px;overflow:hidden}
+.app-icon-wrap:before,.app-icon-wrap:after{display:none}
+.app-icon{display:block;position:relative;z-index:1;width:100%;height:100%;object-fit:cover;object-position:center;border-radius:10px;padding:0;transition:transform .2s ease}
+.app-card:hover .app-icon{transform:scale(1.035)}
+.app-icon-fallback{display:grid;position:relative;z-index:1;width:100%;height:100%;place-items:center;color:var(--accent);font-size:38px;font-weight:300;background:#171717;border-radius:10px}
+.app-name{display:block;max-width:100%;padding:0 2px 3px;font-size:11px;font-weight:500;color:#fff;line-height:1.4;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .apps-empty{display:none;padding:45px 16px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:14px}
 body[data-dock-position="right"] .sidebar{left:auto;right:17px}
 body[data-dock-position="bottom"] .sidebar{left:50%;top:auto;bottom:13px;transform:translateX(-50%);flex-direction:row;gap:4px}
@@ -1158,6 +1158,9 @@ body.no-animations *,body.no-animations *::before,body.no-animations *::after{an
   .app-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
+@media(max-width:1100px){.apps-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media(max-width:800px){.apps-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:520px){main.apps-main{padding:18px 10px 100px}.apps-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.app-card{border-radius:8px}.app-icon{width:82%;height:82%}}
 </style>
 </head>
 <body>
