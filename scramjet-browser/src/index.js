@@ -48,6 +48,8 @@ app.register(fastifyStatic, {
   decorateReply: false
 });
 
+app.get("/", async (request, reply) => reply.sendFile("index.html"));
+
 app.get("/health", async () => ({ ok: true, service: "moonstone-scramjet-browser" }));
 
 app.setNotFoundHandler((request, reply) =>
