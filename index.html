@@ -487,6 +487,17 @@ main {
 @media(max-width:380px){ .search-engine{min-width:0;max-width:86px;padding:6px 4px;font-size:10px} }
 
 
+/* Small homepage feature highlight for the built-in browser */
+.browser-highlight{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;margin:14px 0 2px;padding:13px 16px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));border-radius:13px;background:linear-gradient(100deg,color-mix(in srgb,var(--accent) 9%,var(--panel)),var(--panel) 72%);color:var(--text);text-align:left;cursor:pointer;transition:transform .2s ease,border-color .2s ease,background .2s ease}
+.browser-highlight:hover{transform:translateY(-2px);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 11%,var(--panel))}
+.browser-highlight-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.browser-highlight-copy strong{font-size:12px;font-weight:600}
+.browser-highlight-copy span{font-size:11px;color:var(--muted);line-height:1.45}
+.browser-highlight-link{display:flex;align-items:center;gap:6px;flex-shrink:0;color:var(--accent);font-size:11px;font-weight:600;white-space:nowrap}
+.browser-highlight-link span{font-size:16px;transition:transform .2s ease}
+.browser-highlight:hover .browser-highlight-link span{transform:translateX(3px)}
+@media(max-width:420px){.browser-highlight{padding:12px;gap:8px}.browser-highlight-copy strong{font-size:11px}.browser-highlight-copy>span{font-size:10px}.browser-highlight-link{font-size:10px}}
+
 .bookmarks {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1241,6 +1252,11 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       </select>
       <button class="search-mode" id="searchMode" type="button">Web</button>
     </form>
+
+    <button class="browser-highlight" id="browserHighlight" type="button">
+      <span class="browser-highlight-copy"><strong>Have you tried the MoonStone browser?</strong><span>Explore the web without leaving MoonStone.</span></span>
+      <span class="browser-highlight-link">Check it out <span aria-hidden="true">→</span></span>
+    </button>
 
     <div class="bookmarks" id="bookmarks"></div>
   </section>
@@ -2630,6 +2646,9 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   document.addEventListener("fullscreenchange",()=>{const b=document.getElementById("tempFullscreen");if(b){const on=document.fullscreenElement===frame;b.setAttribute("aria-pressed",String(on));b.title=on?"Exit fullscreen":"Toggle fullscreen";b.setAttribute("aria-label",b.title)}});
   document.getElementById("tempBookmark").addEventListener("click",()=>{const url=normalize(urlInput.value);if(!url){status.textContent="Enter a valid website address first.";return}try{const saved=JSON.parse(localStorage.getItem("moonstone-bookmarks")||"[]");const name=prompt("Name this bookmark:",new URL(url).hostname.replace(/^www\./,""));if(!name||!name.trim())return;saved.push({name:name.trim().slice(0,30),url,icon:"link"});localStorage.setItem("moonstone-bookmarks",JSON.stringify(saved));status.textContent="Bookmark saved. Refresh the homepage to see it."}catch{status.textContent="Couldn't save the bookmark."}});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.body.classList.contains("browser-fullscreen")){setFullscreen(false);e.stopPropagation();return}if(e.key==="Escape"&&modal.classList.contains("open")){if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")}});
+  window.moonstoneOpenBrowser=()=>{createTab()};
+  const browserHighlight=document.getElementById("browserHighlight");
+  if(browserHighlight)browserHighlight.addEventListener("click",()=>window.moonstoneOpenBrowser());
   window.moonstoneOpenSearch=query=>{if(activeId===null)createTab();navigate(query)};
   render();
   const params = new URLSearchParams(location.search);
