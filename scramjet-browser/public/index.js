@@ -242,6 +242,7 @@ document.getElementById("back").addEventListener("click", () => {
 
 // Recover on a fresh page load, after failed Scramjet connections have been released.
 async function startBrowserFromQuery() {
+  if (new URLSearchParams(location.search).get("embed") === "1") document.body.classList.add("embed-mode");
   if (sessionStorage.getItem(recoveryKey)) {
     status.textContent = "Repairing browser storage…";
     error.textContent = "Cleaning damaged browser storage…";
