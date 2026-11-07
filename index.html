@@ -1157,6 +1157,106 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 .home-status-value{color:var(--text);font-weight:550}
 @media(max-width:420px){.home-status{right:10px;bottom:12px;gap:6px}.home-status-item{padding:7px 9px;font-size:11px;gap:6px}}
 
+
+/* MoonStone homepage layout refresh: asymmetric, balanced, responsive */
+main{
+  align-items:center;
+  justify-content:center;
+  padding:clamp(36px,6vh,72px) clamp(24px,5vw,80px);
+}
+.home{
+  width:min(1120px,100%);
+  display:grid;
+  grid-template-columns:minmax(240px,.78fr) minmax(0,1.22fr);
+  grid-template-areas:
+    "brand search"
+    "brand browser"
+    "bookmarks bookmarks";
+  align-items:center;
+  column-gap:clamp(28px,5vw,76px);
+  row-gap:0;
+  padding:clamp(18px,3vw,42px) 0;
+}
+.home .brand{
+  grid-area:brand;
+  align-items:flex-start;
+  justify-content:center;
+  margin:0;
+  gap:14px;
+  min-width:0;
+}
+.home .brand-icon{width:64px;height:72px}
+.home .brand h1{
+  font-size:clamp(24px,3vw,34px);
+  letter-spacing:.18em;
+  text-indent:0;
+}
+.home .brand-message{
+  text-align:left;
+  max-width:320px;
+  margin-top:2px;
+  font-size:clamp(17px,1.8vw,22px);
+  line-height:1.45;
+}
+.home .search{
+  grid-area:search;
+  align-self:end;
+  margin:0 0 16px;
+  min-width:0;
+}
+.home .browser-highlight{
+  grid-area:browser;
+  margin:0;
+  min-height:72px;
+}
+.home .bookmarks{
+  grid-area:bookmarks;
+  width:100%;
+  grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+  gap:14px;
+  margin-top:clamp(28px,4vw,48px);
+}
+.home .bookmark{
+  min-height:88px;
+  border-radius:16px;
+  padding:15px 10px;
+}
+.home .bookmark:hover{transform:translateY(-3px)}
+/* Favicon shortcuts keep their icon-first visual rhythm in the new grid. */
+.home.favicon-bookmarks .bookmarks{
+  grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+  gap:10px;
+}
+@media(max-width:760px){
+  main{padding:84px 18px 42px}
+  .home{
+    width:min(100%,560px);
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"brand" "search" "browser" "bookmarks";
+    row-gap:0;
+    padding:0;
+  }
+  .home .brand{
+    align-items:center;
+    text-align:center;
+    margin-bottom:26px;
+  }
+  .home .brand-message{text-align:center;max-width:100%}
+  .home .search{margin:0}
+  .home .browser-highlight{margin-top:13px}
+  .home .bookmarks{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    margin-top:24px;
+  }
+  .home .bookmark{min-height:76px}
+}
+@media(max-width:420px){
+  .home .bookmarks{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .home .brand h1{font-size:24px}
+  .home .brand-message{font-size:17px}
+}
+
 </style>
 </head>
 
