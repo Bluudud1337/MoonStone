@@ -2,9 +2,32 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Each user can read/write only their own private settings and bookmarks.
     match /moonstone_user_data/{userId} {
       allow read, create, update, delete: if request.auth != null
         && request.auth.uid == userId;
+    }
+
+    // Public profile cards: anyone can view, only the owner can edit.
+    match /moonstone_profiles/{userId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.uid == userId;
+    }
+
+    // Username registry: readable for public profile lookup.
+    // A username can be claimed only by an authenticated user, and
+    // existing claims can only be changed or removed by their owner.
+    match /moonstone_usernames/{username} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null
+        && resource.data.uid == request.auth.uid;
     }
   }
 }
