@@ -38,6 +38,119 @@ function normalizeInput(value) {
   return "https://www.google.com/search?q=" + encodeURIComponent(input);
 }
 
+// MoonStone Element Inspector: injected into the proxied page's own DOM
+// through Scramjet's init hook, so it can inspect the page inside the proxy.
+function installMoonStoneInspector(frame) {
+  const install = (context) => {
+    if (!context?.isTopLevel) return;
+    const win = context.window;
+    const doc = win.document;
+    if (!doc || doc.getElementById("__moonstone_inspector")) return;
+
+    const style = doc.createElement("style");
+    style.id = "__moonstone_inspector_style";
+    style.textContent = `
+      #__moonstone_inspector{position:fixed;z-index:2147483647;right:18px;bottom:18px;font:13px/1.4 system-ui,sans-serif;color:#f8f5e9}
+      #__moonstone_inspector button{font:inherit;cursor:pointer}
+      #__moonstone_inspector_toggle{border:1px solid #fffb9e66;border-radius:12px;background:#171714;color:#fffb9e;padding:10px 14px;box-shadow:0 5px 28px #0008}
+      #__moonstone_inspector_panel{display:none;width:min(330px,calc(100vw - 36px));margin-top:8px;padding:14px;border:1px solid #fffb9e55;border-radius:13px;background:#141412f2;box-shadow:0 12px 45px #0009;backdrop-filter:blur(12px)}
+      #__moonstone_inspector_panel strong{display:block;margin-bottom:8px;color:#fffb9e}
+      #__moonstone_inspector_panel code{display:block;overflow-wrap:anywhere;white-space:pre-wrap;color:#e8e5d8}
+      #__moonstone_inspector_panel button{margin:10px 6px 0 0;padding:6px 9px;border:1px solid #ffffff2b;border-radius:7px;background:#262620;color:#fff}
+      .__moonstone_inspected{outline:2px solid #fffb9e!important;outline-offset:2px!important;cursor:crosshair!important}
+    `;
+    (doc.head || doc.documentElement).appendChild(style);
+
+    const root = doc.createElement("div");
+    root.id = "__moonstone_inspector";
+    root.innerHTML = '<button id="__moonstone_inspector_toggle">◇ Inspect</button><section id="__moonstone_inspector_panel"><strong>MoonStone Element Inspector</strong><code id="__moonstone_inspector_info">Hover an element, then click to inspect it.</code><button id="__moonstone_inspector_copy">Copy selector</button><button id="__moonstone_inspector_stop">Stop inspecting</button></section>';
+    (doc.body || doc.documentElement).appendChild(root);
+
+    const toggle = root.querySelector("#__moonstone_inspector_toggle");
+    const panel = root.querySelector("#__moonstone_inspector_panel");
+    const info = root.querySelector("#__moonstone_inspector_info");
+    let inspecting = false;
+    let hovered = null;
+    let selectedSelector = "";
+    let previousOutline = null;
+
+    const selectorFor = (el) => {
+      if (!el || el.nodeType !== 1) return "";
+      let selector = el.tagName.toLowerCase();
+      if (el.id) return selector + "#" + CSS.escape(el.id);
+      if (el.classList?.length) selector += "." + [...el.classList].slice(0,3).map(CSS.escape).join(".");
+      const parent = el.parentElement;
+      if (parent) {
+        const siblings = [...parent.children].filter((node) => node.tagName === el.tagName);
+        if (siblings.length > 1) selector += ":nth-of-type(" + (siblings.indexOf(el) + 1) + ")";
+      }
+      return selector;
+    };
+    const describe = (el) => {
+      const selector = selectorFor(el);
+      const text = (el.innerText || el.textContent || "").trim().replace(/\s+/g," ").slice(0,160);
+      selectedSelector = selector;
+      info.textContent = "<" + el.tagName.toLowerCase() + ">\n" + selector +
+        (el.getAttribute("href") ? "\nhref: " + el.getAttribute("href") : "") +
+        (el.getAttribute("src") ? "\nsrc: " + el.getAttribute("src") : "") +
+        (text ? "\ntext: " + text : "");
+    };
+    const onMove = (event) => {
+      if (!inspecting || root.contains(event.target)) return;
+      if (hovered && hovered !== event.target) hovered.classList.remove("__moonstone_inspected");
+      hovered = event.target;
+      hovered?.classList?.add("__moonstone_inspected");
+    };
+    const onClick = (event) => {
+      if (!inspecting || root.contains(event.target)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      describe(event.target);
+    };
+    const stop = () => {
+      inspecting = false;
+      if (hovered) hovered.classList.remove("__moonstone_inspected");
+      hovered = null;
+      doc.removeEventListener("mousemove", onMove, true);
+      doc.removeEventListener("click", onClick, true);
+      toggle.textContent = "◇ Inspect";
+    };
+    toggle.addEventListener("click", () => {
+      panel.style.display = panel.style.display === "block" ? "none" : "block";
+      if (panel.style.display === "block") {
+        inspecting = true;
+        toggle.textContent = "◇ Inspecting…";
+        doc.addEventListener("mousemove", onMove, true);
+        doc.addEventListener("click", onClick, true);
+      } else stop();
+    });
+    root.querySelector("#__moonstone_inspector_stop").addEventListener("click", stop);
+    root.querySelector("#__moonstone_inspector_copy").addEventListener("click", () => {
+      if (!selectedSelector) return;
+      const clipboard = win.navigator.clipboard;
+      if (clipboard?.writeText) clipboard.writeText(selectedSelector).catch(() => {});
+      else {
+        const input = doc.createElement("textarea");
+        input.value = selectedSelector;
+        root.appendChild(input);
+        input.select();
+        try { doc.execCommand("copy"); } catch {}
+        input.remove();
+      }
+    });
+  };
+
+  try {
+    const hook = frame.hooks?.init?.post;
+    if (hook?.tap) hook.tap(install);
+    else if (hook?.add) hook.add(install);
+    else console.warn("MoonStone inspector: Scramjet init hook unavailable.");
+  } catch (error) {
+    console.warn("MoonStone inspector could not attach:", error);
+  }
+}
+
 function activeTab() { return tabs.find((tab) => tab.id === activeId); }
 
 function renderTabs() {
@@ -143,6 +256,7 @@ async function openUrl(value) {
     if (!tab.frame) {
       const frame = scramjet.createFrame();
       frame.frame.id = "sj-frame";
+      installMoonStoneInspector(frame);
       tab.frame = frame;
     }
     view.replaceChildren(tab.frame.frame);
