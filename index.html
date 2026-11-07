@@ -1521,6 +1521,7 @@ body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
             <div class="font-custom-controls" style="margin-top:10px">
               <button class="primary-button" id="moonstoneSaveProfile" type="button">Save profile</button>
               <button class="settings-action" id="moonstoneViewProfile" type="button">View public profile</button>
+              <button class="settings-action" id="moonstoneCopyProfile" type="button">Copy profile link</button>
             </div>
             <p class="modal-note" id="moonstoneProfileStatus" role="status" aria-live="polite">Choose a username to create your public profile.</p>
           </div>
@@ -2920,6 +2921,7 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   const profileStatus = document.getElementById("moonstoneProfileStatus");
   const saveProfileButton = document.getElementById("moonstoneSaveProfile");
   const viewProfileButton = document.getElementById("moonstoneViewProfile");
+  const copyProfileButton = document.getElementById("moonstoneCopyProfile");
   if (!status || !signedOut || !signedIn) return;
 
   const setStatus = (message) => { status.textContent = message; };
@@ -3194,6 +3196,16 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   if (viewProfileButton) viewProfileButton.addEventListener("click", () => {
     if (currentProfile?.username) openPublicProfile(currentProfile);
     else setProfileStatus("Save a username first.");
+  });
+  if (copyProfileButton) copyProfileButton.addEventListener("click", async () => {
+    if (!currentProfile?.username) { setProfileStatus("Save a username first."); return; }
+    const link = location.origin + location.pathname + "?profile=" + encodeURIComponent(currentProfile.username);
+    try {
+      await navigator.clipboard.writeText(link);
+      setProfileStatus("Public profile link copied.");
+    } catch (_) {
+      setProfileStatus("Your public profile link: " + link);
+    }
   });
 
   const profileParam = new URLSearchParams(location.search).get("profile");
