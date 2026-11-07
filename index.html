@@ -2898,7 +2898,9 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   if (params.get("openSettings") === "1") setTimeout(() => document.getElementById("settingsOpen")?.click(), 120);
 })();</script>
 
-<!-- Reliable homepage Enter-key submission -->
+<!-- Homepage search: explicitly dispatch the form's search handler on Enter.
+     The search form has no visible submit button, so relying on implicit form
+     submission can fail in some browsers. -->
 <script>
 (() => {
   const input = document.getElementById("searchInput");
@@ -2908,7 +2910,11 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   input.addEventListener("keydown", event => {
     if (event.key !== "Enter" || event.isComposing) return;
     event.preventDefault();
-    form.requestSubmit();
+    event.stopImmediatePropagation();
+    form.dispatchEvent(new SubmitEvent("submit", {
+      bubbles: true,
+      cancelable: true
+    }));
   });
 })();
 </script>
