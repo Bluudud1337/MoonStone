@@ -456,6 +456,18 @@ main {
   outline: none;
 }
 
+/* Keep a real default submit button so Enter reliably submits the form. */
+.search-submit {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .search-mode {
   padding: 6px 9px;
   border: 1px solid var(--border);
@@ -1399,6 +1411,7 @@ body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
         <option value="yahoo">Yahoo</option>
       </select>
       <button class="search-mode" id="searchMode" type="button">Web</button>
+      <button class="search-submit" type="submit" aria-label="Submit search"></button>
     </form>
 
     <button class="browser-highlight" id="browserHighlight" type="button">
@@ -2898,26 +2911,7 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   if (params.get("openSettings") === "1") setTimeout(() => document.getElementById("settingsOpen")?.click(), 120);
 })();</script>
 
-<!-- Homepage search: explicitly dispatch the form's search handler on Enter.
-     The search form has no visible submit button, so relying on implicit form
-     submission can fail in some browsers. -->
-<script>
-(() => {
-  const input = document.getElementById("searchInput");
-  const form = document.getElementById("searchForm");
-  if (!input || !form) return;
 
-  input.addEventListener("keydown", event => {
-    if (event.key !== "Enter" || event.isComposing) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    form.dispatchEvent(new SubmitEvent("submit", {
-      bubbles: true,
-      cancelable: true
-    }));
-  });
-})();
-</script>
 
 <!-- MoonStone Firebase account + cloud save integration -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
