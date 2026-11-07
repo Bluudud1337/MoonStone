@@ -69,6 +69,9 @@ function installMoonStoneInspector(frame) {
     const toggle = root.querySelector("#__moonstone_inspector_toggle");
     const panel = root.querySelector("#__moonstone_inspector_panel");
     const info = root.querySelector("#__moonstone_inspector_info");
+    win.addEventListener("message", (event) => {
+      if (event.data?.type === "moonstone-inspector-toggle") toggle.click();
+    });
     let inspecting = false;
     let hovered = null;
     let selectedSelector = "";
