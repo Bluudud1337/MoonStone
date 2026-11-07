@@ -1158,103 +1158,144 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 @media(max-width:420px){.home-status{right:10px;bottom:12px;gap:6px}.home-status-item{padding:7px 9px;font-size:11px;gap:6px}}
 
 
-/* MoonStone homepage layout refresh: asymmetric, balanced, responsive */
+/* MoonStone homepage layout: compact masthead + centered search portal */
 main{
-  align-items:center;
-  justify-content:center;
-  padding:clamp(36px,6vh,72px) clamp(24px,5vw,80px);
+  min-height:100svh;
+  align-items:stretch;
+  justify-content:flex-start;
+  padding:clamp(28px,5vh,58px) clamp(22px,5vw,76px) 70px;
 }
 .home{
-  width:min(1120px,100%);
+  width:min(1160px,100%);
+  margin:0 auto;
   display:grid;
-  grid-template-columns:minmax(240px,.78fr) minmax(0,1.22fr);
+  grid-template-columns:minmax(0,1fr);
   grid-template-areas:
-    "brand search"
-    "brand browser"
-    "bookmarks bookmarks";
-  align-items:center;
-  column-gap:clamp(28px,5vw,76px);
+    "brand"
+    "search"
+    "browser"
+    "bookmarks";
+  align-content:start;
   row-gap:0;
-  padding:clamp(18px,3vw,42px) 0;
+  padding:0;
 }
 .home .brand{
   grid-area:brand;
-  align-items:flex-start;
-  justify-content:center;
-  margin:0;
-  gap:14px;
-  min-width:0;
-}
-.home .brand-icon{width:64px;height:72px}
-.home .brand h1{
-  font-size:clamp(24px,3vw,34px);
-  letter-spacing:.18em;
-  text-indent:0;
-}
-.home .brand-message{
+  flex-direction:row;
+  align-items:center;
+  justify-content:flex-start;
+  gap:16px;
+  margin:0 0 clamp(52px,10vh,112px);
   text-align:left;
-  max-width:320px;
-  margin-top:2px;
-  font-size:clamp(17px,1.8vw,22px);
-  line-height:1.45;
+}
+.home .brand-icon{width:40px;height:48px;animation:none;filter:drop-shadow(0 0 8px color-mix(in srgb,var(--accent) 28%,transparent))}
+.home .brand-icon:hover{transform:scale(1.05)}
+.home .brand h1{font-size:15px;letter-spacing:.2em;text-indent:0}
+.home .brand-message{
+  margin:0 0 0 auto;
+  max-width:390px;
+  min-height:0;
+  text-align:right;
+  font-size:13px;
+  line-height:1.5;
+  letter-spacing:.01em;
 }
 .home .search{
   grid-area:search;
-  align-self:end;
-  margin:0 0 16px;
-  min-width:0;
+  width:min(790px,100%);
+  justify-self:center;
+  margin:0;
+  height:76px;
+  padding:0 28px;
+  border-radius:20px;
+  gap:17px;
+  background:color-mix(in srgb,var(--panel) 88%,transparent);
+  box-shadow:0 22px 70px rgba(0,0,0,.22);
 }
+.home .search svg{width:23px;height:23px}
+.home .search input{font-size:16px}
 .home .browser-highlight{
   grid-area:browser;
-  margin:0;
-  min-height:72px;
+  width:min(790px,100%);
+  justify-self:center;
+  margin:13px 0 0;
+  min-height:0;
+  padding:10px 3px;
+  border:0;
+  border-bottom:1px solid var(--border);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
 }
+.home .browser-highlight:hover{
+  transform:none;
+  border-color:var(--accent);
+  background:transparent;
+}
+.home .browser-highlight-copy strong{font-size:11px;letter-spacing:.025em}
+.home .browser-highlight-copy span{font-size:10px}
+.home .browser-highlight-link{font-size:10px}
 .home .bookmarks{
   grid-area:bookmarks;
-  width:100%;
-  grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
-  gap:14px;
-  margin-top:clamp(28px,4vw,48px);
+  width:min(930px,100%);
+  justify-self:center;
+  grid-template-columns:repeat(auto-fill,minmax(112px,1fr));
+  gap:9px;
+  margin-top:clamp(48px,8vh,82px);
+  padding-bottom:50px;
 }
 .home .bookmark{
-  min-height:88px;
-  border-radius:16px;
-  padding:15px 10px;
+  min-height:72px;
+  border-radius:12px;
+  border-color:color-mix(in srgb,var(--border) 70%,transparent);
+  background:color-mix(in srgb,var(--panel) 54%,transparent);
+  padding:12px 8px;
+  gap:8px;
 }
-.home .bookmark:hover{transform:translateY(-3px)}
-/* Favicon shortcuts keep their icon-first visual rhythm in the new grid. */
-.home.favicon-bookmarks .bookmarks{
-  grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
-  gap:10px;
-}
+.home .bookmark:hover{transform:translateY(-2px);box-shadow:none}
+.home .bookmark-icon{width:22px;height:22px}
+.home .bookmark-name{font-size:10px}
+.home.favicon-bookmarks .bookmarks{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.home.favicon-bookmarks .bookmark{min-height:88px}
+body.layout-browser main{padding-top:92px}
+body.layout-browser .home .brand{margin-bottom:clamp(36px,7vh,76px)}
+body.layout-edge main{padding-top:100px}
+body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
 @media(max-width:760px){
-  main{padding:84px 18px 42px}
-  .home{
-    width:min(100%,560px);
-    grid-template-columns:minmax(0,1fr);
-    grid-template-areas:"brand" "search" "browser" "bookmarks";
-    row-gap:0;
-    padding:0;
-  }
+  main{padding:78px 18px 40px}
+  .home{width:100%;max-width:620px}
   .home .brand{
-    align-items:center;
-    text-align:center;
-    margin-bottom:26px;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:clamp(34px,7vh,58px);
   }
-  .home .brand-message{text-align:center;max-width:100%}
-  .home .search{margin:0}
-  .home .browser-highlight{margin-top:13px}
+  .home .brand-icon{width:34px;height:41px}
+  .home .brand h1{font-size:14px}
+  .home .brand-message{
+    flex:1 0 100%;
+    margin:2px 0 0;
+    max-width:100%;
+    text-align:left;
+    font-size:15px;
+  }
+  .home .search{height:62px;padding:0 17px;gap:11px;border-radius:16px}
+  .home .search input{font-size:14px}
+  .home .browser-highlight{margin-top:10px;padding:10px 0}
   .home .bookmarks{
     grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:10px;
-    margin-top:24px;
+    gap:8px;
+    margin-top:36px;
   }
-  .home .bookmark{min-height:76px}
+  .home .bookmark{min-height:70px;padding:9px 5px}
+  .home.favicon-bookmarks .bookmarks{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}
 }
 @media(max-width:420px){
+  main{padding-left:12px;padding-right:12px}
+  .home .brand-message{font-size:13px}
   .home .bookmarks{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .home .brand h1{font-size:24px}
-  .home .brand-message{font-size:17px}
+  .home .search{height:58px;padding:0 12px}
+  .home .search-engine{max-width:80px;min-width:0}
+  .home .browser-highlight-copy span{font-size:10px}
 }
 
 </style>
