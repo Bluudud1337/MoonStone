@@ -11,9 +11,11 @@ service cloud.firestore {
     // Public profile cards: anyone can view, only the owner can edit.
     match /moonstone_profiles/{userId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null
+      allow create, update: if request.auth != null
         && request.auth.uid == userId
         && request.resource.data.uid == userId;
+      allow delete: if request.auth != null
+        && request.auth.uid == userId;
     }
 
     // Username registry: readable for public profile lookup.
