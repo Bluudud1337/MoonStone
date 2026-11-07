@@ -1322,7 +1322,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           <div class="setting-row"><div class="setting-description"><strong>Dock position</strong><span>Choose which screen edge holds the navigation dock.</span></div><select class="settings-action" id="dockPositionSelect" aria-label="Dock position"><option value="left">Left</option><option value="right">Right</option><option value="bottom">Bottom</option></select></div>
           <div class="setting-row"><div class="setting-description"><strong>Dock span</strong><span>Use a compact floating dock or stretch it along the full edge.</span></div><select class="settings-action" id="dockSpanSelect" aria-label="Dock span"><option value="compact">Compact</option><option value="full">Full edge</option></select></div>
           <div class="section-label">Visual effects</div>
-          <div class="setting-row"><div class="setting-description"><strong>Particle background</strong><span>Floating ambient particles</span></div><button class="toggle" id="particleToggle" role="switch" aria-checked="true" aria-label="Particle background"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Particle background</strong><span>Enable animated background effects</span></div><button class="toggle" id="particleToggle" role="switch" aria-checked="true" aria-label="Particle background"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Particle type</strong><span>Choose the ambient effect shown across MoonStone</span></div><select class="settings-action" id="particleTypeSelect" aria-label="Particle type"><option value="dots">Floating dots</option><option value="rain">Rain</option><option value="lightning">Lightning</option><option value="snow">Snow</option><option value="stars">Stars</option></select></div>
           <div class="setting-row"><div class="setting-description"><strong>Animations</strong><span>Hover and transition effects</span></div><button class="toggle" id="animationToggle" role="switch" aria-checked="true" aria-label="Animations"></button></div>
         </section>
         <section class="settings-panel" data-settings-panel="behavior">
@@ -1521,6 +1522,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       ? savedSettings.theme : "moonstone",
     searchEngine: ["google","brave","duckduckgo","bing","ecosia","startpage","yahoo"].includes(savedSettings.searchEngine) ? savedSettings.searchEngine : "google",
     particles: savedSettings.particles !== false,
+    particleType: ["dots","rain","lightning","snow","stars"].includes(savedSettings.particleType) ? savedSettings.particleType : "dots",
     cursorTrail: savedSettings.cursorTrail === true,
     animations: savedSettings.animations !== false,
     confirmLeave: savedSettings.confirmLeave !== false,
@@ -2125,6 +2127,14 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     saveSettings();
     applySettings();
   });
+  const particleTypeSelect = $("#particleTypeSelect");
+  if (particleTypeSelect) {
+    particleTypeSelect.value = settings.particleType;
+    particleTypeSelect.addEventListener("change", () => {
+      settings.particleType = ["dots","rain","lightning","snow","stars"].includes(particleTypeSelect.value) ? particleTypeSelect.value : "dots";
+      saveSettings(); resizeCanvas(); stopParticles(); applySettings();
+    });
+  }
 
   $("#cursorTrailToggle").addEventListener("click", () => {
     settings.cursorTrail = !settings.cursorTrail;
@@ -2458,15 +2468,15 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     canvas.style.height = height + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const count = Math.min(95, Math.floor(width * height / 11000));
+    const type = settings.particleType || "dots";
+    const count = Math.min(type === "rain" ? 150 : 95, Math.floor(width * height / (type === "rain" ? 6500 : 11000)));
     particles = Array.from({ length: count }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      r: Math.random() * 1.6 + .55,
-      vx: (Math.random() - .5) * .34,
-      vy: (Math.random() - .5) * .34,
-      alpha: Math.random() * .42 + .38,
-      phase: Math.random() * Math.PI * 2
+      x: Math.random() * width, y: Math.random() * height,
+      r: type === "snow" ? Math.random() * 2.4 + 1 : Math.random() * 1.6 + .55,
+      vx: type === "rain" ? -1.2 : type === "snow" ? (Math.random() - .5) * .7 : (Math.random() - .5) * .34,
+      vy: type === "rain" ? Math.random() * 5 + 4 : type === "snow" ? Math.random() * 1.3 + .45 : (Math.random() - .5) * .34,
+      alpha: Math.random() * .42 + .38, phase: Math.random() * Math.PI * 2,
+      length: Math.random() * 14 + 9
     }));
   }
 
@@ -2486,24 +2496,32 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     ctx.clearRect(0, 0, width, height);
     const color = getComputedStyle(document.body).getPropertyValue("--particle").trim() || "#d9d3bd";
 
+    const type = settings.particleType || "dots";
     particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
       p.phase += .008;
-
-      if (p.x < -4) p.x = width + 4;
-      if (p.x > width + 4) p.x = -4;
-      if (p.y < -4) p.y = height + 4;
-      if (p.y > height + 4) p.y = -4;
-
-      const alpha = p.alpha * (.7 + Math.sin(p.phase) * .3);
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.globalAlpha = p.alpha * (.7 + Math.sin(p.phase) * .3);
+      ctx.strokeStyle = color; ctx.fillStyle = color;
+      if (type === "rain") {
+        p.x += p.vx; p.y += p.vy;
+        if (p.y > height + 20) { p.y = -20; p.x = Math.random() * width; }
+        if (p.x < -20) p.x = width + 20;
+        ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p.x-3,p.y+p.length); ctx.stroke();
+      } else if (type === "lightning") {
+        if (Math.random() < .0025) {
+          const x=Math.random()*width,y=Math.random()*height*.55; ctx.globalAlpha=.75;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,y);
+          let bx=x,by=y;for(let k=0;k<7;k++){bx+=(Math.random()-.5)*34;by+=Math.random()*24;ctx.lineTo(bx,by)}ctx.stroke();
+          ctx.globalAlpha=.25;ctx.lineWidth=4;ctx.stroke();
+        }
+      } else if (type === "snow") {
+        p.x += p.vx + Math.sin(p.phase)*.2; p.y += p.vy;
+        if(p.y>height+5){p.y=-5;p.x=Math.random()*width}if(p.x<-5)p.x=width+5;if(p.x>width+5)p.x=-5;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+      } else {
+        p.x += p.vx; p.y += p.vy;
+        if(p.x<-4)p.x=width+4;if(p.x>width+4)p.x=-4;if(p.y<-4)p.y=height+4;if(p.y>height+4)p.y=-4;
+        ctx.beginPath();ctx.arc(p.x,p.y,type==="stars"?p.r*1.25:p.r,0,Math.PI*2);ctx.fill();
+      }
     });
-
     ctx.globalAlpha = 1;
     animationFrame = requestAnimationFrame(drawParticles);
   }
