@@ -97,4 +97,33 @@ document.getElementById("solveEquation").onclick=()=>{try{let raw=document.getEl
 document.getElementById("derive").onclick=()=>{try{let e=math.parse(document.getElementById("derivExpr").value),d=math.derivative(e,"x"),x=Number(document.getElementById("derivAt").value),v=d.compile().evaluate({x});document.getElementById("derivResult").textContent="f′(x) = "+d.toString()+"\\nAt x = "+x+": "+v}catch(e){document.getElementById("derivResult").textContent="Could not differentiate that expression."}};
 document.getElementById("integrate").onclick=()=>{try{let f=math.compile(document.getElementById("integralExpr").value),a=Number(document.getElementById("intA").value),b=Number(document.getElementById("intB").value);if(!Number.isFinite(a)||!Number.isFinite(b))throw Error();let n=2000;if(a===b){document.getElementById("integralResult").textContent="Integral ≈ 0";return}let h=(b-a)/n,sum=f.evaluate({x:a})+f.evaluate({x:b});for(let i=1;i<n;i++)sum+=(i%2?4:2)*f.evaluate({x:a+i*h});let value=sum*h/3;document.getElementById("integralResult").textContent="∫ ≈ "+value.toPrecision(12)}catch(e){document.getElementById("integralResult").textContent="Could not integrate this function over those bounds."}};
 })();
-</script></body></html>
+</script>
+<!-- MoonStone site-wide leave confirmation -->
+<script>
+(() => {
+  let internalNavigation = false;
+  document.addEventListener("click", event => {
+    const link = event.target.closest && event.target.closest("a[href]");
+    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (link.target && link.target.toLowerCase() === "_blank") return;
+    try {
+      const destination = new URL(link.href, location.href);
+      if (destination.origin === location.origin) internalNavigation = true;
+    } catch (_) {}
+  }, true);
+  document.addEventListener("submit", event => {
+    const form = event.target;
+    if (!form || form.target === "_blank") return;
+    try {
+      const destination = new URL(form.action || location.href, location.href);
+      if (destination.origin === location.origin) internalNavigation = true;
+    } catch (_) {}
+  }, true);
+  window.addEventListener("beforeunload", event => {
+    if (internalNavigation) return;
+    event.preventDefault();
+    event.returnValue = "";
+  });
+})();
+</script>
+</body></html>
