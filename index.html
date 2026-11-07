@@ -1510,6 +1510,19 @@ body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
           </div>
           <div id="moonstoneAccountSignedIn" hidden>
             <div class="data-card"><div><strong id="moonstoneAccountEmailLabel">Signed in</strong><span id="moonstoneCloudStatus">Preparing cloud sync…</span></div><button class="settings-action" id="moonstoneSignOut" type="button">Sign out</button></div>
+            <p class="section-label">PUBLIC PROFILE</p>
+            <p class="settings-intro">Your profile is public. Anyone with your username can view your display name and bio.</p>
+            <label class="section-label" for="moonstoneDisplayName">Display name</label>
+            <input class="field" id="moonstoneDisplayName" maxlength="32" placeholder="Your display name">
+            <label class="section-label" for="moonstoneUsername">Username</label>
+            <input class="field" id="moonstoneUsername" maxlength="20" autocomplete="off" placeholder="username (3–20 letters, numbers, _)">
+            <label class="section-label" for="moonstoneBio">Bio</label>
+            <textarea class="field" id="moonstoneBio" maxlength="160" rows="3" placeholder="A little about you (optional)"></textarea>
+            <div class="font-custom-controls" style="margin-top:10px">
+              <button class="primary-button" id="moonstoneSaveProfile" type="button">Save profile</button>
+              <button class="settings-action" id="moonstoneViewProfile" type="button">View public profile</button>
+            </div>
+            <p class="modal-note" id="moonstoneProfileStatus" role="status" aria-live="polite">Choose a username to create your public profile.</p>
           </div>
           <p class="modal-note" id="moonstoneAccountStatus" role="status" aria-live="polite">Your existing local data stays on this device until you sign in.</p>
         </section>
@@ -2901,6 +2914,12 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   const cloudStatus = document.getElementById("moonstoneCloudStatus");
   const emailInput = document.getElementById("moonstoneAccountEmail");
   const passwordInput = document.getElementById("moonstoneAccountPassword");
+  const displayNameInput = document.getElementById("moonstoneDisplayName");
+  const usernameInput = document.getElementById("moonstoneUsername");
+  const bioInput = document.getElementById("moonstoneBio");
+  const profileStatus = document.getElementById("moonstoneProfileStatus");
+  const saveProfileButton = document.getElementById("moonstoneSaveProfile");
+  const viewProfileButton = document.getElementById("moonstoneViewProfile");
   if (!status || !signedOut || !signedIn) return;
 
   const setStatus = (message) => { status.textContent = message; };
@@ -2990,6 +3009,7 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
       return;
     }
     emailLabel.textContent = user.email || "MoonStone account";
+    loadOwnProfile(user.uid);
     cloudStatus.textContent = "Checking your cloud save…";
     setStatus("Signed in. Checking saved MoonStone data…");
     try {
@@ -3032,6 +3052,152 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
       saveTimer = setTimeout(() => saveCloudData(activeUserId), 700);
     }
   };
+
+  const usernamePattern = /^[a-z0-9_]{3,20}$/;
+  let profileUid = null;
+  let currentProfile = null;
+
+  function setProfileStatus(message) {
+    if (profileStatus) profileStatus.textContent = message;
+  }
+
+  async function loadOwnProfile(uid) {
+    profileUid = uid;
+    try {
+      const snap = await db.collection("moonstone_profiles").doc(uid).get();
+      currentProfile = snap.exists ? snap.data() : null;
+      displayNameInput.value = currentProfile?.displayName || "";
+      usernameInput.value = currentProfile?.username || "";
+      bioInput.value = currentProfile?.bio || "";
+      setProfileStatus(currentProfile?.username
+        ? "Public profile: @" + currentProfile.username
+        : "Choose a username to create your public profile.");
+    } catch (error) {
+      setProfileStatus("Couldn't load profile: " + error.message);
+    }
+  }
+
+  function openPublicProfile(profile) {
+    const existing = document.getElementById("moonstonePublicProfile");
+    if (existing) existing.remove();
+    const overlay = document.createElement("div");
+    overlay.id = "moonstonePublicProfile";
+    overlay.className = "modal-backdrop open";
+    overlay.style.zIndex = "10020";
+    const modal = document.createElement("section");
+    modal.className = "modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    const close = document.createElement("button");
+    close.className = "close-button";
+    close.textContent = "×";
+    close.setAttribute("aria-label", "Close profile");
+    close.addEventListener("click", () => overlay.remove());
+    const heading = document.createElement("div");
+    heading.className = "modal-heading";
+    const title = document.createElement("h2");
+    title.textContent = profile.displayName || profile.username || "MoonStone user";
+    heading.append(title, close);
+    const handle = document.createElement("p");
+    handle.className = "settings-intro";
+    handle.textContent = profile.username ? "@" + profile.username : "";
+    const bio = document.createElement("p");
+    bio.className = "modal-note";
+    bio.style.whiteSpace = "pre-wrap";
+    bio.textContent = profile.bio || "This user hasn't added a bio yet.";
+    modal.append(heading, handle, bio);
+    overlay.append(modal);
+    overlay.addEventListener("click", event => { if (event.target === overlay) overlay.remove(); });
+    document.body.append(overlay);
+  }
+
+  async function lookupPublicProfile(username) {
+    const clean = String(username || "").trim().toLowerCase();
+    if (!usernamePattern.test(clean)) {
+      setProfileStatus("That username isn't valid.");
+      return;
+    }
+    try {
+      const usernameSnap = await db.collection("moonstone_usernames").doc(clean).get();
+      if (!usernameSnap.exists) {
+        setProfileStatus("No public profile found for @" + clean + ".");
+        return;
+      }
+      const uid = usernameSnap.data().uid;
+      const profileSnap = await db.collection("moonstone_profiles").doc(uid).get();
+      if (!profileSnap.exists) {
+        setProfileStatus("That profile hasn't been created yet.");
+        return;
+      }
+      openPublicProfile(profileSnap.data());
+    } catch (error) {
+      setProfileStatus("Profile lookup failed: " + error.message);
+    }
+  }
+
+  if (saveProfileButton) saveProfileButton.addEventListener("click", async () => {
+    const user = auth.currentUser;
+    if (!user) { setProfileStatus("Sign in first to create a profile."); return; }
+    const username = (usernameInput.value || "").trim().toLowerCase();
+    const displayName = (displayNameInput.value || "").trim();
+    const bio = (bioInput.value || "").trim();
+    if (!usernamePattern.test(username)) {
+      setProfileStatus("Username must be 3–20 characters: lowercase letters, numbers, or underscores.");
+      return;
+    }
+    if (!displayName || displayName.length > 32) {
+      setProfileStatus("Enter a display name (up to 32 characters).");
+      return;
+    }
+    if (bio.length > 160) {
+      setProfileStatus("Bio must be 160 characters or fewer.");
+      return;
+    }
+    saveProfileButton.disabled = true;
+    setProfileStatus("Saving public profile…");
+    const profileRef = db.collection("moonstone_profiles").doc(user.uid);
+    const newUsernameRef = db.collection("moonstone_usernames").doc(username);
+    try {
+      await db.runTransaction(async transaction => {
+        const profileSnap = await transaction.get(profileRef);
+        const usernameSnap = await transaction.get(newUsernameRef);
+        const oldUsername = profileSnap.exists ? profileSnap.data().username : null;
+        let oldUsernameSnap = null;
+        if (oldUsername && oldUsername !== username) {
+          oldUsernameSnap = await transaction.get(db.collection("moonstone_usernames").doc(oldUsername));
+        }
+        if (usernameSnap.exists && usernameSnap.data().uid !== user.uid) {
+          throw new Error("That username is already taken. Try another one.");
+        }
+        const profile = {
+          uid: user.uid,
+          username,
+          displayName,
+          bio,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        transaction.set(profileRef, profile);
+        transaction.set(newUsernameRef, { uid: user.uid });
+        if (oldUsernameSnap && oldUsernameSnap.exists && oldUsernameSnap.data().uid === user.uid) {
+          transaction.delete(db.collection("moonstone_usernames").doc(oldUsername));
+        }
+      });
+      currentProfile = { uid: user.uid, username, displayName, bio };
+      setProfileStatus("Profile saved! Public profile: @" + username);
+    } catch (error) {
+      setProfileStatus(error.message || "Couldn't save profile.");
+    } finally {
+      saveProfileButton.disabled = false;
+    }
+  });
+
+  if (viewProfileButton) viewProfileButton.addEventListener("click", () => {
+    if (currentProfile?.username) openPublicProfile(currentProfile);
+    else setProfileStatus("Save a username first.");
+  });
+
+  const profileParam = new URLSearchParams(location.search).get("profile");
+  if (profileParam) setTimeout(() => lookupPublicProfile(profileParam), 500);
 
   async function credentials() {
     const email = (emailInput.value || "").trim();
