@@ -2878,12 +2878,22 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
 })();
 </script>
 
-<!-- MoonStone Supabase account + cloud save integration -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- MoonStone Firebase account + cloud save integration -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
 (() => {
-  const SUPABASE_URL = "https://wzlofdddzlqylhubimrm.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_-t5UKfdGxVhLLd0WPSHdOg_-bwXg-iw";
+  const firebaseConfig = {
+    apiKey: "AIzaSyBiINU1K2-ZXABZ3Xks72oJRt5NzYRpPPc",
+    authDomain: "moonstone-29618.firebaseapp.com",
+    projectId: "moonstone-29618",
+    storageBucket: "moonstone-29618.firebasestorage.app",
+    messagingSenderId: "386097007931",
+    appId: "1:386097007931:web:3f17d043a508ca48727b1e",
+    measurementId: "G-VQ1ZREMM6B"
+  };
+
   const status = document.getElementById("moonstoneAccountStatus");
   const signedOut = document.getElementById("moonstoneAccountSignedOut");
   const signedIn = document.getElementById("moonstoneAccountSignedIn");
@@ -2894,13 +2904,20 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   if (!status || !signedOut || !signedIn) return;
 
   const setStatus = (message) => { status.textContent = message; };
-  if (!window.supabase || !window.supabase.createClient) {
-    setStatus("Account system couldn't load. Check your connection and refresh.");
+  if (!window.firebase || !window.firebase.initializeApp) {
+    setStatus("Firebase couldn't load. Check your connection and refresh.");
     return;
   }
-  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-  });
+
+  let app;
+  try {
+    app = window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(firebaseConfig);
+  } catch (error) {
+    setStatus("Firebase initialization failed: " + error.message);
+    return;
+  }
+  const auth = app.auth();
+  const db = app.firestore();
   let activeUserId = null;
   let syncing = false;
   let saveTimer = null;
@@ -2916,18 +2933,19 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
       bookmarks: parse("moonstone-bookmarks", null)
     };
   }
+
   function applyCloudData(payload, userId) {
     if (!payload || typeof payload !== "object") return;
     const local = readLocalData();
-    const sameSettings = JSON.stringify(local.settings) === JSON.stringify(payload.settings || {});
-    const sameBookmarks = JSON.stringify(local.bookmarks) === JSON.stringify(payload.bookmarks === undefined ? null : payload.bookmarks);
-    if (sameSettings && sameBookmarks) {
+    const cloudSettings = payload.settings || {};
+    const cloudBookmarks = payload.bookmarks === undefined ? null : payload.bookmarks;
+    if (JSON.stringify(local.settings) === JSON.stringify(cloudSettings) &&
+        JSON.stringify(local.bookmarks) === JSON.stringify(cloudBookmarks)) {
       cloudStatus.textContent = "Cloud sync is on";
       setStatus("Your settings and bookmarks are synced to your account.");
       return;
     }
-    // Avoid a reload loop if the cloud copy is restored during startup.
-    const restoreKey = "moonstone-cloud-restored-user";
+    const restoreKey = "moonstone-firebase-restored-user";
     if (sessionStorage.getItem(restoreKey) === userId) {
       cloudStatus.textContent = "Cloud sync is on";
       setStatus("Cloud data is loaded. If a setting looks outdated, refresh once.");
@@ -2943,28 +2961,28 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
       }
       sessionStorage.setItem(restoreKey, userId);
     } finally { syncing = false; }
-    // Refresh once so existing controls apply restored preferences consistently.
     location.reload();
   }
+
   async function saveCloudData(userId) {
     if (!userId || syncing) return;
     const payload = readLocalData();
     cloudStatus.textContent = "Saving your settings and bookmarks…";
-    const { error } = await client.from("moonstone_user_data").upsert({
-      user_id: userId,
-      payload,
-      updated_at: new Date().toISOString()
-    }, { onConflict: "user_id" });
-    if (error) {
+    try {
+      await db.collection("moonstone_user_data").doc(userId).set({
+        payload,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+      cloudStatus.textContent = "Cloud sync is on";
+      setStatus("Your settings and bookmarks are synced to your account.");
+    } catch (error) {
       cloudStatus.textContent = "Cloud save failed. " + error.message;
-      setStatus("You're signed in, but cloud saving failed. Check that you ran supabase/schema.sql in the Supabase SQL Editor.");
-      return;
+      setStatus("Firebase cloud save failed. Check that Firestore is enabled and its security rules are installed.");
     }
-    cloudStatus.textContent = "Cloud sync is on";
-    setStatus("Your settings and bookmarks are synced to your account.");
   }
+
   async function syncAccount(user) {
-    activeUserId = user ? user.id : null;
+    activeUserId = user ? user.uid : null;
     signedOut.hidden = !!user;
     signedIn.hidden = !user;
     if (!user) {
@@ -2974,37 +2992,37 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
     emailLabel.textContent = user.email || "MoonStone account";
     cloudStatus.textContent = "Checking your cloud save…";
     setStatus("Signed in. Checking saved MoonStone data…");
-    const { data, error } = await client.from("moonstone_user_data")
-      .select("payload").eq("user_id", user.id).maybeSingle();
-    if (error) {
-      cloudStatus.textContent = "Cloud sync needs setup";
-      setStatus("Account is active, but cloud data couldn't load. Run supabase/schema.sql in your Supabase SQL Editor. Details: " + error.message);
-      return;
-    }
-    if (data && data.payload && typeof data.payload === "object") {
-      const local = readLocalData();
-      const cloud = data.payload;
-      const localHasData = local.bookmarks !== null || Object.keys(local.settings || {}).length > 0;
-      const cloudHasData = (cloud.bookmarks !== null && cloud.bookmarks !== undefined) || (cloud.settings && Object.keys(cloud.settings).length > 0);
-      if (cloudHasData) {
-        // Cloud data is the shared account copy; restore it on this device.
-        applyCloudData(cloud, user.id);
+    try {
+      const snapshot = await db.collection("moonstone_user_data").doc(user.uid).get();
+      const record = snapshot.exists ? snapshot.data() : null;
+      const cloud = record && record.payload;
+      if (cloud && typeof cloud === "object") {
+        const local = readLocalData();
+        const cloudHasData = (cloud.bookmarks !== null && cloud.bookmarks !== undefined) ||
+          (cloud.settings && Object.keys(cloud.settings).length > 0);
+        const localHasData = local.bookmarks !== null || Object.keys(local.settings || {}).length > 0;
+        if (cloudHasData) {
+          applyCloudData(cloud, user.uid);
+          return;
+        }
+        if (localHasData) {
+          await saveCloudData(user.uid);
+          return;
+        }
+      } else {
+        await saveCloudData(user.uid);
         return;
       }
-      if (localHasData) {
-        await saveCloudData(user.id);
-      } else {
-        cloudStatus.textContent = "Cloud sync is on";
-        setStatus("Signed in. Your cloud save is ready.");
-      }
-    } else {
-      // First login: upload this browser's current preferences and bookmarks.
-      await saveCloudData(user.id);
+      cloudStatus.textContent = "Cloud sync is on";
+      setStatus("Signed in. Your cloud save is ready.");
+    } catch (error) {
+      cloudStatus.textContent = "Cloud sync needs setup";
+      setStatus("Firebase cloud data couldn't load. Check that Firestore is enabled and security rules are published. Details: " + error.message);
     }
   }
 
-  // Existing MoonStone scripts save preferences/bookmarks through localStorage.
-  // Observe only these two known keys, leaving all other site behavior unchanged.
+  // Existing MoonStone scripts store settings/bookmarks in localStorage.
+  // Sync only these keys, leaving other site features untouched.
   const originalSetItem = Storage.prototype.setItem;
   Storage.prototype.setItem = function(key, value) {
     originalSetItem.call(this, key, value);
@@ -3024,38 +3042,35 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
     }
     return { email, password };
   }
+
   document.getElementById("moonstoneSignUp").addEventListener("click", async () => {
     const values = await credentials(); if (!values) return;
     setStatus("Creating your account…");
-    const { data, error } = await client.auth.signUp(values);
-    if (error) { setStatus(error.message); return; }
-    if (data.session) setStatus("Account created. Signing you in…");
-    else setStatus("Account created. Check your email for a confirmation link, then return here to sign in.");
+    try {
+      await auth.createUserWithEmailAndPassword(values.email, values.password);
+      setStatus("Account created and signed in.");
+    } catch (error) { setStatus(error.message); }
   });
+
   document.getElementById("moonstoneSignIn").addEventListener("click", async () => {
     const values = await credentials(); if (!values) return;
     setStatus("Signing in…");
-    const { error } = await client.auth.signInWithPassword(values);
-    if (error) setStatus(error.message);
-  });
-  document.getElementById("moonstoneSignOut").addEventListener("click", async () => {
-    setStatus("Signing out…");
-    const { error } = await client.auth.signOut();
-    if (error) setStatus(error.message);
+    try { await auth.signInWithEmailAndPassword(values.email, values.password); }
+    catch (error) { setStatus(error.message); }
   });
 
-  client.auth.onAuthStateChange((event, session) => {
-    // Defer database requests out of the auth callback to avoid blocking auth events.
-    setTimeout(() => { authReady = true; syncAccount(session ? session.user : null); }, 0);
+  document.getElementById("moonstoneSignOut").addEventListener("click", async () => {
+    setStatus("Signing out…");
+    try { await auth.signOut(); }
+    catch (error) { setStatus(error.message); }
   });
-  client.auth.getSession().then(({ data, error }) => {
-    if (error) { setStatus("Couldn't restore your session: " + error.message); return; }
+
+  auth.onAuthStateChanged(user => {
     authReady = true;
-    syncAccount(data.session ? data.session.user : null);
+    syncAccount(user);
   });
 })();
 </script>
-
 
 
 <script>
