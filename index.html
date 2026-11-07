@@ -456,18 +456,6 @@ main {
   outline: none;
 }
 
-/* Keep a real default submit button so Enter reliably submits the form. */
-.search-submit {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
 .search-mode {
   padding: 6px 9px;
   border: 1px solid var(--border);
@@ -1169,147 +1157,6 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 .home-status-value{color:var(--text);font-weight:550}
 @media(max-width:420px){.home-status{right:10px;bottom:12px;gap:6px}.home-status-item{padding:7px 9px;font-size:11px;gap:6px}}
 
-
-/* MoonStone homepage layout: compact masthead + centered search portal */
-main{
-  min-height:100svh;
-  align-items:stretch;
-  justify-content:flex-start;
-  padding:clamp(28px,5vh,58px) clamp(22px,5vw,76px) 70px;
-}
-.home{
-  width:min(1160px,100%);
-  margin:0 auto;
-  display:grid;
-  grid-template-columns:minmax(0,1fr);
-  grid-template-areas:
-    "brand"
-    "search"
-    "browser"
-    "bookmarks";
-  align-content:start;
-  row-gap:0;
-  padding:0;
-}
-.home .brand{
-  grid-area:brand;
-  flex-direction:row;
-  align-items:center;
-  justify-content:flex-start;
-  gap:16px;
-  margin:0 0 clamp(52px,10vh,112px);
-  text-align:left;
-}
-.home .brand-icon{width:40px;height:48px;animation:none;filter:drop-shadow(0 0 8px color-mix(in srgb,var(--accent) 28%,transparent))}
-.home .brand-icon:hover{transform:scale(1.05)}
-.home .brand h1{font-size:15px;letter-spacing:.2em;text-indent:0}
-.home .brand-message{
-  margin:0 0 0 auto;
-  max-width:390px;
-  min-height:0;
-  text-align:right;
-  font-size:13px;
-  line-height:1.5;
-  letter-spacing:.01em;
-}
-.home .search{
-  grid-area:search;
-  width:min(790px,100%);
-  justify-self:center;
-  margin:0;
-  height:76px;
-  padding:0 28px;
-  border-radius:20px;
-  gap:17px;
-  background:color-mix(in srgb,var(--panel) 88%,transparent);
-  box-shadow:0 22px 70px rgba(0,0,0,.22);
-}
-.home .search svg{width:23px;height:23px}
-.home .search input{font-size:16px}
-.home .browser-highlight{
-  grid-area:browser;
-  width:min(790px,100%);
-  justify-self:center;
-  margin:13px 0 0;
-  min-height:0;
-  padding:10px 3px;
-  border:0;
-  border-bottom:1px solid var(--border);
-  border-radius:0;
-  background:transparent;
-  box-shadow:none;
-}
-.home .browser-highlight:hover{
-  transform:none;
-  border-color:var(--accent);
-  background:transparent;
-}
-.home .browser-highlight-copy strong{font-size:11px;letter-spacing:.025em}
-.home .browser-highlight-copy span{font-size:10px}
-.home .browser-highlight-link{font-size:10px}
-.home .bookmarks{
-  grid-area:bookmarks;
-  width:min(930px,100%);
-  justify-self:center;
-  grid-template-columns:repeat(auto-fill,minmax(112px,1fr));
-  gap:9px;
-  margin-top:clamp(48px,8vh,82px);
-  padding-bottom:50px;
-}
-.home .bookmark{
-  min-height:72px;
-  border-radius:12px;
-  border-color:color-mix(in srgb,var(--border) 70%,transparent);
-  background:color-mix(in srgb,var(--panel) 54%,transparent);
-  padding:12px 8px;
-  gap:8px;
-}
-.home .bookmark:hover{transform:translateY(-2px);box-shadow:none}
-.home .bookmark-icon{width:22px;height:22px}
-.home .bookmark-name{font-size:10px}
-.home.favicon-bookmarks .bookmarks{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
-.home.favicon-bookmarks .bookmark{min-height:88px}
-body.layout-browser main{padding-top:92px}
-body.layout-browser .home .brand{margin-bottom:clamp(36px,7vh,76px)}
-body.layout-edge main{padding-top:100px}
-body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
-@media(max-width:760px){
-  main{padding:78px 18px 40px}
-  .home{width:100%;max-width:620px}
-  .home .brand{
-    flex-wrap:wrap;
-    gap:10px;
-    margin-bottom:clamp(34px,7vh,58px);
-  }
-  .home .brand-icon{width:34px;height:41px}
-  .home .brand h1{font-size:14px}
-  .home .brand-message{
-    flex:1 0 100%;
-    margin:2px 0 0;
-    max-width:100%;
-    text-align:left;
-    font-size:15px;
-  }
-  .home .search{height:62px;padding:0 17px;gap:11px;border-radius:16px}
-  .home .search input{font-size:14px}
-  .home .browser-highlight{margin-top:10px;padding:10px 0}
-  .home .bookmarks{
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:8px;
-    margin-top:36px;
-  }
-  .home .bookmark{min-height:70px;padding:9px 5px}
-  .home.favicon-bookmarks .bookmarks{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}
-}
-@media(max-width:420px){
-  main{padding-left:12px;padding-right:12px}
-  .home .brand-message{font-size:13px}
-  .home .bookmarks{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .home .search{height:58px;padding:0 12px}
-  .home .search-engine{max-width:80px;min-width:0}
-  .home .browser-highlight-copy span{font-size:10px}
-}
-
 </style>
 </head>
 
@@ -1411,7 +1258,6 @@ body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
         <option value="yahoo">Yahoo</option>
       </select>
       <button class="search-mode" id="searchMode" type="button">Web</button>
-      <button class="search-submit" type="submit" aria-label="Submit search"></button>
     </form>
 
     <button class="browser-highlight" id="browserHighlight" type="button">
@@ -1476,8 +1322,7 @@ body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
           <div class="setting-row"><div class="setting-description"><strong>Dock position</strong><span>Choose which screen edge holds the navigation dock.</span></div><select class="settings-action" id="dockPositionSelect" aria-label="Dock position"><option value="left">Left</option><option value="right">Right</option><option value="bottom">Bottom</option></select></div>
           <div class="setting-row"><div class="setting-description"><strong>Dock span</strong><span>Use a compact floating dock or stretch it along the full edge.</span></div><select class="settings-action" id="dockSpanSelect" aria-label="Dock span"><option value="compact">Compact</option><option value="full">Full edge</option></select></div>
           <div class="section-label">Visual effects</div>
-          <div class="setting-row"><div class="setting-description"><strong>Particle background</strong><span>Enable animated background effects</span></div><button class="toggle" id="particleToggle" role="switch" aria-checked="true" aria-label="Particle background"></button></div>
-          <div class="setting-row"><div class="setting-description"><strong>Particle type</strong><span>Choose the ambient effect shown across MoonStone</span></div><select class="settings-action" id="particleTypeSelect" aria-label="Particle type"><option value="dots">Floating dots</option><option value="rain">Rain</option><option value="lightning">Lightning</option><option value="snow">Snow</option><option value="stars">Stars</option></select></div>
+          <div class="setting-row"><div class="setting-description"><strong>Particle background</strong><span>Floating ambient particles</span></div><button class="toggle" id="particleToggle" role="switch" aria-checked="true" aria-label="Particle background"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Animations</strong><span>Hover and transition effects</span></div><button class="toggle" id="animationToggle" role="switch" aria-checked="true" aria-label="Animations"></button></div>
         </section>
         <section class="settings-panel" data-settings-panel="behavior">
@@ -1507,7 +1352,6 @@ body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
           <input id="importSettingsFile" type="file" accept="application/json,.json" hidden>
           <div class="data-card danger-card"><div><strong>Reset preferences</strong><span>Restore default settings. Bookmarks will not be deleted.</span></div><button class="settings-action danger-action" id="resetSettingsButton" type="button">Reset</button></div>
           <p class="modal-note" id="settingsDataStatus" aria-live="polite">Your preferences are saved automatically on this device.</p>
-        </section>
         <section class="settings-panel" data-settings-panel="account">
           <p class="settings-kicker">MOONSTONE CLOUD</p><h3>Account</h3>
           <p class="settings-intro">Sign in to sync your MoonStone settings and bookmarks across devices.</p>
@@ -1523,22 +1367,9 @@ body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
           </div>
           <div id="moonstoneAccountSignedIn" hidden>
             <div class="data-card"><div><strong id="moonstoneAccountEmailLabel">Signed in</strong><span id="moonstoneCloudStatus">Preparing cloud sync…</span></div><button class="settings-action" id="moonstoneSignOut" type="button">Sign out</button></div>
-            <p class="section-label">PUBLIC PROFILE</p>
-            <p class="settings-intro">Your profile is public. Anyone with your username can view your display name and bio.</p>
-            <label class="section-label" for="moonstoneDisplayName">Display name</label>
-            <input class="field" id="moonstoneDisplayName" maxlength="32" placeholder="Your display name">
-            <label class="section-label" for="moonstoneUsername">Username</label>
-            <input class="field" id="moonstoneUsername" maxlength="20" autocomplete="off" placeholder="username (3–20 letters, numbers, _)">
-            <label class="section-label" for="moonstoneBio">Bio</label>
-            <textarea class="field" id="moonstoneBio" maxlength="160" rows="3" placeholder="A little about you (optional)"></textarea>
-            <div class="font-custom-controls" style="margin-top:10px">
-              <button class="primary-button" id="moonstoneSaveProfile" type="button">Save profile</button>
-              <button class="settings-action" id="moonstoneViewProfile" type="button">View public profile</button>
-              <button class="settings-action" id="moonstoneCopyProfile" type="button">Copy profile link</button>
-            </div>
-            <p class="modal-note" id="moonstoneProfileStatus" role="status" aria-live="polite">Choose a username to create your public profile.</p>
           </div>
           <p class="modal-note" id="moonstoneAccountStatus" role="status" aria-live="polite">Your existing local data stays on this device until you sign in.</p>
+        </section>
         </section>
       </div>
     </div>
@@ -1690,7 +1521,6 @@ body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
       ? savedSettings.theme : "moonstone",
     searchEngine: ["google","brave","duckduckgo","bing","ecosia","startpage","yahoo"].includes(savedSettings.searchEngine) ? savedSettings.searchEngine : "google",
     particles: savedSettings.particles !== false,
-    particleType: ["dots","rain","lightning","snow","stars"].includes(savedSettings.particleType) ? savedSettings.particleType : "dots",
     cursorTrail: savedSettings.cursorTrail === true,
     animations: savedSettings.animations !== false,
     confirmLeave: savedSettings.confirmLeave !== false,
@@ -2295,14 +2125,6 @@ body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
     saveSettings();
     applySettings();
   });
-  const particleTypeSelect = $("#particleTypeSelect");
-  if (particleTypeSelect) {
-    particleTypeSelect.value = settings.particleType;
-    particleTypeSelect.addEventListener("change", () => {
-      settings.particleType = ["dots","rain","lightning","snow","stars"].includes(particleTypeSelect.value) ? particleTypeSelect.value : "dots";
-      saveSettings(); resizeCanvas(); stopParticles(); applySettings();
-    });
-  }
 
   $("#cursorTrailToggle").addEventListener("click", () => {
     settings.cursorTrail = !settings.cursorTrail;
@@ -2636,15 +2458,15 @@ body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
     canvas.style.height = height + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const type = settings.particleType || "dots";
-    const count = Math.min(type === "rain" ? 150 : 95, Math.floor(width * height / (type === "rain" ? 6500 : 11000)));
+    const count = Math.min(95, Math.floor(width * height / 11000));
     particles = Array.from({ length: count }, () => ({
-      x: Math.random() * width, y: Math.random() * height,
-      r: type === "snow" ? Math.random() * 2.4 + 1 : Math.random() * 1.6 + .55,
-      vx: type === "rain" ? -1.2 : type === "snow" ? (Math.random() - .5) * .7 : (Math.random() - .5) * .34,
-      vy: type === "rain" ? Math.random() * 5 + 4 : type === "snow" ? Math.random() * 1.3 + .45 : (Math.random() - .5) * .34,
-      alpha: Math.random() * .42 + .38, phase: Math.random() * Math.PI * 2,
-      length: Math.random() * 14 + 9
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: Math.random() * 1.6 + .55,
+      vx: (Math.random() - .5) * .34,
+      vy: (Math.random() - .5) * .34,
+      alpha: Math.random() * .42 + .38,
+      phase: Math.random() * Math.PI * 2
     }));
   }
 
@@ -2664,32 +2486,24 @@ body.layout-edge .home .brand{margin-bottom:clamp(36px,7vh,76px)}
     ctx.clearRect(0, 0, width, height);
     const color = getComputedStyle(document.body).getPropertyValue("--particle").trim() || "#d9d3bd";
 
-    const type = settings.particleType || "dots";
     particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
       p.phase += .008;
-      ctx.globalAlpha = p.alpha * (.7 + Math.sin(p.phase) * .3);
-      ctx.strokeStyle = color; ctx.fillStyle = color;
-      if (type === "rain") {
-        p.x += p.vx; p.y += p.vy;
-        if (p.y > height + 20) { p.y = -20; p.x = Math.random() * width; }
-        if (p.x < -20) p.x = width + 20;
-        ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p.x-3,p.y+p.length); ctx.stroke();
-      } else if (type === "lightning") {
-        if (Math.random() < .0025) {
-          const x=Math.random()*width,y=Math.random()*height*.55; ctx.globalAlpha=.75;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,y);
-          let bx=x,by=y;for(let k=0;k<7;k++){bx+=(Math.random()-.5)*34;by+=Math.random()*24;ctx.lineTo(bx,by)}ctx.stroke();
-          ctx.globalAlpha=.25;ctx.lineWidth=4;ctx.stroke();
-        }
-      } else if (type === "snow") {
-        p.x += p.vx + Math.sin(p.phase)*.2; p.y += p.vy;
-        if(p.y>height+5){p.y=-5;p.x=Math.random()*width}if(p.x<-5)p.x=width+5;if(p.x>width+5)p.x=-5;
-        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
-      } else {
-        p.x += p.vx; p.y += p.vy;
-        if(p.x<-4)p.x=width+4;if(p.x>width+4)p.x=-4;if(p.y<-4)p.y=height+4;if(p.y>height+4)p.y=-4;
-        ctx.beginPath();ctx.arc(p.x,p.y,type==="stars"?p.r*1.25:p.r,0,Math.PI*2);ctx.fill();
-      }
+
+      if (p.x < -4) p.x = width + 4;
+      if (p.x > width + 4) p.x = -4;
+      if (p.y < -4) p.y = height + 4;
+      if (p.y > height + 4) p.y = -4;
+
+      const alpha = p.alpha * (.7 + Math.sin(p.phase) * .3);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
     });
+
     ctx.globalAlpha = 1;
     animationFrame = requestAnimationFrame(drawParticles);
   }
@@ -2831,35 +2645,6 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
 </head>
 <body><p>Use the bar uptop to search.</p>
 
-
-<!-- MoonStone site-wide leave confirmation -->
-<script>
-(() => {
-  let internalNavigation = false;
-  document.addEventListener("click", event => {
-    const link = event.target.closest && event.target.closest("a[href]");
-    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    if (link.target && link.target.toLowerCase() === "_blank") return;
-    try {
-      const destination = new URL(link.href, location.href);
-      if (destination.origin === location.origin) internalNavigation = true;
-    } catch (_) {}
-  }, true);
-  document.addEventListener("submit", event => {
-    const form = event.target;
-    if (!form || form.target === "_blank") return;
-    try {
-      const destination = new URL(form.action || location.href, location.href);
-      if (destination.origin === location.origin) internalNavigation = true;
-    } catch (_) {}
-  }, true);
-  window.addEventListener("beforeunload", event => {
-    if (internalNavigation) return;
-    event.preventDefault();
-    event.returnValue = "";
-  });
-})();
-</script>
 </body>
 </html>`;
   }
@@ -2911,24 +2696,35 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   if (params.get("openSettings") === "1") setTimeout(() => document.getElementById("settingsOpen")?.click(), 120);
 })();</script>
 
-
-
-<!-- MoonStone Firebase account + cloud save integration -->
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- Reliable homepage Enter-key search fallback -->
 <script>
 (() => {
-  const firebaseConfig = {
-    apiKey: "AIzaSyBiINU1K2-ZXABZ3Xks72oJRt5NzYRpPPc",
-    authDomain: "moonstone-29618.firebaseapp.com",
-    projectId: "moonstone-29618",
-    storageBucket: "moonstone-29618.firebasestorage.app",
-    messagingSenderId: "386097007931",
-    appId: "1:386097007931:web:3f17d043a508ca48727b1e",
-    measurementId: "G-VQ1ZREMM6B"
-  };
+  const input = document.getElementById("searchInput");
+  const mode = document.getElementById("searchMode");
+  if (!input || !mode) return;
 
+  input.addEventListener("keydown", event => {
+    if (event.key !== "Enter" || event.isComposing) return;
+    if (mode.textContent.trim().toLowerCase() !== "web") return;
+
+    const query = input.value.trim();
+    if (!query) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    if (typeof window.moonstoneOpenSearch === "function") {
+      window.moonstoneOpenSearch(query);
+    }
+  });
+})();
+</script>
+
+<!-- MoonStone Supabase account + cloud save integration -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  const SUPABASE_URL = "https://wzlofdddzlqylhubimrm.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_-t5UKfdGxVhLLd0WPSHdOg_-bwXg-iw";
   const status = document.getElementById("moonstoneAccountStatus");
   const signedOut = document.getElementById("moonstoneAccountSignedOut");
   const signedIn = document.getElementById("moonstoneAccountSignedIn");
@@ -2936,30 +2732,16 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
   const cloudStatus = document.getElementById("moonstoneCloudStatus");
   const emailInput = document.getElementById("moonstoneAccountEmail");
   const passwordInput = document.getElementById("moonstoneAccountPassword");
-  const displayNameInput = document.getElementById("moonstoneDisplayName");
-  const usernameInput = document.getElementById("moonstoneUsername");
-  const bioInput = document.getElementById("moonstoneBio");
-  const profileStatus = document.getElementById("moonstoneProfileStatus");
-  const saveProfileButton = document.getElementById("moonstoneSaveProfile");
-  const viewProfileButton = document.getElementById("moonstoneViewProfile");
-  const copyProfileButton = document.getElementById("moonstoneCopyProfile");
   if (!status || !signedOut || !signedIn) return;
 
   const setStatus = (message) => { status.textContent = message; };
-  if (!window.firebase || !window.firebase.initializeApp) {
-    setStatus("Firebase couldn't load. Check your connection and refresh.");
+  if (!window.supabase || !window.supabase.createClient) {
+    setStatus("Account system couldn't load. Check your connection and refresh.");
     return;
   }
-
-  let app;
-  try {
-    app = window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(firebaseConfig);
-  } catch (error) {
-    setStatus("Firebase initialization failed: " + error.message);
-    return;
-  }
-  const auth = app.auth();
-  const db = app.firestore();
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  });
   let activeUserId = null;
   let syncing = false;
   let saveTimer = null;
@@ -2975,19 +2757,18 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
       bookmarks: parse("moonstone-bookmarks", null)
     };
   }
-
   function applyCloudData(payload, userId) {
     if (!payload || typeof payload !== "object") return;
     const local = readLocalData();
-    const cloudSettings = payload.settings || {};
-    const cloudBookmarks = payload.bookmarks === undefined ? null : payload.bookmarks;
-    if (JSON.stringify(local.settings) === JSON.stringify(cloudSettings) &&
-        JSON.stringify(local.bookmarks) === JSON.stringify(cloudBookmarks)) {
+    const sameSettings = JSON.stringify(local.settings) === JSON.stringify(payload.settings || {});
+    const sameBookmarks = JSON.stringify(local.bookmarks) === JSON.stringify(payload.bookmarks === undefined ? null : payload.bookmarks);
+    if (sameSettings && sameBookmarks) {
       cloudStatus.textContent = "Cloud sync is on";
       setStatus("Your settings and bookmarks are synced to your account.");
       return;
     }
-    const restoreKey = "moonstone-firebase-restored-user";
+    // Avoid a reload loop if the cloud copy is restored during startup.
+    const restoreKey = "moonstone-cloud-restored-user";
     if (sessionStorage.getItem(restoreKey) === userId) {
       cloudStatus.textContent = "Cloud sync is on";
       setStatus("Cloud data is loaded. If a setting looks outdated, refresh once.");
@@ -3003,28 +2784,28 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
       }
       sessionStorage.setItem(restoreKey, userId);
     } finally { syncing = false; }
+    // Refresh once so existing controls apply restored preferences consistently.
     location.reload();
   }
-
   async function saveCloudData(userId) {
     if (!userId || syncing) return;
     const payload = readLocalData();
     cloudStatus.textContent = "Saving your settings and bookmarks…";
-    try {
-      await db.collection("moonstone_user_data").doc(userId).set({
-        payload,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-      cloudStatus.textContent = "Cloud sync is on";
-      setStatus("Your settings and bookmarks are synced to your account.");
-    } catch (error) {
+    const { error } = await client.from("moonstone_user_data").upsert({
+      user_id: userId,
+      payload,
+      updated_at: new Date().toISOString()
+    }, { onConflict: "user_id" });
+    if (error) {
       cloudStatus.textContent = "Cloud save failed. " + error.message;
-      setStatus("Firebase cloud save failed. Check that Firestore is enabled and its security rules are installed.");
+      setStatus("You're signed in, but cloud saving failed. Check that you ran supabase/schema.sql in the Supabase SQL Editor.");
+      return;
     }
+    cloudStatus.textContent = "Cloud sync is on";
+    setStatus("Your settings and bookmarks are synced to your account.");
   }
-
   async function syncAccount(user) {
-    activeUserId = user ? user.uid : null;
+    activeUserId = user ? user.id : null;
     signedOut.hidden = !!user;
     signedIn.hidden = !user;
     if (!user) {
@@ -3032,40 +2813,39 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
       return;
     }
     emailLabel.textContent = user.email || "MoonStone account";
-    loadOwnProfile(user.uid);
     cloudStatus.textContent = "Checking your cloud save…";
     setStatus("Signed in. Checking saved MoonStone data…");
-    try {
-      const snapshot = await db.collection("moonstone_user_data").doc(user.uid).get();
-      const record = snapshot.exists ? snapshot.data() : null;
-      const cloud = record && record.payload;
-      if (cloud && typeof cloud === "object") {
-        const local = readLocalData();
-        const cloudHasData = (cloud.bookmarks !== null && cloud.bookmarks !== undefined) ||
-          (cloud.settings && Object.keys(cloud.settings).length > 0);
-        const localHasData = local.bookmarks !== null || Object.keys(local.settings || {}).length > 0;
-        if (cloudHasData) {
-          applyCloudData(cloud, user.uid);
-          return;
-        }
-        if (localHasData) {
-          await saveCloudData(user.uid);
-          return;
-        }
-      } else {
-        await saveCloudData(user.uid);
+    const { data, error } = await client.from("moonstone_user_data")
+      .select("payload").eq("user_id", user.id).maybeSingle();
+    if (error) {
+      cloudStatus.textContent = "Cloud sync needs setup";
+      setStatus("Account is active, but cloud data couldn't load. Run supabase/schema.sql in your Supabase SQL Editor. Details: " + error.message);
+      return;
+    }
+    if (data && data.payload && typeof data.payload === "object") {
+      const local = readLocalData();
+      const cloud = data.payload;
+      const localHasData = local.bookmarks !== null || Object.keys(local.settings || {}).length > 0;
+      const cloudHasData = (cloud.bookmarks !== null && cloud.bookmarks !== undefined) || (cloud.settings && Object.keys(cloud.settings).length > 0);
+      if (cloudHasData) {
+        // Cloud data is the shared account copy; restore it on this device.
+        applyCloudData(cloud, user.id);
         return;
       }
-      cloudStatus.textContent = "Cloud sync is on";
-      setStatus("Signed in. Your cloud save is ready.");
-    } catch (error) {
-      cloudStatus.textContent = "Cloud sync needs setup";
-      setStatus("Firebase cloud data couldn't load. Check that Firestore is enabled and security rules are published. Details: " + error.message);
+      if (localHasData) {
+        await saveCloudData(user.id);
+      } else {
+        cloudStatus.textContent = "Cloud sync is on";
+        setStatus("Signed in. Your cloud save is ready.");
+      }
+    } else {
+      // First login: upload this browser's current preferences and bookmarks.
+      await saveCloudData(user.id);
     }
   }
 
-  // Existing MoonStone scripts store settings/bookmarks in localStorage.
-  // Sync only these keys, leaving other site features untouched.
+  // Existing MoonStone scripts save preferences/bookmarks through localStorage.
+  // Observe only these two known keys, leaving all other site behavior unchanged.
   const originalSetItem = Storage.prototype.setItem;
   Storage.prototype.setItem = function(key, value) {
     originalSetItem.call(this, key, value);
@@ -3076,162 +2856,6 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
     }
   };
 
-  const usernamePattern = /^[a-z0-9_]{3,20}$/;
-  let profileUid = null;
-  let currentProfile = null;
-
-  function setProfileStatus(message) {
-    if (profileStatus) profileStatus.textContent = message;
-  }
-
-  async function loadOwnProfile(uid) {
-    profileUid = uid;
-    try {
-      const snap = await db.collection("moonstone_profiles").doc(uid).get();
-      currentProfile = snap.exists ? snap.data() : null;
-      displayNameInput.value = currentProfile?.displayName || "";
-      usernameInput.value = currentProfile?.username || "";
-      bioInput.value = currentProfile?.bio || "";
-      setProfileStatus(currentProfile?.username
-        ? "Public profile: @" + currentProfile.username
-        : "Choose a username to create your public profile.");
-    } catch (error) {
-      setProfileStatus("Couldn't load profile: " + error.message);
-    }
-  }
-
-  function openPublicProfile(profile) {
-    const existing = document.getElementById("moonstonePublicProfile");
-    if (existing) existing.remove();
-    const overlay = document.createElement("div");
-    overlay.id = "moonstonePublicProfile";
-    overlay.className = "modal-backdrop open";
-    overlay.style.zIndex = "10020";
-    const modal = document.createElement("section");
-    modal.className = "modal";
-    modal.setAttribute("role", "dialog");
-    modal.setAttribute("aria-modal", "true");
-    const close = document.createElement("button");
-    close.className = "close-button";
-    close.textContent = "×";
-    close.setAttribute("aria-label", "Close profile");
-    close.addEventListener("click", () => overlay.remove());
-    const heading = document.createElement("div");
-    heading.className = "modal-heading";
-    const title = document.createElement("h2");
-    title.textContent = profile.displayName || profile.username || "MoonStone user";
-    heading.append(title, close);
-    const handle = document.createElement("p");
-    handle.className = "settings-intro";
-    handle.textContent = profile.username ? "@" + profile.username : "";
-    const bio = document.createElement("p");
-    bio.className = "modal-note";
-    bio.style.whiteSpace = "pre-wrap";
-    bio.textContent = profile.bio || "This user hasn't added a bio yet.";
-    modal.append(heading, handle, bio);
-    overlay.append(modal);
-    overlay.addEventListener("click", event => { if (event.target === overlay) overlay.remove(); });
-    document.body.append(overlay);
-  }
-
-  async function lookupPublicProfile(username) {
-    const clean = String(username || "").trim().toLowerCase();
-    if (!usernamePattern.test(clean)) {
-      setProfileStatus("That username isn't valid.");
-      return;
-    }
-    try {
-      const usernameSnap = await db.collection("moonstone_usernames").doc(clean).get();
-      if (!usernameSnap.exists) {
-        setProfileStatus("No public profile found for @" + clean + ".");
-        return;
-      }
-      const uid = usernameSnap.data().uid;
-      const profileSnap = await db.collection("moonstone_profiles").doc(uid).get();
-      if (!profileSnap.exists) {
-        setProfileStatus("That profile hasn't been created yet.");
-        return;
-      }
-      openPublicProfile(profileSnap.data());
-    } catch (error) {
-      setProfileStatus("Profile lookup failed: " + error.message);
-    }
-  }
-
-  if (saveProfileButton) saveProfileButton.addEventListener("click", async () => {
-    const user = auth.currentUser;
-    if (!user) { setProfileStatus("Sign in first to create a profile."); return; }
-    const username = (usernameInput.value || "").trim().toLowerCase();
-    const displayName = (displayNameInput.value || "").trim();
-    const bio = (bioInput.value || "").trim();
-    if (!usernamePattern.test(username)) {
-      setProfileStatus("Username must be 3–20 characters: lowercase letters, numbers, or underscores.");
-      return;
-    }
-    if (!displayName || displayName.length > 32) {
-      setProfileStatus("Enter a display name (up to 32 characters).");
-      return;
-    }
-    if (bio.length > 160) {
-      setProfileStatus("Bio must be 160 characters or fewer.");
-      return;
-    }
-    saveProfileButton.disabled = true;
-    setProfileStatus("Saving public profile…");
-    const profileRef = db.collection("moonstone_profiles").doc(user.uid);
-    const newUsernameRef = db.collection("moonstone_usernames").doc(username);
-    try {
-      await db.runTransaction(async transaction => {
-        const profileSnap = await transaction.get(profileRef);
-        const usernameSnap = await transaction.get(newUsernameRef);
-        const oldUsername = profileSnap.exists ? profileSnap.data().username : null;
-        let oldUsernameSnap = null;
-        if (oldUsername && oldUsername !== username) {
-          oldUsernameSnap = await transaction.get(db.collection("moonstone_usernames").doc(oldUsername));
-        }
-        if (usernameSnap.exists && usernameSnap.data().uid !== user.uid) {
-          throw new Error("That username is already taken. Try another one.");
-        }
-        const profile = {
-          uid: user.uid,
-          username,
-          displayName,
-          bio,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        transaction.set(profileRef, profile);
-        transaction.set(newUsernameRef, { uid: user.uid });
-        if (oldUsernameSnap && oldUsernameSnap.exists && oldUsernameSnap.data().uid === user.uid) {
-          transaction.delete(db.collection("moonstone_usernames").doc(oldUsername));
-        }
-      });
-      currentProfile = { uid: user.uid, username, displayName, bio };
-      setProfileStatus("Profile saved! Public profile: @" + username);
-    } catch (error) {
-      setProfileStatus(error.message || "Couldn't save profile.");
-    } finally {
-      saveProfileButton.disabled = false;
-    }
-  });
-
-  if (viewProfileButton) viewProfileButton.addEventListener("click", () => {
-    if (currentProfile?.username) openPublicProfile(currentProfile);
-    else setProfileStatus("Save a username first.");
-  });
-  if (copyProfileButton) copyProfileButton.addEventListener("click", async () => {
-    if (!currentProfile?.username) { setProfileStatus("Save a username first."); return; }
-    const link = location.origin + location.pathname + "?profile=" + encodeURIComponent(currentProfile.username);
-    try {
-      await navigator.clipboard.writeText(link);
-      setProfileStatus("Public profile link copied.");
-    } catch (_) {
-      setProfileStatus("Your public profile link: " + link);
-    }
-  });
-
-  const profileParam = new URLSearchParams(location.search).get("profile");
-  if (profileParam) setTimeout(() => lookupPublicProfile(profileParam), 500);
-
   async function credentials() {
     const email = (emailInput.value || "").trim();
     const password = passwordInput.value || "";
@@ -3241,35 +2865,38 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
     }
     return { email, password };
   }
-
   document.getElementById("moonstoneSignUp").addEventListener("click", async () => {
     const values = await credentials(); if (!values) return;
     setStatus("Creating your account…");
-    try {
-      await auth.createUserWithEmailAndPassword(values.email, values.password);
-      setStatus("Account created and signed in.");
-    } catch (error) { setStatus(error.message); }
+    const { data, error } = await client.auth.signUp(values);
+    if (error) { setStatus(error.message); return; }
+    if (data.session) setStatus("Account created. Signing you in…");
+    else setStatus("Account created. Check your email for a confirmation link, then return here to sign in.");
   });
-
   document.getElementById("moonstoneSignIn").addEventListener("click", async () => {
     const values = await credentials(); if (!values) return;
     setStatus("Signing in…");
-    try { await auth.signInWithEmailAndPassword(values.email, values.password); }
-    catch (error) { setStatus(error.message); }
+    const { error } = await client.auth.signInWithPassword(values);
+    if (error) setStatus(error.message);
   });
-
   document.getElementById("moonstoneSignOut").addEventListener("click", async () => {
     setStatus("Signing out…");
-    try { await auth.signOut(); }
-    catch (error) { setStatus(error.message); }
+    const { error } = await client.auth.signOut();
+    if (error) setStatus(error.message);
   });
 
-  auth.onAuthStateChanged(user => {
+  client.auth.onAuthStateChange((event, session) => {
+    // Defer database requests out of the auth callback to avoid blocking auth events.
+    setTimeout(() => { authReady = true; syncAccount(session ? session.user : null); }, 0);
+  });
+  client.auth.getSession().then(({ data, error }) => {
+    if (error) { setStatus("Couldn't restore your session: " + error.message); return; }
     authReady = true;
-    syncAccount(user);
+    syncAccount(data.session ? data.session.user : null);
   });
 })();
 </script>
+
 
 
 <script>
