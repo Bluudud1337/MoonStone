@@ -156,6 +156,12 @@ function installMoonStoneInspector(frame) {
 
 function activeTab() { return tabs.find((tab) => tab.id === activeId); }
 
+window.addEventListener("message", (event) => {
+  if (event.data?.type !== "moonstone-inspector-toggle") return;
+  const tab = activeTab();
+  try { tab?.frame?.frame?.contentWindow?.postMessage({ type: "moonstone-inspector-toggle" }, "*"); } catch {}
+});
+
 function renderTabs() {
   tabsEl.replaceChildren();
   for (const tab of tabs) {
