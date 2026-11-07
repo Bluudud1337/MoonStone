@@ -40,7 +40,7 @@ function normalizeInput(value) {
 
 // MoonStone Element Inspector: injected into the proxied page's own DOM
 // through Scramjet's init hook, so it can inspect the page inside the proxy.
-function installMoonStoneInspector(frame) {
+function installMoonStoneInspector(frame, tab) {
   const install = (context) => {
     if (!context?.isTopLevel) return;
     const win = context.window;
@@ -69,9 +69,7 @@ function installMoonStoneInspector(frame) {
     const toggle = root.querySelector("#__moonstone_inspector_toggle");
     const panel = root.querySelector("#__moonstone_inspector_panel");
     const info = root.querySelector("#__moonstone_inspector_info");
-    win.addEventListener("message", (event) => {
-      if (event.data?.type === "moonstone-inspector-toggle") toggle.click();
-    });
+    tab.inspectorToggle = () => toggle.click();
     let inspecting = false;
     let hovered = null;
     let selectedSelector = "";
@@ -159,7 +157,8 @@ function activeTab() { return tabs.find((tab) => tab.id === activeId); }
 window.addEventListener("message", (event) => {
   if (event.data?.type !== "moonstone-inspector-toggle") return;
   const tab = activeTab();
-  try { tab?.frame?.frame?.contentWindow?.postMessage({ type: "moonstone-inspector-toggle" }, "*"); } catch {}
+  if (typeof tab?.inspectorToggle === "function") tab.inspectorToggle();
+  else status.textContent = "Inspector is not ready yet. Reload the page and try again.";
 });
 
 function renderTabs() {
@@ -265,7 +264,7 @@ async function openUrl(value) {
     if (!tab.frame) {
       const frame = scramjet.createFrame();
       frame.frame.id = "sj-frame";
-      installMoonStoneInspector(frame);
+      installMoonStoneInspector(frame, tab);
       tab.frame = frame;
     }
     view.replaceChildren(tab.frame.frame);
