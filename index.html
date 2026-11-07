@@ -990,6 +990,12 @@ main {
 .temp-browser-head{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--panel);border-bottom:1px solid var(--border);flex:0 0 auto}
 .temp-browser-head button{min-height:36px;border:1px solid var(--border);border-radius:9px;background:var(--hover);color:var(--text);cursor:pointer}
 .temp-browser-head #tempBrowserAddress{display:block!important;flex:1 1 auto;min-width:0;height:36px;padding:0 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;font-size:13px;outline:none}
+.temp-nav-button{width:36px;min-width:36px;height:36px;display:grid;place-items:center;padding:0!important}
+.temp-nav-button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.temp-nav-button:disabled{opacity:.35;cursor:default}
+.temp-tab{gap:7px}
+.temp-tab-favicon{width:16px;height:16px;flex:0 0 16px;object-fit:contain;border-radius:3px}
+.temp-tab-favicon-fallback{display:grid;place-items:center;width:16px;height:16px;flex:0 0 16px;border-radius:4px;background:var(--hover);color:var(--accent);font-size:10px;font-weight:700}
 .temp-browser-head #tempBrowserAddress:focus{border-color:var(--accent)}
 .temp-browser-head .temp-close-button{flex:0 0 36px;width:36px;padding:0;font-size:25px;line-height:1}
 .temp-browser-head .temp-fullscreen-button{flex:0 0 36px;width:36px;display:grid;place-items:center;padding:7px}
@@ -1170,7 +1176,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   <div class="temp-browser-window">
     <div class="temp-tabs" id="tempBrowserTabs" role="tablist" aria-label="Browser tabs"></div>
     <div class="temp-browser-head">
-      <button id="tempBack" class="temp-close-button" type="button" title="Close browser" aria-label="Close browser">×</button>
+      <button id="tempBack" class="temp-nav-button" type="button" title="Back" aria-label="Back" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6M9 12h11"/></svg></button>
+      <button id="tempForward" class="temp-nav-button" type="button" title="Forward" aria-label="Forward" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6m6 6H4"/></svg></button>
       <input id="tempBrowserAddress" type="text" aria-label="Current search or website" placeholder="Search or enter website address" autocomplete="off" spellcheck="false">
       <button id="tempRefresh" class="temp-fullscreen-button" type="button" title="Refresh page" aria-label="Refresh page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M4.7 9a7 7 0 0 1 11.8-2L20 12M4 17v-5h5"/><path d="M19.3 15a7 7 0 0 1-11.8 2L4 12"/></svg></button>
       <button id="tempFullscreen" class="temp-fullscreen-button" type="button" title="Toggle fullscreen" aria-label="Toggle fullscreen" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/></svg></button>
@@ -2551,11 +2558,42 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   if(redirectSetting){redirectSetting.setAttribute("aria-checked",String(allowRedirects));redirectSetting.addEventListener("click",()=>{allowRedirects=!allowRedirects;redirectSetting.setAttribute("aria-checked",String(allowRedirects));try{const saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}");saved.browserAllowRedirects=allowRedirects;localStorage.setItem("moonstone-settings",JSON.stringify(saved))}catch{};sandbox()})}
   function setFullscreen(on){document.body.classList.toggle("browser-fullscreen",on);const b=document.getElementById("tempFullscreen");if(b){b.setAttribute("aria-pressed",String(on));b.title=on?"Exit fullscreen":"Toggle fullscreen";b.setAttribute("aria-label",b.title)}}
   const active=()=>tabs.find(t=>t.id===activeId);
+  function actualPageUrl(value){
+    try{
+      const outer=new URL(value);
+      const embedded=outer.searchParams.get("url");
+      if(embedded){const inner=new URL(embedded);if(["http:","https:"].includes(inner.protocol))return inner.href}
+      return outer.href;
+    }catch{return value||""}
+  }
+  function siteInfo(value){
+    try{
+      const u=new URL(actualPageUrl(value));
+      if(u.protocol==="http:"||u.protocol==="https:")return {host:u.hostname.replace(/^www\\./,""),favicon:"https://www.google.com/s2/favicons?domain="+encodeURIComponent(u.hostname)+"&sz=64"};
+    }catch{}
+    return {host:"New tab",favicon:""};
+  }
+  function updateHistoryButtons(){
+    const t=active();
+    const back=document.getElementById("tempBack"),forward=document.getElementById("tempForward");
+    if(back){back.disabled=!t||t.index<=0;back.title=back.disabled?"No previous page":"Back";back.setAttribute("aria-label",back.title)}
+    if(forward){forward.disabled=!t||t.index>=t.history.length-1;forward.title=forward.disabled?"No next page":"Forward";forward.setAttribute("aria-label",forward.title)}
+  }
+  function goHistory(delta){
+    const t=active();if(!t)return;
+    const next=t.index+delta;if(next<0||next>=t.history.length)return;
+    t.index=next;t.url=t.history[next];
+    const info=siteInfo(t.url);t.title=info.host;
+    urlInput.value=t.url;if(browserAddress)browserAddress.value=actualPageUrl(t.url);
+    sandbox();frame.removeAttribute("srcdoc");frame.src=t.url;
+    modal.classList.add("open");status.textContent="Loading "+t.title+".";
+    render();
+  }
   function normalize(value){let raw=value.trim();if(!raw)return null;if(!/^https?:\/\//i.test(raw))raw="https://"+raw;try{const u=new URL(raw);return ["http:","https:"].includes(u.protocol)?u.href:null}catch{return null}}
   function sandbox(){if(allowRedirects){frame.removeAttribute("sandbox")}else{frame.setAttribute("sandbox","allow-scripts allow-forms allow-same-origin allow-popups")} frame.setAttribute("allow","fullscreen")}
-  function render(){tabsEl.replaceChildren();tabs.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="temp-tab"+(t.id===activeId?" active":"");b.setAttribute("role","tab");b.setAttribute("aria-selected",String(t.id===activeId));const title=document.createElement("span");title.className="temp-tab-title";title.textContent=t.title;const close=document.createElement("span");close.className="temp-tab-close";close.textContent="×";close.setAttribute("aria-label","Close tab");b.append(title,close);b.addEventListener("click",e=>e.target===close?closeTab(t.id):switchTab(t.id));tabsEl.append(b)});const add=document.createElement("button");add.type="button";add.className="temp-tab-add";add.textContent="+";add.title="New tab";add.addEventListener("click",()=>createTab());tabsEl.append(add)}
-  function setTitle(t,url){t.url=url;try{t.title=new URL(url).hostname.replace(/^www\./,"")||"New tab"}catch{t.title="New tab"}}
-  function switchTab(id){const t=tabs.find(x=>x.id===id);if(!t)return;activeId=id;modal.classList.add("open");urlInput.value=t.url||"";if(browserAddress)browserAddress.value=t.url||"";if(t.url){frame.removeAttribute("srcdoc");frame.src=t.url}else showNewTabPage();render();status.textContent=t.url?"Loading "+t.title+". Some websites block embedded viewing.":"New tab: search the web or enter a website address."}
+  function render(){tabsEl.replaceChildren();tabs.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="temp-tab"+(t.id===activeId?" active":"");b.setAttribute("role","tab");b.setAttribute("aria-selected",String(t.id===activeId));const info=siteInfo(t.url);const favicon=document.createElement("img");favicon.className="temp-tab-favicon";favicon.alt="";favicon.src=t.favicon||info.favicon||"";favicon.hidden=!favicon.src;favicon.onerror=()=>{favicon.hidden=true;const fallback=document.createElement("span");fallback.className="temp-tab-favicon-fallback";fallback.textContent=(t.title||"M").slice(0,1).toUpperCase();b.insertBefore(fallback,b.firstChild)};const title=document.createElement("span");title.className="temp-tab-title";title.textContent=t.title;const close=document.createElement("span");close.className="temp-tab-close";close.textContent="×";close.setAttribute("aria-label","Close tab");b.append(favicon,title,close);b.addEventListener("click",e=>e.target===close?closeTab(t.id):switchTab(t.id));tabsEl.append(b)});const add=document.createElement("button");add.type="button";add.className="temp-tab-add";add.textContent="+";add.title="New tab";add.addEventListener("click",()=>createTab());tabsEl.append(add)}
+  function setTitle(t,url){t.url=url;const info=siteInfo(url);t.title=info.host;t.favicon=info.favicon}
+  function switchTab(id){const t=tabs.find(x=>x.id===id);if(!t)return;activeId=id;modal.classList.add("open");urlInput.value=t.url||"";if(browserAddress)browserAddress.value=t.url||"";if(t.url){frame.removeAttribute("srcdoc");frame.src=t.url}else showNewTabPage();render();updateHistoryButtons();status.textContent=t.url?"Loading "+t.title+". Some websites block embedded viewing.":"New tab: search the web or enter a website address."}
   function createTab(){const t={id:nextId++,url:"",title:"New tab",history:[],index:-1};tabs.push(t);activeId=t.id;modal.classList.add("open");urlInput.value="";render();showNewTabPage();status.textContent="New tab: type a search or website address in the address bar.";requestAnimationFrame(()=>urlInput.focus());return t}
   function showNewTabPage(){
     sandbox();
@@ -2624,13 +2662,14 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
         yahoo: "https://search.yahoo.com/search?p=" + q
       };
       url = searchUrls[engine] || searchUrls.google;
-    }if(!url){status.textContent="Enter a valid http:// or https:// address.";return}try{const target=new URL(url);if(target.protocol==="https:"||target.protocol==="http:"){url="https://moonstone-scramjet-browser.onrender.com/?embed=1&url="+encodeURIComponent(target.href)}}catch{}let t=active()||createTab();setTitle(t,url);if(browserAddress)browserAddress.value=entered;if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}sandbox();frame.src=url;urlInput.value=url;modal.classList.add("open");frame.removeAttribute("srcdoc");status.textContent="Loading "+t.title+". Sites may block iframe embedding.";render()}
+    }if(!url){status.textContent="Enter a valid http:// or https:// address.";return}try{const target=new URL(url);if(target.protocol==="https:"||target.protocol==="http:"){url="https://moonstone-scramjet-browser.onrender.com/?embed=1&url="+encodeURIComponent(target.href)}}catch{}let t=active()||createTab();setTitle(t,url);if(browserAddress)browserAddress.value=entered;if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}sandbox();frame.src=url;urlInput.value=url;modal.classList.add("open");frame.removeAttribute("srcdoc");status.textContent="Loading "+t.title+". Sites may block iframe embedding.";render();updateHistoryButtons()}
   document.getElementById("tempGo").addEventListener("click",()=>navigate(urlInput.value));
    if(browserAddress){browserAddress.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();urlInput.value=browserAddress.value;navigate(browserAddress.value)}});browserAddress.addEventListener("input",()=>{urlInput.value=browserAddress.value})}
   urlInput.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();navigate(urlInput.value)}});
   document.getElementById("closeTempBrowser").addEventListener("click",()=>{if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")});
   document.getElementById("tempReload").addEventListener("click",()=>{const t=active();if(t&&t.url){sandbox();frame.src=t.url}});
-  document.getElementById("tempBack").addEventListener("click",()=>{if(activeId!==null)closeTab(activeId);else modal.classList.remove("open")});
+  document.getElementById("tempBack").addEventListener("click",()=>goHistory(-1));
+  document.getElementById("tempForward").addEventListener("click",()=>goHistory(1));
   document.getElementById("tempRefresh").addEventListener("click",()=>{
     const t=active();
     if(t&&t.url){sandbox();frame.removeAttribute("srcdoc");frame.src=t.url;status.textContent="Refreshing "+t.title+"."}
