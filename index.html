@@ -456,6 +456,10 @@ main {
   outline: none;
 }
 
+.search-engine{max-width:100px;min-width:78px;padding:6px 7px;border:1px solid var(--border);border-radius:8px;color:var(--muted);background:var(--panel);font-size:11px;cursor:pointer;}
+.search-engine:focus{outline:2px solid var(--accent);outline-offset:2px;}
+@media(max-width:420px){.search-engine{max-width:78px;min-width:0;padding:5px 3px;font-size:10px}}
+
 .search-mode {
   padding: 6px 9px;
   border: 1px solid var(--border);
@@ -1224,6 +1228,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     <form class="search" id="searchForm">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/></svg>
       <input id="searchInput" type="text" placeholder="Search the web..." autocomplete="off" aria-label="Search">
+      <select class="search-engine" id="searchEngine" aria-label="Search engine" title="Choose search engine">
+        <option value="google">Google</option><option value="brave">Brave</option><option value="duckduckgo">DuckDuckGo</option><option value="bing">Bing</option><option value="ecosia">Ecosia</option><option value="startpage">Startpage</option><option value="yahoo">Yahoo</option>
+      </select>
       <button class="search-mode" id="searchMode" type="button">Web</button>
     </form>
 
@@ -2251,6 +2258,13 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     $("#settingsDataStatus").textContent = "Preferences reset. Your bookmarks are unchanged.";
   });
 
+  /* Search engine selector */
+  const searchEngineSelect=document.getElementById("searchEngine");
+  if(searchEngineSelect){
+    try{searchEngineSelect.value=localStorage.getItem("moonstone-search-engine")||"google"}catch{}
+    searchEngineSelect.addEventListener("change",()=>{try{localStorage.setItem("moonstone-search-engine",searchEngineSelect.value)}catch{}});
+  }
+
   /* Search */
 
   $("#searchMode").addEventListener("click", () => {
@@ -2579,7 +2593,7 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
 </html>`;
   }
   function closeTab(id){const i=tabs.findIndex(t=>t.id===id);if(i<0)return;const wasActive=activeId===id;tabs.splice(i,1);if(!tabs.length){activeId=null;frame.src="about:blank";modal.classList.remove("open");setFullscreen(false);urlInput.value=window.location.pathname+window.location.search+window.location.hash||"/";render();return}if(wasActive)activeId=tabs[Math.max(0,i-1)].id;switchTab(activeId)}
-  function navigate(value,addHistory=true){const entered=value.trim();if(!entered){status.textContent="Enter a search or website address.";return}let url;if(/^https?:\/\//i.test(entered)||/^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered))url=normalize(entered);else url="https://www.google.com/search?igu=1&q="+encodeURIComponent(entered);if(!url){status.textContent="Enter a valid http:// or https:// address.";return}try{const target=new URL(url);if(target.protocol==="https:"||target.protocol==="http:"){url="https://moonstone-scramjet-browser.onrender.com/?embed=1&url="+encodeURIComponent(target.href)}}catch{}let t=active()||createTab();setTitle(t,url);if(browserAddress)browserAddress.value=entered;if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}sandbox();frame.src=url;urlInput.value=url;modal.classList.add("open");frame.removeAttribute("srcdoc");status.textContent="Loading "+t.title+". Sites may block iframe embedding.";render()}
+  function navigate(value,addHistory=true){const entered=value.trim();if(!entered){status.textContent="Enter a search or website address.";return}let url;if(/^https?:\/\//i.test(entered)||/^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered))url=normalize(entered);else {const engine=document.getElementById("searchEngine")?.value||localStorage.getItem("moonstone-search-engine")||"google";const q=encodeURIComponent(entered);const searchUrls={google:"https://www.google.com/search?igu=1&q="+q,brave:"https://search.brave.com/search?q="+q,duckduckgo:"https://duckduckgo.com/?q="+q,bing:"https://www.bing.com/search?q="+q,ecosia:"https://www.ecosia.org/search?q="+q,startpage:"https://www.startpage.com/sp/search?query="+q,yahoo:"https://search.yahoo.com/search?p="+q};url=searchUrls[engine]||searchUrls.google;}if(!url){status.textContent="Enter a valid http:// or https:// address.";return}try{const target=new URL(url);if(target.protocol==="https:"||target.protocol==="http:"){url="https://moonstone-scramjet-browser.onrender.com/?embed=1&url="+encodeURIComponent(target.href)}}catch{}let t=active()||createTab();setTitle(t,url);if(browserAddress)browserAddress.value=entered;if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}sandbox();frame.src=url;urlInput.value=url;modal.classList.add("open");frame.removeAttribute("srcdoc");status.textContent="Loading "+t.title+". Sites may block iframe embedding.";render()}
   document.getElementById("tempGo").addEventListener("click",()=>navigate(urlInput.value));
    if(browserAddress){browserAddress.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();urlInput.value=browserAddress.value;navigate(browserAddress.value)}});browserAddress.addEventListener("input",()=>{urlInput.value=browserAddress.value})}
   urlInput.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();navigate(urlInput.value)}});
