@@ -334,7 +334,8 @@ async function watch(id){
   $("fullscreenBtn").onclick=async()=>{const player=$("ytPlayer");try{if(document.fullscreenElement)await document.exitFullscreen();else if(player.requestFullscreen)await player.requestFullscreen();else throw Error("Unsupported")}catch(e){toast("Fullscreen is not available in this browser")}};
   $("watchChannel").onclick=()=>channel(channelId);
   $("saveVideo").onclick=()=>{let list=get("saved",[]);if(!list.some(x=>x.id===id)){list.unshift({id,title:videoTitle(v),author:v.author,thumb:thumb(v),lengthSeconds:v.lengthSeconds});put("saved",list)}toast("Saved to your videos")};
-  $("openNative").onclick=()=>window.open("https://www.yout-ube.com/watch?v="+encodeURIComponent(id),"_blank","noopener");\n  loadComments(id);
+  $("openNative").onclick=()=>window.open("https://www.yout-ube.com/watch?v="+encodeURIComponent(id),"_blank","noopener");
+  loadComments(id);
  }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div><button class="pill" onclick="location.reload()">Retry</button>'}
 }
 function plainCommentText(value){
