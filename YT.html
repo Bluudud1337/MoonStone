@@ -316,7 +316,7 @@ async function request(path,fresh=false){
 }
 function videoCard(v){const live=isLive(v);return `<article class="video" data-video="${esc(v.videoId)}"><div class="thumbwrap"><img class="thumb" loading="lazy" data-video-id="${esc(v.videoId)}" src="${esc(thumb(v))}" alt=""><span class="duration">${live?"LIVE":duration(v.lengthSeconds)}</span></div><div class="vrow"><img class="channelavatar" loading="lazy" src="${esc(avatar(v))}" alt=""><div><div class="vtitle">${esc(videoTitle(v))}</div><div class="vmeta">${esc(v.author||v.authorName||"YouTube")}<br>${live?"Live now":views(v)+" views"} · ${esc(v.publishedText||"")}</div></div></div></article>`}
 function renderVideos(items,heading="Recommended"){
- feed=(Array.isArray(items)?items:[]).slice(0,20);
+ feed=(Array.isArray(items)?items:[]).slice(0,30);
  content.innerHTML=`<div class="sectionhead"><h1>${esc(heading)}</h1><div class="feedtools"><span class="muted">${feed.length} videos</span>${page==="home"?'<button class="pill feedrefresh" id="refreshFeedBtn" type="button" title="Refresh recommendations">↻ Refresh</button>':""}</div></div><div class="grid">${feed.length?feed.map(videoCard).join(""):'<div class="empty">No videos found.</div>'}</div>`;
 }
 function setNav(p){document.querySelectorAll(".navbtn[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===p));}
@@ -330,9 +330,9 @@ async function home(forceRefresh=false){
   const pageForQuery=idx=>forceRefresh?1+((refreshCount+idx-1)%5):1;
   const recommended=[],seen=new Set();
   const addVideos=group=>{
-   if(recommended.length>=20)return;
+   if(recommended.length>=30)return;
    for(const v of (Array.isArray(group)?group:[])){
-    if(recommended.length>=20)break;
+    if(recommended.length>=30)break;
     if(!v.videoId||seen.has(v.videoId))continue;
     if(v.type==="video"||v.type==="stream"||v.type==="livestream"||isLive(v)){seen.add(v.videoId);recommended.push(v)}
    }
@@ -345,7 +345,7 @@ async function home(forceRefresh=false){
    const results=await Promise.all(discovery.map((q,idx)=>request("/api/v1/search?q="+encodeURIComponent(q)+"&type=video&page="+pageForQuery(idx)+"&region=US",true).catch(()=>[])));
    results.forEach(addVideos);
   }
-  if(recommended.length<20){
+  if(recommended.length<30){
    const trending=await request("/api/v1/trending?region=US&type="+encodeURIComponent(category),forceRefresh);
    addVideos(trending);
   }
