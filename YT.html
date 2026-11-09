@@ -298,12 +298,32 @@ function renderVideos(items,heading="Recommended"){
 }
 function setNav(p){document.querySelectorAll(".navbtn[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===p));}
 async function home(){
- page="home";setNav(page);chips.classList.remove("hidden");content.innerHTML='<div class="loading">Finding videos for you…</div>';
- try{const data=await request("/api/v1/trending?region=US&type="+encodeURIComponent(category));renderVideos(data,"Recommended for you")}
- catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div><div class="empty">The feed uses public video metadata servers. If they are unavailable, try Refresh.</div>'}
+ page="home";setNav(page);chips.classList.remove("hidden");content.innerHTML='<div class="loading">Building your recommendations…</div>';
+ try{
+  const searches=get("searches",[]);
+  const recent=searches.map(x=>typeof x==="string"?x:x?.query).filter(Boolean).slice(0,5);
+  let recommended=[];
+  if(recent.length){
+   const results=await Promise.all(recent.map(q=>request("/api/v1/search?q="+encodeURIComponent(q)+"&type=video&page=1&region=US").catch(()=>[])));
+   const seen=new Set();
+   for(const group of results){
+    for(const v of (Array.isArray(group)?group:[])){
+     if(!v.videoId||seen.has(v.videoId))continue;
+     if(v.type==="video"||v.type==="stream"||v.type==="livestream"||isLive(v)){seen.add(v.videoId);recommended.push(v)}
+    }
+   }
+  }
+  if(recommended.length)renderVideos(recommended,"Recommended from your searches");
+  else{
+   const data=await request("/api/v1/trending?region=US&type="+encodeURIComponent(category));
+   renderVideos(data,recent.length?"Popular videos you might like":"Trending videos");
+  }
+ }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div><div class="empty">The recommendation feed could not load. Try Refresh.</div>'}
 }
 async function search(q){
  page="search";searchTerm=q;setNav("");chips.classList.add("hidden");content.innerHTML='<div class="loading">Searching YouTube…</div>';
+ const searches=get("searches",[]);
+ put("searches",[{query:q,time:Date.now()},...searches.filter(x=>(typeof x==="string"?x:x?.query||"").toLowerCase()!==q.toLowerCase())].slice(0,20));
  try{const data=await request("/api/v1/search?q="+encodeURIComponent(q)+"&type=all&page=1&region=US");
  const videos=data.filter(x=>x.type==="video"||x.type==="stream"||x.type==="livestream"||isLive(x)),channels=data.filter(x=>x.type==="channel");
  content.innerHTML='<div class="sectionhead"><h1>Search results</h1><span class="muted">'+esc(q)+'</span></div>'+
