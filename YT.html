@@ -337,7 +337,31 @@ async function watch(id){
   $("openNative").onclick=()=>window.open("https://www.yout-ube.com/watch?v="+encodeURIComponent(id),"_blank","noopener");\n  loadComments(id);
  }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div><button class="pill" onclick="location.reload()">Retry</button>'}
 }
-function plainCommentText(value){return String(value||"").replace(/<br\\s*\\/?\\s*>/gi,"\\n").replace(/<\\/p>\\s*<p[^>]*>/gi,"\\n\\n").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").trim()}\nasync function loadComments(id){\n const target=$("commentsSection");if(!target)return;\n try{\n  const data=await request("/api/v1/comments/"+encodeURIComponent(id));\n  if(!$("commentsSection"))return;\n  const list=Array.isArray(data)?data:(data?.comments||[]);\n  const state=target.querySelector(".commentstate");\n  if(!list.length){state.textContent="No comments available for this video.";return}\n  target.querySelector(".commentshead h3").textContent="Comments ("+fmt(list.length)+")";\n  state.outerHTML='<div class="commentlist">'+list.map(c=>{\n   const avatarUrl=c.authorThumbnails?.[c.authorThumbnails.length-1]?.url||"";\n   const text=plainCommentText(c.content||c.commentText||c.text);\n   return '<article class="comment">'+(avatarUrl?'<img class="commentavatar" loading="lazy" src="'+esc(avatarUrl)+'" alt="">':'<div class="commentavatar"></div>')+'<div class="commentbody"><div class="commentbyline"><span class="commentauthor">'+esc(c.author||"Unknown user")+'</span><span class="commentdate">'+esc(c.publishedText||"")+'</span>'+(c.authorIsChannelOwner?'<span class="commentbadge">Creator</span>':'')+(c.pinned?'<span class="commentbadge">Pinned</span>':'')+'</div><div class="commenttext">'+esc(text)+'</div>'+(Number(c.likeCount)>0?'<div class="commentlikes">♥ '+fmt(c.likeCount)+'</div>':'')+'</div></article>';\n  }).join("")+'</div>';\n }catch(e){const state=target.querySelector(".commentstate");if(state)state.textContent="Comments could not be loaded right now."}\n}\nfunction toast(t){let el=document.createElement("div");el.className="toast";el.textContent=t;document.body.append(el);setTimeout(()=>el.remove(),1800)}
+function plainCommentText(value){
+ return String(value||"")
+  .replace(/<br\s*\/?\s*>/gi,"\n")
+  .replace(/<\/p>\s*<p[^>]*>/gi,"\n\n")
+  .replace(/<[^>]*>/g,"")
+  .replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">")
+  .replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").trim();
+}
+async function loadComments(id){
+ const target=$("commentsSection");if(!target)return;
+ try{
+  const data=await request("/api/v1/comments/"+encodeURIComponent(id));
+  if(!$("commentsSection"))return;
+  const list=Array.isArray(data)?data:(data?.comments||[]);
+  const state=target.querySelector(".commentstate");
+  if(!list.length){state.textContent="No comments available for this video.";return}
+  target.querySelector(".commentshead h3").textContent="Comments ("+fmt(list.length)+")";
+  state.outerHTML='<div class="commentlist">'+list.map(c=>{
+   const avatarUrl=c.authorThumbnails?.[c.authorThumbnails.length-1]?.url||"";
+   const text=plainCommentText(c.content||c.commentText||c.text);
+   return '<article class="comment">'+(avatarUrl?'<img class="commentavatar" loading="lazy" src="'+esc(avatarUrl)+'" alt="">':'<div class="commentavatar"></div>')+'<div class="commentbody"><div class="commentbyline"><span class="commentauthor">'+esc(c.author||"Unknown user")+'</span><span class="commentdate">'+esc(c.publishedText||"")+'</span>'+(c.authorIsChannelOwner?'<span class="commentbadge">Creator</span>':'')+(c.pinned?'<span class="commentbadge">Pinned</span>':'')+'</div><div class="commenttext">'+esc(text)+'</div>'+(Number(c.likeCount)>0?'<div class="commentlikes">♥ '+fmt(c.likeCount)+'</div>':'')+'</div></article>';
+  }).join("")+'</div>';
+ }catch(e){const state=target.querySelector(".commentstate");if(state)state.textContent="Comments could not be loaded right now."}
+}
+function toast(t){let el=document.createElement("div");el.className="toast";el.textContent=t;document.body.append(el);setTimeout(()=>el.remove(),1800)}
 function renderSubscriptions(){
  const list=get("channels",[]);$("subscriptionList").innerHTML=list.length?list.map(c=>'<div class="subitem" data-channel="'+esc(c.id)+'"><img class="avatar" src="'+esc(c.avatar)+'">'+esc(c.name)+'</div>').join(""):'Follow channels to see them here.';
 }
