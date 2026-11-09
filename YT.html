@@ -162,6 +162,8 @@ body[data-theme="frogies"] {
 }
 
 
+.feedtools{display:flex;align-items:center;gap:12px}.feedrefresh{padding:7px 12px;border-radius:18px;font-size:12px;white-space:nowrap}.feedrefresh:hover{border-color:var(--accent);background:var(--hover)}
+
 /* Layout refinement */
 .top{gap:clamp(12px,2vw,28px);padding-inline:clamp(14px,2.2vw,34px)}
 .brand{min-width:190px;flex:none}
@@ -293,8 +295,8 @@ async function request(path){
 }
 function videoCard(v){const live=isLive(v);return `<article class="video" data-video="${esc(v.videoId)}"><div class="thumbwrap"><img class="thumb" loading="lazy" data-video-id="${esc(v.videoId)}" src="${esc(thumb(v))}" alt=""><span class="duration">${live?"LIVE":duration(v.lengthSeconds)}</span></div><div class="vrow"><img class="channelavatar" loading="lazy" src="${esc(avatar(v))}" alt=""><div><div class="vtitle">${esc(videoTitle(v))}</div><div class="vmeta">${esc(v.author||v.authorName||"YouTube")}<br>${live?"Live now":views(v)+" views"} · ${esc(v.publishedText||"")}</div></div></div></article>`}
 function renderVideos(items,heading="Recommended"){
- feed=items||[];
- content.innerHTML=`<div class="sectionhead"><h1>${esc(heading)}</h1><span class="muted">${items.length} videos</span></div><div class="grid">${items.length?items.map(videoCard).join(""):'<div class="empty">No videos found.</div>'}</div>`;
+ feed=(Array.isArray(items)?items:[]).slice(0,20);
+ content.innerHTML=`<div class="sectionhead"><h1>${esc(heading)}</h1><div class="feedtools"><span class="muted">${feed.length} videos</span>${page==="home"?'<button class="pill feedrefresh" id="refreshFeedBtn" type="button" title="Refresh recommendations">↻ Refresh</button>':""}</div></div><div class="grid">${feed.length?feed.map(videoCard).join(""):'<div class="empty">No videos found.</div>'}</div>`;
 }
 function setNav(p){document.querySelectorAll(".navbtn[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===p));}
 async function home(){
@@ -302,22 +304,23 @@ async function home(){
  try{
   const searches=get("searches",[]);
   const recent=searches.map(x=>typeof x==="string"?x:x?.query).filter(Boolean).slice(0,5);
-  let recommended=[];
+  const recommended=[],seen=new Set();
+  const addVideos=group=>{
+   for(const v of (Array.isArray(group)?group:[])){
+    if(!v.videoId||seen.has(v.videoId))continue;
+    if(v.type==="video"||v.type==="stream"||v.type==="livestream"||isLive(v)){seen.add(v.videoId);recommended.push(v)}
+    if(recommended.length>=20)break;
+   }
+  };
   if(recent.length){
    const results=await Promise.all(recent.map(q=>request("/api/v1/search?q="+encodeURIComponent(q)+"&type=video&page=1&region=US").catch(()=>[])));
-   const seen=new Set();
-   for(const group of results){
-    for(const v of (Array.isArray(group)?group:[])){
-     if(!v.videoId||seen.has(v.videoId))continue;
-     if(v.type==="video"||v.type==="stream"||v.type==="livestream"||isLive(v)){seen.add(v.videoId);recommended.push(v)}
-    }
-   }
+   results.forEach(addVideos);
   }
-  if(recommended.length)renderVideos(recommended,"Recommended from your searches");
-  else{
-   const data=await request("/api/v1/trending?region=US&type="+encodeURIComponent(category));
-   renderVideos(data,recent.length?"Popular videos you might like":"Trending videos");
+  if(recommended.length<20){
+   const trending=await request("/api/v1/trending?region=US&type="+encodeURIComponent(category));
+   addVideos(trending);
   }
+  renderVideos(recommended,recent.length?"Recommended from your searches":"Trending videos");
  }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div><div class="empty">The recommendation feed could not load. Try Refresh.</div>'}
 }
 async function search(q){
@@ -394,7 +397,7 @@ document.querySelectorAll(".navbtn[data-page]").forEach(b=>b.addEventListener("c
 $("searchForm").addEventListener("submit",e=>{e.preventDefault();const q=$("searchInput").value.trim();if(q)search(q)});
 $("refreshBtn").onclick=()=>home();$("homeBtn").onclick=$("moonHome").onclick=()=>location.href="index.html";
 chips.addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(!b)return;category=b.dataset.category;document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));home()});
-content.addEventListener("click",e=>{const v=e.target.closest("[data-video]"),c=e.target.closest("[data-channel]");if(v)watch(v.dataset.video);else if(c)channel(c.dataset.channel)});
+content.addEventListener("click",e=>{if(e.target.closest("#refreshFeedBtn")){home();return}const v=e.target.closest("[data-video]"),c=e.target.closest("[data-channel]");if(v)watch(v.dataset.video);else if(c)channel(c.dataset.channel)});
 $("subscriptionList").addEventListener("click",e=>{const c=e.target.closest("[data-channel]");if(c)channel(c.dataset.channel)});
 const moonstoneThemeIds=["moonstone","moonlight","midnight","terminal","cherry","garnet","paper","flowery","astralsync","halloween","frogies","eclipse","void-purple","void-white"];
 function applyMoonstoneSettings(){
