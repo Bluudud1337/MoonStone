@@ -306,10 +306,11 @@ async function home(){
   const recent=searches.map(x=>typeof x==="string"?x:x?.query).filter(Boolean).slice(0,5);
   const recommended=[],seen=new Set();
   const addVideos=group=>{
+   if(recommended.length>=20)return;
    for(const v of (Array.isArray(group)?group:[])){
+    if(recommended.length>=20)break;
     if(!v.videoId||seen.has(v.videoId))continue;
     if(v.type==="video"||v.type==="stream"||v.type==="livestream"||isLive(v)){seen.add(v.videoId);recommended.push(v)}
-    if(recommended.length>=20)break;
    }
   };
   if(recent.length){
