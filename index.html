@@ -291,7 +291,9 @@ body[data-theme="frogies"] {
   background: var(--hover);
 }
 
+.youtube-side-link { position: relative; }
 .youtube-new-label {
+  display: none;
   position: absolute;
   top: -5px;
   right: -7px;
@@ -307,6 +309,8 @@ body[data-theme="frogies"] {
   letter-spacing: .04em;
   pointer-events: none;
 }
+.youtube-side-link:hover .youtube-new-label,
+.youtube-side-link:focus-visible .youtube-new-label { display: block; }
 .side-link svg, .side-button svg {
   width: 19px;
   height: 19px;
@@ -1211,7 +1215,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   <a class="side-link" href="apps.html" aria-label="Apps" title="Apps">
     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
   </a>
-  <a class="side-link" href="YT.html" aria-label="YouTube Watcher (New)" title="YouTube Watcher">
+  <a class="side-link youtube-side-link" href="YT.html" aria-label="YouTube Watcher (New)" title="YouTube Watcher">
     <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4"/><path d="m10 9 5 3-5 3z"/></svg>
     <span class="youtube-new-label">NEW</span>
   </a><a class="side-link" href="calculator.html" aria-label="Calculator" title="Calculator"><svg viewBox="0 0 24 24"><rect x="4" y="2.5" width="16" height="19" rx="2"/><path d="M7 6h10M7 11h2m3 0h2m3 0h.01M7 15h2m3 0h2m3 0h.01M7 19h2m3 0h2"/></svg></a><a class="side-link" href="chatroom.html" aria-label="Chatroom" title="Chatroom">
