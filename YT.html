@@ -305,11 +305,12 @@ const thumb=v=>{let a=v.videoThumbnails||[];return a.find(x=>x.quality==="maxres
 const avatar=v=>v.authorThumbnails?.slice(-1)[0]?.url||"";
 const isLive=v=>v?.liveNow===true||v?.isLive===true||v?.type==="stream"||v?.type==="livestream"||v?.liveBroadcastContent==="live";
 const videoTitle=v=>{const value=[v?.title,v?.titleText,v?.videoTitle,v?.name].find(x=>typeof x==="string"&&x.trim());return value?.trim()||(isLive(v)?((v?.author||v?.authorName||"Channel")+" · Live"):((v?.author||"Video")+" · Untitled video"))};
-async function request(path){
+async function request(path,fresh=false){
  let last;
+ const url= fresh ? path+(path.includes("?")?"&":"?")+"_msfresh="+Date.now() : path;
  for(let i=0;i<instances.length;i++){
   const base=instances[(instances.indexOf(api)+i)%instances.length];
-  try{const res=await fetch(base+path,{headers:{"Accept":"application/json"}});if(!res.ok)throw Error("HTTP "+res.status);const data=await res.json();api=base;return data}catch(e){last=e}
+  try{const res=await fetch(base+url,{headers:{"Accept":"application/json"},cache:fresh?"no-store":"default"});if(!res.ok)throw Error("HTTP "+res.status);const data=await res.json();api=base;return data}catch(e){last=e}
  }
  throw Error("Video search service is temporarily unavailable. Try again in a moment. "+(last?.message||""));
 }
@@ -319,11 +320,14 @@ function renderVideos(items,heading="Recommended"){
  content.innerHTML=`<div class="sectionhead"><h1>${esc(heading)}</h1><div class="feedtools"><span class="muted">${feed.length} videos</span>${page==="home"?'<button class="pill feedrefresh" id="refreshFeedBtn" type="button" title="Refresh recommendations">↻ Refresh</button>':""}</div></div><div class="grid">${feed.length?feed.map(videoCard).join(""):'<div class="empty">No videos found.</div>'}</div>`;
 }
 function setNav(p){document.querySelectorAll(".navbtn[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===p));}
-async function home(){
- page="home";setNav(page);chips.classList.remove("hidden");content.innerHTML='<div class="loading">Building your recommendations…</div>';
+async function home(forceRefresh=false){
+ page="home";setNav(page);chips.classList.remove("hidden");content.innerHTML='<div class="loading">'+(forceRefresh?'Finding different videos…':'Building your recommendations…')+'</div>';
  try{
   const searches=get("searches",[]);
   const recent=searches.map(x=>typeof x==="string"?x:x?.query).filter(Boolean).slice(0,5);
+  const refreshCount=forceRefresh?get("feed_refresh_count",0)+1:get("feed_refresh_count",0);
+  if(forceRefresh)put("feed_refresh_count",refreshCount);
+  const pageForQuery=idx=>forceRefresh?1+((refreshCount+idx-1)%5):1;
   const recommended=[],seen=new Set();
   const addVideos=group=>{
    if(recommended.length>=20)return;
@@ -334,14 +338,18 @@ async function home(){
    }
   };
   if(recent.length){
-   const results=await Promise.all(recent.map(q=>request("/api/v1/search?q="+encodeURIComponent(q)+"&type=video&page=1&region=US").catch(()=>[])));
+   const results=await Promise.all(recent.map((q,idx)=>request("/api/v1/search?q="+encodeURIComponent(q)+"&type=video&page="+pageForQuery(idx)+"&region=US",forceRefresh).catch(()=>[])));
+   results.forEach(addVideos);
+  }else if(forceRefresh){
+   const discovery=["popular videos","new videos","trending videos"];
+   const results=await Promise.all(discovery.map((q,idx)=>request("/api/v1/search?q="+encodeURIComponent(q)+"&type=video&page="+pageForQuery(idx)+"&region=US",true).catch(()=>[])));
    results.forEach(addVideos);
   }
   if(recommended.length<20){
-   const trending=await request("/api/v1/trending?region=US&type="+encodeURIComponent(category));
+   const trending=await request("/api/v1/trending?region=US&type="+encodeURIComponent(category),forceRefresh);
    addVideos(trending);
   }
-  renderVideos(recommended,recent.length?"Recommended from your searches":"Trending videos");
+  renderVideos(recommended,recent.length?"Recommended from your searches":(forceRefresh?"Discover more videos":"Trending videos"));
  }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div><div class="empty">The recommendation feed could not load. Try Refresh.</div>'}
 }
 async function search(q){
@@ -428,7 +436,7 @@ tvModeBtn.onclick=()=>setTVMode(!document.body.classList.contains("tv-mode"));
 try{setTVMode(localStorage.getItem("msyt_tv_mode")==="1")}catch(e){setTVMode(false)}
 $("refreshBtn").onclick=()=>home();$("homeBtn").onclick=$("moonHome").onclick=()=>location.href="index.html";
 chips.addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(!b)return;category=b.dataset.category;document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));home()});
-content.addEventListener("click",e=>{if(e.target.closest("#refreshFeedBtn")){home();return}const v=e.target.closest("[data-video]"),c=e.target.closest("[data-channel]");if(v)watch(v.dataset.video);else if(c)channel(c.dataset.channel)});
+content.addEventListener("click",e=>{if(e.target.closest("#refreshFeedBtn")){home(true);return}const v=e.target.closest("[data-video]"),c=e.target.closest("[data-channel]");if(v)watch(v.dataset.video);else if(c)channel(c.dataset.channel)});
 $("subscriptionList").addEventListener("click",e=>{const c=e.target.closest("[data-channel]");if(c)channel(c.dataset.channel)});
 const moonstoneThemeIds=["moonstone","moonlight","midnight","terminal","cherry","garnet","paper","flowery","astralsync","halloween","frogies","eclipse","void-purple","void-white"];
 function applyMoonstoneSettings(){
