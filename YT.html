@@ -164,6 +164,26 @@ body[data-theme="frogies"] {
 
 .feedtools{display:flex;align-items:center;gap:12px}.feedrefresh{padding:7px 12px;border-radius:18px;font-size:12px;white-space:nowrap}.feedrefresh:hover{border-color:var(--accent);background:var(--hover)}
 
+/* TV layout */
+body.tv-mode .side{display:none}
+body.tv-mode main{margin-left:0;width:100%;padding:34px clamp(28px,5vw,88px) 80px}
+body.tv-mode #content{max-width:2100px}
+body.tv-mode .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:38px 28px}
+body.tv-mode .thumbwrap{border-radius:18px}
+body.tv-mode .vrow{gap:15px;margin-top:14px}
+body.tv-mode .channelavatar{width:48px;height:48px}
+body.tv-mode .vtitle{font-size:17px;line-height:1.45}
+body.tv-mode .vmeta{font-size:14px;line-height:1.6}
+body.tv-mode .sectionhead h1{font-size:32px}
+body.tv-mode .video:focus-visible{outline:3px solid var(--accent);outline-offset:7px;border-radius:12px}
+body.tv-mode .video{border-radius:12px}
+body.tv-mode .top{height:76px;padding-inline:clamp(22px,4vw,64px)}
+body.tv-mode .layout{padding-top:76px}
+body.tv-mode .chips{padding-bottom:26px}
+@media(max-width:900px){body.tv-mode .top{height:68px}body.tv-mode .layout{padding-top:68px}body.tv-mode main{margin:0;width:100%;padding:24px 22px 70px}body.tv-mode .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}}
+@media(max-width:580px){body.tv-mode .top{height:60px;padding-inline:10px}body.tv-mode .layout{padding-top:60px}body.tv-mode main{padding:18px 14px 60px}body.tv-mode .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 12px}body.tv-mode .vtitle{font-size:13px}body.tv-mode .vmeta{font-size:11px}body.tv-mode .channelavatar{width:32px;height:32px}body.tv-mode .topright{display:flex;min-width:0;gap:4px}body.tv-mode #homeBtn{display:none}body.tv-mode #tvModeBtn{font-size:10px;padding:7px 8px}body.tv-mode #refreshBtn{padding:7px 9px}}
+@media(max-width:380px){body.tv-mode .grid{grid-template-columns:1fr}}
+
 /* Layout refinement */
 .top{gap:clamp(12px,2vw,28px);padding-inline:clamp(14px,2.2vw,34px)}
 .brand{min-width:190px;flex:none}
@@ -252,7 +272,7 @@ main{padding:28px clamp(20px,3.2vw,56px) 72px}
 <header class="top">
  <a class="brand" href="YT.html" style="text-decoration:none"><span class="brandmark">▶</span><span>YouTube <small>MOONSTONE</small></span></a>
  <form class="search" id="searchForm"><input id="searchInput" placeholder="Search videos, channels..." autocomplete="off"><button aria-label="Search">⌕</button></form>
- <div class="topright"><button class="iconbtn" id="refreshBtn" title="Refresh feed">↻</button><button class="iconbtn" id="homeBtn">MoonStone ↗</button></div>
+ <div class="topright"><button class="iconbtn" id="tvModeBtn" type="button" aria-pressed="false" title="Switch to TV layout">TV layout</button><button class="iconbtn" id="refreshBtn" title="Refresh feed">↻</button><button class="iconbtn" id="homeBtn">MoonStone ↗</button></div>
 </header>
 <div class="layout">
 <aside class="side">
@@ -396,6 +416,16 @@ function localList(key,label){
 }
 document.querySelectorAll(".navbtn[data-page]").forEach(b=>b.addEventListener("click",()=>{const p=b.dataset.page;if(p==="home")home();else if(p==="subscriptions"){page="subscriptions";setNav(page);chips.classList.add("hidden");const list=get("channels",[]);if(!list.length){content.innerHTML='<div class="empty">Subscribe to channels to build your feed.</div>';return}Promise.all(list.map(c=>request("/api/v1/channels/"+encodeURIComponent(c.id)).catch(()=>null))).then(cs=>renderVideos(cs.filter(Boolean).flatMap(c=>c.latestVideos||[]),"Your subscriptions"))}else localList(p,p==="history"?"Watch history":"Saved videos")}));
 $("searchForm").addEventListener("submit",e=>{e.preventDefault();const q=$("searchInput").value.trim();if(q)search(q)});
+const tvModeBtn=$("tvModeBtn");
+function setTVMode(enabled){
+ document.body.classList.toggle("tv-mode",enabled);
+ tvModeBtn.setAttribute("aria-pressed",String(enabled));
+ tvModeBtn.textContent=enabled?"Exit TV":"TV layout";
+ tvModeBtn.title=enabled?"Return to standard layout":"Switch to TV layout";
+ try{localStorage.setItem("msyt_tv_mode",enabled?"1":"0")}catch(e){}
+}
+tvModeBtn.onclick=()=>setTVMode(!document.body.classList.contains("tv-mode"));
+try{setTVMode(localStorage.getItem("msyt_tv_mode")==="1")}catch(e){setTVMode(false)}
 $("refreshBtn").onclick=()=>home();$("homeBtn").onclick=$("moonHome").onclick=()=>location.href="index.html";
 chips.addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(!b)return;category=b.dataset.category;document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));home()});
 content.addEventListener("click",e=>{if(e.target.closest("#refreshFeedBtn")){home();return}const v=e.target.closest("[data-video]"),c=e.target.closest("[data-channel]");if(v)watch(v.dataset.video);else if(c)channel(c.dataset.channel)});
