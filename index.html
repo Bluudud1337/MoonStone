@@ -1139,6 +1139,15 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 .browser-highlight-link span{font-size:16px;transition:transform .2s ease}
 .browser-highlight:hover .browser-highlight-link span{transform:translateX(3px)}
 </style>
+
+<script id="moonstone-beforeunload-guard">
+  // Ask for confirmation when the MoonStone page is about to be left.
+  window.addEventListener("beforeunload", (event) => {
+    event.preventDefault();
+    event.returnValue = true;
+  });
+</script>
+
 </head>
 
 <body data-theme="moonstone">
