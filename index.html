@@ -1126,6 +1126,14 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
 .home-status-value{color:var(--text);font-weight:550}
 @media(max-width:420px){.home-status{right:10px;bottom:12px;gap:6px}.home-status-item{padding:7px 9px;font-size:11px;gap:6px}}
 
+.browser-highlight{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;margin:14px 0 2px;padding:13px 16px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));border-radius:13px;background:linear-gradient(100deg,color-mix(in srgb,var(--accent) 9%,var(--panel)),var(--panel) 72%);color:var(--text);text-align:left;cursor:pointer;transition:transform .2s ease,border-color .2s ease,background .2s ease}
+.browser-highlight:hover{transform:translateY(-2px);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 11%,var(--panel))}
+.browser-highlight-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.browser-highlight-copy strong{font-size:12px;font-weight:600}
+.browser-highlight-copy span{font-size:11px;color:var(--muted);line-height:1.45}
+.browser-highlight-link{display:flex;align-items:center;gap:6px;flex-shrink:0;color:var(--accent);font-size:11px;font-weight:600;white-space:nowrap}
+.browser-highlight-link span{font-size:16px;transition:transform .2s ease}
+.browser-highlight:hover .browser-highlight-link span{transform:translateX(3px)}
 </style>
 </head>
 
@@ -1218,6 +1226,16 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       <input id="searchInput" type="text" placeholder="Search the web..." autocomplete="off" aria-label="Search">
       <button class="search-mode" id="searchMode" type="button">Web</button>
     </form>
+
+    <button class="browser-highlight" id="browserHighlight" type="button">
+      <span class="browser-highlight-copy"><strong>Have you tried the MoonStone browser?</strong><span>Explore the web without leaving MoonStone.</span></span>
+      <span class="browser-highlight-link">Check it out <span aria-hidden="true">→</span></span>
+    </button>
+    <script>
+      document.getElementById("browserHighlight")?.addEventListener("click", () => {
+        if (typeof window.moonstoneOpenBrowser === "function") window.moonstoneOpenBrowser();
+      });
+    </script>
 
     <div class="bookmarks" id="bookmarks"></div>
   </section>
