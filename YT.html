@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090909">
+<title>YouTube Watcher · MoonStone</title>
+<link rel="icon" href="YOUR_ICON_URL_HERE">
+<style>
+:root{color-scheme:dark;--bg:#090909;--panel:#111110;--hover:#1b1b19;--text:#fffb9e;--muted:#c9c57b;--border:#39371e;--accent:#fffb9e}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--site-font,Inter,ui-sans-serif,system-ui,sans-serif)}
+body{min-height:100vh;background-image:var(--wallpaper,none);background-position:center;background-size:cover;background-attachment:fixed}
+button,input{font:inherit}button,a{color:inherit}button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.sidebar{position:fixed;left:17px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:7px;padding:9px;border:1px solid var(--border);border-radius:17px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(18px);z-index:5}
+.side-link{width:41px;height:41px;display:grid;place-items:center;border-radius:11px;color:var(--muted);text-decoration:none}.side-link:hover,.side-link.active{background:var(--hover);color:var(--text)}
+.side-link svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+main{width:min(1050px,calc(100% - 130px));margin:0 auto;padding:58px 0 45px}
+.eyebrow{margin:0 0 10px;color:var(--muted);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+h1{margin:0;font-size:clamp(30px,5vw,46px);letter-spacing:-.055em}.subtitle{margin:12px 0 28px;color:var(--muted);font-size:14px}
+.urlbar{display:flex;gap:10px;padding:9px;border:1px solid var(--border);border-radius:15px;background:var(--panel)}
+#videoUrl{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);padding:0 9px;font-size:14px}
+#videoUrl::placeholder{color:var(--muted)}
+button{border:1px solid var(--border);border-radius:10px;background:var(--hover);padding:10px 16px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+#watch{background:var(--accent);color:var(--bg);font-weight:650;border-color:transparent}
+.player-shell{margin-top:22px;border:1px solid var(--border);border-radius:17px;background:var(--panel);overflow:hidden;box-shadow:0 18px 60px #0004}
+.player-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)}
+#playerTitle{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.player-actions{display:flex;gap:8px;flex-shrink:0}
+.player-frame{position:relative;aspect-ratio:16/9;background:#050505;display:grid;place-items:center}
+#viewer{width:100%;height:100%;border:0;display:none;background:#000}
+.empty{padding:45px 20px;text-align:center;color:var(--muted);font-size:13px;line-height:1.7}
+.hint{margin:16px 2px 0;color:var(--muted);font-size:12px;line-height:1.6}
+.error{color:#ff8d8d;margin:12px 3px 0;font-size:12px;min-height:18px}
+@media(max-width:650px){.sidebar{left:50%;top:auto;bottom:12px;transform:translateX(-50%);flex-direction:row;padding:6px}.side-link{width:37px;height:37px}main{width:calc(100% - 28px);padding:35px 0 100px}.urlbar{flex-wrap:wrap}#videoUrl{flex-basis:100%;height:38px}.urlbar button{flex:1}.player-head{align-items:flex-start;flex-direction:column}.player-frame{aspect-ratio:16/9}}
+</style>
+</head>
+<body>
+<nav class="sidebar" aria-label="MoonStone navigation">
+<a class="side-link" href="index.html" title="Home" aria-label="Home"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7"/></svg></a>
+<a class="side-link" href="games.html" title="Games" aria-label="Games"><svg viewBox="0 0 24 24"><path d="M6 11h4m-2-2v4M15 10h.01M18 12h.01M7 6h10a4 4 0 0 1 3.8 5.2l-1.3 4.3a2.5 2.5 0 0 1-4.1 1.1L13 14h-2l-2.4 2.6a2.5 2.5 0 0 1-4.1-1.1l-1.3-4.3A4 4 0 0 1 7 6Z"/></svg></a>
+<a class="side-link" href="movies.html" title="Movies" aria-label="Movies"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v4m5-4v4m5-4v4M7 16v4m5-4v4m5-4v4M3 12h18"/></svg></a>
+<a class="side-link" href="apps.html" title="Apps" aria-label="Apps"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></a>
+</nav>
+<main>
+<p class="eyebrow">MoonStone · Media</p>
+<h1>YouTube Watcher</h1>
+<p class="subtitle">Paste a YouTube link and watch it through the yout-ube player.</p>
+<form class="urlbar" id="watchForm">
+<input id="videoUrl" type="url" autocomplete="url" placeholder="Paste a YouTube video link…" aria-label="YouTube video URL" required>
+<button id="watch" type="submit">Watch</button>
+<button id="clear" type="button">Clear</button>
+</form>
+<p class="error" id="error" role="status" aria-live="polite"></p>
+<section class="player-shell" aria-label="Video player">
+<div class="player-head"><span id="playerTitle">No video loaded</span><div class="player-actions"><button id="open" type="button" disabled>Open player ↗</button><button id="fullscreen" type="button" disabled>Fullscreen</button></div></div>
+<div class="player-frame" id="playerFrame"><div class="empty" id="empty">Your video will appear here.<br>Paste a YouTube URL above to get started.</div><iframe id="viewer" title="YouTube video player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+</section>
+<p class="hint">Supports standard YouTube links, youtu.be links, Shorts, and live-video URLs. Some videos may not play if their owner disables embedding or the alternate player cannot load them.</p>
+</main>
+<script>
+(() => {
+  const themes = {
+    moonstone:["#090909","#111110","#1b1b19","#fffb9e","#c9c57b","#39371e"],
+    moonlight:["#0c0e15","#131621","#202435","#c5d2f3","#8c94a8","#292e40"],
+    midnight:["#080808","#101010","#1b1b1b","#bdbdbd","#858585","#292929"],
+    terminal:["#000000","#050805","#0a190a","#39ff14","#18b80b","#14520b"],
+    cherry:["#0d0307","#17080d","#2a0d18","#ff4f83","#a66b7b","#3d1725"],
+    garnet:["#100709","#1a0d12","#2b121b","#e16b88","#b28b96","#47202d"],
+    paper:["#eeeade","#e4e0d2","#d9d4c4","#24241f","#777469","#d0cbbb"],
+    flowery:["#17120d","#211a13","#33271a","#f4d34e","#d5b99a","#675033"],
+    astralsync:["#070b18","#0d1428","#172342","#7897ff","#8f9bc4","#26365f"],
+    halloween:["#120a08","#21120d","#352016","#ff8a24","#d0a17d","#59301b"],
+    frogies:["#080b09","#151a16","#242b25","#38e65d","#aab4aa","#343d35"],
+    eclipse:["#080808","#140b05","#2a1407","#ff6a00","#d18a59","#66300f"],
+    "void-purple":["#000000","#08000d","#190022","#c026ff","#b68bc9","#42105b"],
+    "void-white":["#000000","#080808","#1b1b1b","#ffffff","#a6a6a6","#3a3a3a"]
+  };
+  try {
+    const s = JSON.parse(localStorage.getItem("moonstone-settings") || "{}");
+    const c = themes[s.theme] || themes.moonstone;
+    ["--bg","--panel","--hover","--accent","--muted","--border"].forEach((k,i)=>document.documentElement.style.setProperty(k,c[i]));
+    if (s.siteFont) document.documentElement.style.setProperty("--site-font",s.siteFont);
+  } catch (_) {}
+  const form=document.getElementById("watchForm"), input=document.getElementById("videoUrl");
+  const frame=document.getElementById("viewer"), empty=document.getElementById("empty");
+  const error=document.getElementById("error"), title=document.getElementById("playerTitle");
+  const open=document.getElementById("open"), fullscreen=document.getElementById("fullscreen");
+  let currentUrl="";
+  function getVideoId(raw){
+    const value=raw.trim();
+    if(/^[\w-]{11}$/.test(value)) return value;
+    let u; try{u=new URL(value)}catch(_){return null}
+    const host=u.hostname.replace(/^www\./,"").toLowerCase();
+    if(host==="youtu.be") return u.pathname.split("/").filter(Boolean)[0]||null;
+    if(host.endsWith("youtube.com")||host==="youtube-nocookie.com"||host==="yout-ube.com"){
+      if(u.searchParams.get("v")) return u.searchParams.get("v");
+      const parts=u.pathname.split("/").filter(Boolean);
+      const index=parts.findIndex(x=>["shorts","embed","live","watch"].includes(x));
+      if(index>=0 && parts[index+1]) return parts[index+1];
+    }
+    return null;
+  }
+  form.addEventListener("submit",e=>{
+    e.preventDefault(); error.textContent="";
+    const id=getVideoId(input.value);
+    if(!id || !/^[\w-]{11}$/.test(id)){error.textContent="That doesn't look like a valid YouTube video link.";return}
+    currentUrl="https://www.yout-ube.com/watch?v="+encodeURIComponent(id);
+    frame.src=currentUrl;
+    frame.style.display="block"; empty.style.display="none";
+    title.textContent="Video · "+id;
+    open.disabled=false; fullscreen.disabled=false;
+  });
+  open.addEventListener("click",()=>{if(currentUrl)window.open(currentUrl,"_blank","noopener,noreferrer")});
+  fullscreen.addEventListener("click",async()=>{const box=document.getElementById("playerFrame");try{if(!document.fullscreenElement)await box.requestFullscreen();else await document.exitFullscreen()}catch(_){error.textContent="Fullscreen isn't available in this browser."}});
+  document.getElementById("clear").addEventListener("click",()=>{frame.src="about:blank";frame.style.display="none";empty.style.display="block";input.value="";error.textContent="";title.textContent="No video loaded";currentUrl="";open.disabled=true;fullscreen.disabled=true});
+  const params=new URLSearchParams(location.search), initial=params.get("v")||params.get("url");
+  if(initial){input.value=initial;form.requestSubmit()}
+})();
+</script>
+</body>
+</html>
