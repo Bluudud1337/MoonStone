@@ -356,7 +356,7 @@ async function home(forceRefresh=false){
 function playlistIdFromInput(value){
  const raw=String(value||"").trim();
  if(!raw)return "";
- try{const u=new URL(raw);if(!/(^|\\.)youtube\\.com$|(^|\\.)youtu\\.be$/.test(u.hostname))return "";return u.searchParams.get("list")||""}
+ try{const u=new URL(raw);const host=u.hostname.toLowerCase();if(!(host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtu.be"||host.endsWith(".youtu.be")))return "";return u.searchParams.get("list")||""}
  catch{return /^[A-Za-z0-9_-]{10,}$/.test(raw)?raw:""}
 }
 function playlistCard(p){
