@@ -329,7 +329,7 @@ async function home(forceRefresh=false){
  page="home";setNav(page);chips.classList.remove("hidden");content.innerHTML='<div class="loading">'+(forceRefresh?'Finding different videos…':'Building your recommendations…')+'</div>';
  try{
   const searches=get("searches",[]);
-  const recent=searches.map(x=>typeof x==="string"?x:x?.query).filter(Boolean).slice(0,5);
+  const watched=get("history",[]);
   const refreshCount=forceRefresh?get("feed_refresh_count",0)+1:get("feed_refresh_count",0);
   if(forceRefresh)put("feed_refresh_count",refreshCount);
   const pageForQuery=idx=>forceRefresh?1+((refreshCount+idx-1)%5):1;
@@ -342,19 +342,40 @@ async function home(forceRefresh=false){
     if(v.type==="video"||v.type==="stream"||v.type==="livestream"||isLive(v)){seen.add(v.videoId);recommended.push(v)}
    }
   };
-  if(recent.length){
-   const results=await Promise.all(recent.map((q,idx)=>request("/api/v1/search?q="+encodeURIComponent(q)+"&type=video&page="+pageForQuery(idx)+"&region=US",forceRefresh).catch(()=>[])));
-   results.forEach(addVideos);
-  }else if(forceRefresh){
-   const discovery=["popular videos","new videos","trending videos"];
-   const results=await Promise.all(discovery.map((q,idx)=>request("/api/v1/search?q="+encodeURIComponent(q)+"&type=video&page="+pageForQuery(idx)+"&region=US",true).catch(()=>[])));
-   results.forEach(addVideos);
+  // Turn searches and watch history into broad topic clues, not exact repeat searches.
+  const stopWords=new Set(["the","and","for","with","from","that","this","you","your","are","was","how","why","what","when","where","who","can","could","would","should","about","into","onto","over","under","video","videos","youtube","watch","tutorial","full","official","2024","2025","2026"]);
+  const tokenize=value=>String(value||"").toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(w=>w.length>2&&!stopWords.has(w));
+  const seeds=[
+   ...watched.slice(0,12).map(v=>({text:[v.title,v.author].filter(Boolean).join(" "),weight:3})),
+   ...searches.slice(0,8).map(v=>({text:typeof v==="string"?v:v?.query,weight:2}))
+  ].filter(x=>x.text);
+  const terms=new Map();
+  seeds.forEach(seed=>tokenize(seed.text).forEach((word,index)=>{
+   const entry=terms.get(word)||{score:0,first:index};
+   entry.score+=seed.weight/(1+index*.25);
+   terms.set(word,entry);
+  }));
+  const ranked=[...terms.entries()].sort((a,b)=>b[1].score-a[1].score).map(x=>x[0]);
+  const modifiers=["ideas","explained","tips","best moments","deep dive","compilation","guide","highlights"];
+  const relatedQueries=[];
+  const addQuery=q=>{q=q.trim();if(q&&!relatedQueries.some(x=>x.toLowerCase()===q.toLowerCase()))relatedQueries.push(q)};
+  // Mix topic pairs with different discovery angles so results aren't copies of the search page.
+  ranked.slice(0,8).forEach((word,i)=>{
+   const partner=ranked.find((other,j)=>j!==i&&!relatedQueries.some(q=>q.toLowerCase()===word+" "+other));
+   const topic=partner?word+" "+partner:word;
+   addQuery(topic+" "+modifiers[(i+refreshCount)%modifiers.length]);
+  });
+  if(category!=="default")addQuery(({music:"music discoveries and performances",gaming:"gameplay highlights and gaming tips",movies:"movie analysis and film scenes"})[category]||category+" videos");
+  if(!relatedQueries.length){
+   ["popular creators","interesting science discoveries","gaming highlights","music discoveries","funny moments"].forEach(addQuery);
   }
+  const results=await Promise.all(relatedQueries.slice(0,6).map((q,idx)=>request("/api/v1/search?q="+encodeURIComponent(q)+"&type=video&page="+pageForQuery(idx)+"&region=US",forceRefresh).catch(()=>[])));
+  results.forEach(addVideos);
   if(recommended.length<30){
    const trending=await request("/api/v1/trending?region=US&type="+encodeURIComponent(category),forceRefresh);
    addVideos(trending);
   }
-  renderVideos(recommended,recent.length?"Recommended from your searches":(forceRefresh?"Discover more videos":"Trending videos"));
+  renderVideos(recommended,seeds.length?"Picked from your interests":"Trending videos");
  }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div><div class="empty">The recommendation feed could not load. Try Refresh.</div>'}
 }
 function playlistIdFromInput(value){
