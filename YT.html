@@ -266,6 +266,10 @@ main{padding:28px clamp(20px,3.2vw,56px) 72px}
  .actions{width:100%}
 }
 
+
+/* Make the embedded player fill the fullscreen viewport */
+.playerShell:fullscreen{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;border:0!important;border-radius:0!important;background:#000!important}
+.playerShell:fullscreen .player{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;border:0!important;border-radius:0!important}
 </style>
 </head>
 <body>
