@@ -281,6 +281,7 @@ main{padding:28px clamp(20px,3.2vw,56px) 72px}
  <div class="navlabel">You</div>
  <button class="navbtn" data-page="history"><span class="navico">◷</span><span>History</span></button>
  <button class="navbtn" data-page="saved"><span class="navico">▱</span><span>Saved videos</span></button>
+ <button class="navbtn" data-page="playlists"><span class="navico">▤</span><span>Playlists</span></button>
  <div class="navlabel">Subscriptions</div><div class="subscriptions" id="subscriptionList">Follow channels to see them here.</div>
  <div class="navlabel">MoonStone</div><button class="navbtn" id="moonHome"><span class="navico">◇</span><span>Back to MoonStone</span></button>
 </aside>
@@ -293,7 +294,7 @@ main{padding:28px clamp(20px,3.2vw,56px) 72px}
 <script>
 (()=>{
 const instances=["https://inv.nadeko.net","https://invidious.nerdvpn.de","https://yt.chocolatemoo53.com","https://invidious.tiekoetter.com"];
-let api=instances[0],page="home",category="default",currentVideo=null,feed=[],searchTerm="";
+let api=instances[0],page="home",category="default",currentVideo=null,feed=[],searchTerm="",currentPlaylist=null;
 const $=id=>document.getElementById(id),content=$("content"),chips=$("chips");
 const get=(k,d=[])=>{try{return JSON.parse(localStorage.getItem("msyt_"+k)||"null")??d}catch{return d}};
 const put=(k,v)=>localStorage.setItem("msyt_"+k,JSON.stringify(v));
@@ -352,6 +353,30 @@ async function home(forceRefresh=false){
   renderVideos(recommended,recent.length?"Recommended from your searches":(forceRefresh?"Discover more videos":"Trending videos"));
  }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div><div class="empty">The recommendation feed could not load. Try Refresh.</div>'}
 }
+function playlistIdFromInput(value){
+ const raw=String(value||"").trim();
+ if(!raw)return "";
+ try{const u=new URL(raw);if(!/(^|\\.)youtube\\.com$|(^|\\.)youtu\\.be$/.test(u.hostname))return "";return u.searchParams.get("list")||""}
+ catch{return /^[A-Za-z0-9_-]{10,}$/.test(raw)?raw:""}
+}
+function playlistCard(p){
+ const first=p.videos?.[0]||{};
+ const image=first.videoThumbnails?.slice?.(-1)?.[0]?.url||"https://i.ytimg.com/vi/"+encodeURIComponent(first.videoId||"")+"/hqdefault.jpg";
+ return '<article class="channelcard" data-open-playlist="'+esc(p.id)+'"><img style="width:112px;height:64px;border-radius:9px" src="'+esc(image)+'" alt=""><div><strong>'+esc(p.title||"Untitled playlist")+'</strong><span class="muted">'+fmt(p.videoCount||p.videos?.length||0)+' videos · '+esc(p.author||"YouTube playlist")+'</span></div></article>';
+}
+async function playlist(id){
+ page="playlist";setNav("");chips.classList.add("hidden");content.innerHTML='<div class="loading">Loading playlist…</div>';
+ try{
+  const p=await request("/api/v1/playlists/"+encodeURIComponent(id));
+  const videos=Array.isArray(p.videos)?p.videos:[];
+  currentPlaylist={id:p.playlistId||id,title:p.title||"YouTube playlist",author:p.author||"",videoCount:p.videoCount||videos.length,videos};
+  const saved=get("playlists",[]),isSaved=saved.some(x=>x.id===currentPlaylist.id);
+  content.innerHTML='<button class="pill back" id="playlistBack">← Back</button><div class="sectionhead"><div><h1>'+esc(currentPlaylist.title)+'</h1><span class="muted">'+esc(currentPlaylist.author)+' · '+videos.length+' loaded videos</span></div><div class="feedtools"><button class="pill" id="playAllBtn" '+(videos.length?'':'disabled')+'>▶ Play all</button><button class="pill" id="savePlaylistBtn">'+(isSaved?'Saved ✓':'＋ Save playlist')+'</button></div></div><div class="grid">'+(videos.length?videos.map((v,i)=>videoCard(v).replace('class="video"','class="video" data-playlist-index="'+i+'"')).join(""):'<div class="empty">This playlist has no available videos.</div>')+'</div>';
+  $("playlistBack").onclick=()=>home();
+  $("playAllBtn").onclick=()=>{if(videos[0]?.videoId)watch(videos[0].videoId,0)};
+  $("savePlaylistBtn").onclick=()=>{let list=get("playlists",[]);if(list.some(x=>x.id===currentPlaylist.id)){list=list.filter(x=>x.id!==currentPlaylist.id);$("savePlaylistBtn").textContent="＋ Save playlist"}else{list.unshift({id:currentPlaylist.id,title:currentPlaylist.title,author:currentPlaylist.author,videoCount:currentPlaylist.videoCount,videos});$("savePlaylistBtn").textContent="Saved ✓"}put("playlists",list)};
+ }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div><button class="pill" id="playlistRetry">Retry</button>'; $("playlistRetry").onclick=()=>playlist(id)}
+}
 async function search(q){
  page="search";searchTerm=q;setNav("");chips.classList.add("hidden");content.innerHTML='<div class="loading">Searching YouTube…</div>';
  const searches=get("searches",[]);
@@ -374,15 +399,20 @@ async function channel(id){
  $("followBtn").onclick=()=>{let list=get("channels",[]);if(saved)list=list.filter(x=>x.id!==c.authorId);else list.unshift({id:c.authorId,name:c.author,avatar:avatar(c)});put("channels",list);$("followBtn").textContent=saved?"Subscribe +":"Following ✓";renderSubscriptions()};
  }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div>'}
 }
-async function watch(id){
+async function watch(id,playlistIndex){
+ if(playlistIndex===undefined){const found=currentPlaylist?.videos?.findIndex(v=>v.videoId===id)??-1;if(found<0)currentPlaylist=null;else playlistIndex=found}
  page="watch";chips.classList.add("hidden");content.innerHTML='<div class="loading">Loading video…</div>';
  try{
   const v=await request("/api/v1/videos/"+encodeURIComponent(id));currentVideo=v;
   const rec=v.recommendedVideos||[];
   const channelId=v.authorId||"";
+  const inPlaylist=!!currentPlaylist&&Number.isInteger(playlistIndex)&&playlistIndex>=0&&playlistIndex<currentPlaylist.videos.length;
+  const previous=inPlaylist&&playlistIndex>0?currentPlaylist.videos[playlistIndex-1]:null;
+  const next=inPlaylist&&playlistIndex<currentPlaylist.videos.length-1?currentPlaylist.videos[playlistIndex+1]:null;
   put("history",[{id,title:videoTitle(v),author:v.author,thumb:thumb(v),lengthSeconds:v.lengthSeconds},...get("history",[]).filter(x=>x.id!==id)].slice(0,80));
-  content.innerHTML='<button class="pill back" id="backBtn">← Back</button><div class="watchlayout"><div><iframe class="player" id="ytPlayer" src="https://www.yout-ube.com/watch?v='+encodeURIComponent(id)+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><div class="playercontrols"><button id="fullscreenBtn" type="button">⛶ Fullscreen</button></div><h2 class="watchtitle">'+esc(videoTitle(v))+'</h2><div class="watchmeta"><div class="channelline"><img class="channelavatar" src="'+esc(avatar(v))+'"><div><strong>'+esc(v.author)+'</strong><small>'+fmt(v.subCount)+' subscribers</small></div><button class="pill" id="watchChannel">View channel</button></div><div class="actions"><button class="pill" id="saveVideo">＋ Save</button><button class="pill" id="openNative">Open player ↗</button></div></div><div class="description">'+views(v)+' views · '+esc(v.publishedText||"")+'\n\n'+esc(v.description||"")+'</div><section class="comments" id="commentsSection"><div class="commentshead"><h3>Comments</h3><span class="muted">Read-only</span></div><div class="commentstate">Loading comments…</div></section></div><aside class="related"><h3>Up next</h3>'+(rec.length?rec.map(videoCard).join(""):'<p class="muted">No related videos available.</p>')+'</aside></div>';
-  $("backBtn").onclick=()=>home();
+  content.innerHTML='<button class="pill back" id="backBtn">← Back</button><div class="watchlayout"><div><iframe class="player" id="ytPlayer" src="https://www.yout-ube.com/watch?v='+encodeURIComponent(id)+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><div class="playercontrols">'+(inPlaylist?'<button id="prevPlaylistBtn" type="button" '+(previous?'':'disabled')+'>← Previous</button><button id="nextPlaylistBtn" type="button" '+(next?'':'disabled')+'>Next →</button>':'')+'<button id="fullscreenBtn" type="button">⛶ Fullscreen</button></div><h2 class="watchtitle">'+esc(videoTitle(v))+'</h2><div class="watchmeta"><div class="channelline"><img class="channelavatar" src="'+esc(avatar(v))+'"><div><strong>'+esc(v.author)+'</strong><small>'+fmt(v.subCount)+' subscribers</small></div><button class="pill" id="watchChannel">View channel</button></div><div class="actions"><button class="pill" id="saveVideo">＋ Save</button><button class="pill" id="openNative">Open player ↗</button></div></div><div class="description">'+views(v)+' views · '+esc(v.publishedText||"")+'\n\n'+esc(v.description||"")+'</div><section class="comments" id="commentsSection"><div class="commentshead"><h3>Comments</h3><span class="muted">Read-only</span></div><div class="commentstate">Loading comments…</div></section></div><aside class="related"><h3>Up next</h3>'+(rec.length?rec.map(videoCard).join(""):'<p class="muted">No related videos available.</p>')+'</aside></div>';
+  $("backBtn").onclick=()=>{if(currentPlaylist)playlist(currentPlaylist.id);else home()};
+  if(inPlaylist){$("prevPlaylistBtn").onclick=()=>{if(previous)watch(previous.videoId,playlistIndex-1)};$("nextPlaylistBtn").onclick=()=>{if(next)watch(next.videoId,playlistIndex+1)}}
   $("fullscreenBtn").onclick=async()=>{const player=$("ytPlayer");try{if(document.fullscreenElement)await document.exitFullscreen();else if(player.requestFullscreen)await player.requestFullscreen();else throw Error("Unsupported")}catch(e){toast("Fullscreen is not available in this browser")}};
   $("watchChannel").onclick=()=>channel(channelId);
   $("saveVideo").onclick=()=>{let list=get("saved",[]);if(!list.some(x=>x.id===id)){list.unshift({id,title:videoTitle(v),author:v.author,thumb:thumb(v),lengthSeconds:v.lengthSeconds});put("saved",list)}toast("Saved to your videos")};
@@ -432,8 +462,8 @@ function localList(key,label){
  page=key;setNav(page);chips.classList.add("hidden");const list=get(key,[]);
  content.innerHTML='<div class="sectionhead"><h1>'+label+'</h1><span class="muted">'+list.length+' videos</span></div><div class="grid">'+(list.length?list.map(v=>'<article class="video" data-video="'+esc(v.id)+'"><div class="thumbwrap"><img class="thumb" src="'+esc(v.thumb)+'"><span class="duration">'+duration(v.lengthSeconds)+'</span></div><div class="vrow"><div><div class="vtitle">'+esc(v.title)+'</div><div class="vmeta">'+esc(v.author)+'</div></div></div></article>').join(""):'<div class="empty">Nothing here yet.</div>')+'</div>';
 }
-document.querySelectorAll(".navbtn[data-page]").forEach(b=>b.addEventListener("click",()=>{const p=b.dataset.page;if(p==="home")home();else if(p==="subscriptions"){page="subscriptions";setNav(page);chips.classList.add("hidden");const list=get("channels",[]);if(!list.length){content.innerHTML='<div class="empty">Subscribe to channels to build your feed.</div>';return}Promise.all(list.map(c=>request("/api/v1/channels/"+encodeURIComponent(c.id)).catch(()=>null))).then(cs=>renderVideos(cs.filter(Boolean).flatMap(c=>c.latestVideos||[]),"Your subscriptions"))}else localList(p,p==="history"?"Watch history":"Saved videos")}));
-$("searchForm").addEventListener("submit",e=>{e.preventDefault();const q=$("searchInput").value.trim();if(q)search(q)});
+document.querySelectorAll(".navbtn[data-page]").forEach(b=>b.addEventListener("click",()=>{const p=b.dataset.page;if(p==="home")home();else if(p==="subscriptions"){page="subscriptions";setNav(page);chips.classList.add("hidden");const list=get("channels",[]);if(!list.length){content.innerHTML='<div class="empty">Subscribe to channels to build your feed.</div>';return}Promise.all(list.map(c=>request("/api/v1/channels/"+encodeURIComponent(c.id)).catch(()=>null))).then(cs=>renderVideos(cs.filter(Boolean).flatMap(c=>c.latestVideos||[]),"Your subscriptions"))}else if(p==="playlists"){page="playlists";setNav(page);chips.classList.add("hidden");const lists=get("playlists",[]);content.innerHTML='<div class="sectionhead"><h1>Your playlists</h1><span class="muted">'+lists.length+' saved</span></div><div class="grid">'+(lists.length?lists.map(playlistCard).join(""):'<div class="empty">No saved playlists yet. Open a YouTube playlist and choose “Save playlist”.</div>')+'</div>'}else localList(p,p==="history"?"Watch history":"Saved videos")}));
+$("searchForm").addEventListener("submit",e=>{e.preventDefault();const q=$("searchInput").value.trim();if(q){const id=playlistIdFromInput(q);if(id)playlist(id);else search(q)}});
 const tvModeBtn=$("tvModeBtn");
 function setTVMode(enabled){
  document.body.classList.toggle("tv-mode",enabled);
@@ -446,7 +476,13 @@ tvModeBtn.onclick=()=>setTVMode(!document.body.classList.contains("tv-mode"));
 try{setTVMode(localStorage.getItem("msyt_tv_mode")==="1")}catch(e){setTVMode(false)}
 $("refreshBtn").onclick=()=>home(true);$("homeBtn").onclick=$("moonHome").onclick=()=>location.href="index.html";
 chips.addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(!b)return;category=b.dataset.category;document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));home()});
-content.addEventListener("click",e=>{if(e.target.closest("#refreshFeedBtn")){home(true);return}const v=e.target.closest("[data-video]"),c=e.target.closest("[data-channel]");if(v)watch(v.dataset.video);else if(c)channel(c.dataset.channel)});
+content.addEventListener("click",e=>{
+ if(e.target.closest("#refreshFeedBtn")){home(true);return}
+ const pl=e.target.closest("[data-open-playlist]");
+ if(pl){const saved=get("playlists",[]).find(x=>x.id===pl.dataset.openPlaylist);if(saved?.videos?.length){currentPlaylist={...saved};page="playlist";setNav("");chips.classList.add("hidden");content.innerHTML='<div class="sectionhead"><h1>'+esc(saved.title)+'</h1></div><div class="grid">'+saved.videos.map((v,i)=>videoCard(v).replace('class="video"','class="video" data-playlist-index="'+i+'"')).join("")+'</div>'}else playlist(pl.dataset.openPlaylist);return}
+ const v=e.target.closest("[data-video]"),c=e.target.closest("[data-channel]");
+ if(v){const idx=v.dataset.playlistIndex;watch(v.dataset.video,idx===undefined?undefined:Number(idx))}else if(c)channel(c.dataset.channel);
+});
 $("subscriptionList").addEventListener("click",e=>{const c=e.target.closest("[data-channel]");if(c)channel(c.dataset.channel)});
 const moonstoneThemeIds=["moonstone","moonlight","midnight","terminal","cherry","garnet","paper","flowery","astralsync","halloween","frogies","eclipse","void-purple","void-white"];
 function applyMoonstoneSettings(){
