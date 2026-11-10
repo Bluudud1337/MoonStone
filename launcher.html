@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111111">
+<title>MoonStone | Blank Launcher</title>
+<style>
+:root{color-scheme:dark;--accent:#fffb9e;--bg:#101010;--panel:#191919;--line:#303030}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 35%,#24241b 0%,var(--bg) 58%);color:#f5f5e8;font-family:Arial,Helvetica,sans-serif;display:grid;place-items:center;padding:24px}
+main{width:min(100%,470px);text-align:center}
+.logo{width:42px;height:42px;border:2px solid var(--accent);transform:rotate(45deg);margin:0 auto 28px;box-shadow:0 0 22px #fffb9e35}
+h1{font-size:30px;letter-spacing:-1px;margin:0 0 9px}
+.subtitle{color:#999;font-size:14px;margin:0 0 30px}
+.panel{background:#191919dd;border:1px solid var(--line);border-radius:18px;padding:22px;text-align:left;box-shadow:0 18px 60px #0007}
+label{display:block;font-size:12px;color:#aaa;margin:0 0 9px 2px}
+input{width:100%;height:48px;padding:0 14px;border:1px solid #383838;border-radius:10px;background:#101010;color:#fff;font-size:15px;outline:none}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #fffb9e18}
+button{width:100%;height:46px;margin-top:12px;border:0;border-radius:10px;background:var(--accent);color:#151515;font-size:14px;font-weight:700;cursor:pointer}
+button:hover{filter:brightness(.94)}
+.hint{color:#858585;font-size:12px;line-height:1.5;margin:15px 2px 0}
+footer{color:#666;font-size:11px;margin-top:22px}
+</style>
+</head>
+<body>
+<main>
+  <div class="logo" aria-hidden="true"></div>
+  <h1>Blank Launcher</h1>
+  <p class="subtitle">Open a site in a new about:blank tab.</p>
+  <section class="panel">
+    <form id="launchForm">
+      <label for="siteUrl">WEBSITE ADDRESS</label>
+      <input id="siteUrl" type="text" inputmode="url" placeholder="https://example.com" autocomplete="url" spellcheck="false" required>
+      <button type="submit">Launch in Blank Tab ↗</button>
+    </form>
+    <p class="hint">Enter a website address and launch it in a separate blank tab. Some websites prevent embedded viewing and may not load.</p>
+  </section>
+  <footer>MOONSTONE · BLANK LAUNCHER</footer>
+</main>
+<script>
+const form = document.getElementById("launchForm");
+const field = document.getElementById("siteUrl");
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  let value = field.value.trim();
+  if (!value) return;
+
+  if (!/^[a-zA-Z][a-zA-Z\\d+.-]*:\/\//.test(value)) {
+    value = "https://" + value;
+  }
+
+  let destination;
+  try {
+    destination = new URL(value);
+  } catch {
+    alert("Enter a valid website address.");
+    return;
+  }
+
+  if (!["http:", "https:"].includes(destination.protocol)) {
+    alert("Only HTTP and HTTPS website addresses are supported.");
+    return;
+  }
+
+  const tab = window.open("about:blank", "_blank");
+  if (!tab) {
+    alert("The browser blocked the new tab. Allow pop-ups for MoonStone and try again.");
+    return;
+  }
+
+  const frame = tab.document.createElement("iframe");
+  frame.title = "Launched website";
+  frame.referrerPolicy = "no-referrer";
+  Object.assign(frame.style, {
+    position: "fixed",
+    inset: "0",
+    width: "100%",
+    height: "100%",
+    border: "0"
+  });
+
+  tab.document.title = "Blank Tab";
+  tab.document.body.style.cssText = "margin:0;overflow:hidden;background:#000";
+  tab.document.body.replaceChildren(frame);
+  frame.src = destination.href;
+});
+</script>
+</body>
+</html>
