@@ -6,27 +6,207 @@
 <meta name="theme-color" content="#111111">
 <title>MoonStone | Blank Launcher</title>
 <style>
-:root{color-scheme:dark;--accent:#fffb9e;--bg:#101010;--panel:#191919;--line:#303030}
+:root{color-scheme:dark;--bg:#090909;--panel:#111110;--hover:#1b1b19;--text:#fffb9e;--muted:#c9c57b;--border:#39371e;--accent:#fffb9e;--particle:#fffb9e}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 35%,#24241b 0%,var(--bg) 58%);color:#f5f5e8;font-family:Arial,Helvetica,sans-serif;display:grid;place-items:center;padding:24px}
-main{width:min(100%,470px);text-align:center}
-.logo{width:42px;height:42px;border:2px solid var(--accent);transform:rotate(45deg);margin:0 auto 28px;box-shadow:0 0 22px #fffb9e35}
+html,body{width:100%;min-height:100%;margin:0}
+body{background-color:var(--bg);background-image:var(--wallpaper,none);background-size:cover;background-position:center;background-attachment:fixed;background-repeat:no-repeat;color:var(--text);font-family:var(--site-font,Arial,Helvetica,sans-serif);display:grid;place-items:center;padding:24px;transition:background .3s,color .3s;overflow-x:hidden}
+button,input{font:inherit}
+/* Themes */
+body[data-theme="youtube"]{--bg:#0b0b0b;--panel:#171717;--hover:#292929;--text:#f5f5f5;--muted:#b3b3b3;--border:#383838;--accent:#ff3030;--particle:#ff4545}
+body[data-theme="nightmare"]{--bg:#080000;--panel:#160303;--hover:#2b0808;--text:#ffe5e5;--muted:#c17b7b;--border:#571515;--accent:#e00020;--particle:#ff1838}
+
+
+body[data-theme="moonlight"] {
+  --bg: #0c0e15;
+  --panel: #131621;
+  --hover: #202435;
+  --text: #e4e9f5;
+  --muted: #8c94a8;
+  --border: #292e40;
+  --accent: #c5d2f3;
+  --particle: #b8c9ff;
+}
+
+body[data-theme="midnight"] {
+  --bg: #080808;
+  --panel: #101010;
+  --hover: #1b1b1b;
+  --text: #e8e8e8;
+  --muted: #858585;
+  --border: #292929;
+  --accent: #bdbdbd;
+  --particle: #a6a6a6;
+}
+
+body[data-theme="terminal"] {
+  --bg: #000000;
+  --panel: #050805;
+  --hover: #0a190a;
+  --text: #39ff14;
+  --muted: #18b80b;
+  --border: #14520b;
+  --accent: #39ff14;
+  --particle: #39ff14;
+}
+
+body[data-theme="cherry"] {
+  --bg: #0d0307;
+  --panel: #17080d;
+  --hover: #2a0d18;
+  --text: #ffe8ef;
+  --muted: #a66b7b;
+  --border: #3d1725;
+  --accent: #ff4f83;
+  --particle: #ff5a8a;
+  --wallpaper: radial-gradient(ellipse at 50% 45%, rgba(255, 55, 115, .035), transparent 65%);
+}
+
+body[data-theme="garnet"] {
+  --bg: #100709;
+  --panel: #1a0d12;
+  --hover: #2b121b;
+  --text: #f5e8eb;
+  --muted: #b28b96;
+  --border: #47202d;
+  --accent: #e16b88;
+  --particle: #e16b88;
+}
+
+body[data-theme="paper"] {
+  color-scheme: light;
+  --bg: #eeeade;
+  --panel: #e4e0d2;
+  --hover: #d9d4c4;
+  --text: #171714;
+  --muted: #777469;
+  --border: #d0cbbb;
+  --accent: #24241f;
+  --particle: #777469;
+}
+
+body[data-theme="astralsync"] {
+  --bg: #070b18;
+  --panel: #0d1428;
+  --hover: #172342;
+  --text: #e8edff;
+  --muted: #8f9bc4;
+  --border: #26365f;
+  --accent: #7897ff;
+  --particle: #9b83ff;
+}
+
+body[data-theme="eclipse"] {
+  --bg: #080808;
+  --panel: #140b05;
+  --hover: #2a1407;
+  --text: #fff0e3;
+  --muted: #d18a59;
+  --border: #66300f;
+  --accent: #ff6a00;
+  --particle: #ff7b00;
+}
+
+body[data-theme="void-purple"] {
+  --bg: #000000;
+  --panel: #08000d;
+  --hover: #190022;
+  --text: #f8eaff;
+  --muted: #b68bc9;
+  --border: #42105b;
+  --accent: #c026ff;
+  --particle: #d15cff;
+}
+
+body[data-theme="void-white"] {
+  --bg: #000000;
+  --panel: #080808;
+  --hover: #1b1b1b;
+  --text: #ffffff;
+  --muted: #a6a6a6;
+  --border: #3a3a3a;
+  --accent: #ffffff;
+  --particle: #f5f5f5;
+}
+[data-theme="flowery"] {
+  --bg: #17120d;
+  --panel: #211a13;
+  --hover: #33271a;
+  --text: #fff3d3;
+  --muted: #d5b99a;
+  --border: #675033;
+  --accent: #f4d34e;
+  --particle: #f4d34e;
+  --wallpaper: linear-gradient(rgba(15, 11, 9, .48), rgba(15, 11, 9, .68)), url("https://i.redd.it/sarn4u1tl3ah1.png");
+  --flowery-yellow: #f4d34e;
+  --flowery-sunset: #f39a65;
+  --flowery-green: #9bc66b;
+}
+
+body[data-theme="halloween"] {
+  --bg: #120a08;
+  --panel: #21120d;
+  --hover: #352016;
+  --text: #fff0dc;
+  --muted: #d0a17d;
+  --border: #59301b;
+  --accent: #ff8a24;
+  --particle: #ffb347;
+  --wallpaper: linear-gradient(rgba(15, 7, 4, .48), rgba(15, 7, 4, .68)), url("https://media.istockphoto.com/id/2178349388/photo/halloween-background-for-party-invitation-orange-halloween-banner-or-background-with-cutest.jpg?s=612x612&w=0&k=20&c=RGwZEONmRUcLsRbRzBhKm1uSTOHjT25moHF9NBaHjFc=");
+}
+
+body[data-theme="frogies"] {
+  --bg: #080b09;
+  --panel: #151a16;
+  --hover: #242b25;
+  --text: #f0f3f0;
+  --muted: #aab4aa;
+  --border: #343d35;
+  --accent: #38e65d;
+  --particle: #57ff72;
+  --wallpaper: radial-gradient(ellipse at 12% 10%, rgba(56, 230, 93, .10), transparent 34%), radial-gradient(ellipse at 88% 82%, rgba(56, 230, 93, .07), transparent 38%);
+}
+
+
+main{width:min(100%,470px);text-align:center;position:relative;z-index:1}
+.logo{width:42px;height:42px;border:2px solid var(--accent);transform:rotate(45deg);margin:0 auto 28px;box-shadow:0 0 22px color-mix(in srgb,var(--accent) 22%,transparent)}
 h1{font-size:30px;letter-spacing:-1px;margin:0 0 9px}
-.subtitle{color:#999;font-size:14px;margin:0 0 30px}
-.panel{background:#191919dd;border:1px solid var(--line);border-radius:18px;padding:22px;text-align:left;box-shadow:0 18px 60px #0007}
-label{display:block;font-size:12px;color:#aaa;margin:0 0 9px 2px}
+.subtitle{color:var(--muted);font-size:14px;margin:0 0 30px}
+.panel{background:color-mix(in srgb,var(--panel) 88%,transparent);border:1px solid var(--border);border-radius:18px;padding:22px;text-align:left;box-shadow:0 18px 60px #0007}
+label{display:block;font-size:12px;color:var(--muted);margin:0 0 9px 2px}
 .launch-row{display:flex;gap:9px}
-input{flex:1;min-width:0;height:48px;padding:0 14px;border:1px solid #383838;border-radius:10px;background:#101010;color:#fff;font-size:15px;outline:none}
-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #fffb9e18}
-button{flex:0 0 48px;width:48px;height:48px;border:0;border-radius:12px;background:var(--accent);color:#151515;display:grid;place-items:center;cursor:pointer;transition:transform .15s,filter .15s}
-button:hover{filter:brightness(.94);transform:translateX(2px)}
-button:active{transform:scale(.94)}
-button svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.hint{color:#858585;font-size:12px;line-height:1.5;margin:15px 2px 0}
-footer{color:#666;font-size:11px;margin-top:22px}
+input{flex:1;min-width:0;height:48px;padding:0 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:15px;outline:none}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent)}
+.launch-button{flex:0 0 48px;width:48px;height:48px;border:0;border-radius:12px;background:var(--accent);color:var(--bg);display:grid;place-items:center;cursor:pointer;transition:transform .15s,filter .15s}
+.launch-button:hover{filter:brightness(.94);transform:translateX(2px)}
+.launch-button:active{transform:scale(.94)}
+.launch-button svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hint{color:var(--muted);font-size:12px;line-height:1.5;margin:15px 2px 0}
+footer{color:var(--muted);opacity:.65;font-size:11px;margin-top:22px}
+.sidebar{position:fixed;left:17px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:7px;padding:9px;border:1px solid var(--border);border-radius:17px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(18px);z-index:5}
+.side-link,.side-button{width:41px;height:41px;display:grid;place-items:center;border:0;border-radius:11px;color:var(--muted);background:transparent;cursor:pointer;text-decoration:none;transition:color .2s,background .2s,transform .2s}
+.side-link:hover,.side-button:hover,.side-link.active{color:var(--text);background:var(--hover);transform:scale(1.08);box-shadow:0 0 18px color-mix(in srgb,var(--accent) 9%,transparent)}
+.side-link svg,.side-button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.side-divider{height:1px;width:25px;background:var(--border);margin:2px 0}
+body.dock-right .sidebar{left:auto;right:17px}
+body.dock-bottom .sidebar{left:50%;right:auto;top:auto;bottom:13px;transform:translateX(-50%);flex-direction:row}
+body.dock-span-full.dock-left .sidebar,body.dock-span-full.dock-right .sidebar{top:0;bottom:0;transform:none;height:100vh;justify-content:center;border-radius:0;padding:10px 7px}
+body.dock-span-full.dock-left .sidebar{left:0}
+body.dock-span-full.dock-right .sidebar{right:0}
+body.dock-span-full.dock-bottom .sidebar{left:0;right:0;bottom:0;top:auto;transform:none;width:100%;height:auto;justify-content:center;border-radius:0;flex-direction:row;padding:7px 10px}
+@media(max-width:600px){body{padding:24px 76px}.sidebar{left:7px;padding:5px;gap:3px}.side-link,.side-button{width:36px;height:36px}body.dock-right .sidebar{left:auto;right:7px}body.dock-bottom{padding:24px 18px 78px}body.dock-bottom .sidebar{left:50%;right:auto;bottom:7px}}
 </style>
 </head>
-<body>
+<body data-theme="moonstone">
+<nav class="sidebar" aria-label="MoonStone navigation">
+<a class="side-link" href="index.html" title="Home" aria-label="Home"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7"/></svg></a>
+<a class="side-link active" href="launcher.html" title="About:blank Launcher" aria-label="About:blank Launcher"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+<a class="side-link" href="games.html" title="Games" aria-label="Games"><svg viewBox="0 0 24 24"><path d="M6 11h4m-2-2v4M7 6h10a4 4 0 0 1 3.8 5.2l-1.3 4.3a2.5 2.5 0 0 1-4.1 1.1L13 14h-2l-2.4 2.6a2.5 2.5 0 0 1-4.1-1.1l-1.3-4.3A4 4 0 0 1 7 6Z"/></svg></a>
+<a class="side-link" href="movies.html" title="Movies" aria-label="Movies"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v4m5-4v4m5-4v4M7 16v4m5-4v4m5-4v4M3 12h18"/></svg></a>
+<a class="side-link" href="apps.html" title="Apps" aria-label="Apps"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></a>
+<a class="side-link" href="YT.html" title="YouTube Watcher" aria-label="YouTube Watcher"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4"/><path d="m10 9 5 3-5 3z"/></svg></a>
+<div class="side-divider"></div>
+<a class="side-link" href="index.html#settings" title="Settings on Home" aria-label="Settings on Home"><svg viewBox="0 0 24 24"><path d="M12 8.25a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5Z"/><path d="M19.4 13.5a7.8 7.8 0 0 0 0-3l1.45-1.12-1.5-2.6-1.75.6a7.8 7.8 0 0 0-2.6-1.5L14.7 4h-3.4l-.3 1.88a7.8 7.8 0 0 0-2.6 1.5l-1.75-.6-1.5 2.6L6.6 10.5a7.8 7.8 0 0 0 0 3l-1.45 1.12 1.5 2.6 1.75-.6a7.8 7.8 0 0 0 2.6 1.5l.3 1.88h3.4l.3-1.88a7.8 7.8 0 0 0 2.6-1.5l1.75.6 1.5-2.6z"/></svg></a>
+</nav>
 <main>
   <div class="logo" aria-hidden="true"></div>
   <h1>Blank Launcher</h1>
@@ -36,9 +216,7 @@ footer{color:#666;font-size:11px;margin-top:22px}
       <label for="siteUrl">WEBSITE ADDRESS</label>
       <div class="launch-row">
         <input id="siteUrl" type="text" inputmode="url" placeholder="https://example.com" autocomplete="url" spellcheck="false" required>
-        <button type="submit" aria-label="Launch website" title="Launch website">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </button>
+        <button class="launch-button" type="submit" aria-label="Launch website" title="Launch website"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
       </div>
     </form>
     <p class="hint">Enter a website address and launch it in a separate blank tab. Some websites prevent embedded viewing and may not load.</p>
@@ -46,52 +224,42 @@ footer{color:#666;font-size:11px;margin-top:22px}
   <footer>MOONSTONE · BLANK LAUNCHER</footer>
 </main>
 <script>
-const form = document.getElementById("launchForm");
-const field = document.getElementById("siteUrl");
-
-form.addEventListener("submit", (event) => {
+const form=document.getElementById("launchForm");
+const field=document.getElementById("siteUrl");
+function applyMoonstoneSettings(){
+  let saved={};
+  try{saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")||{}}catch{}
+  const validThemes=["moonstone","youtube","nightmare","moonlight","midnight","terminal","cherry","garnet","paper","flowery","astralsync","halloween","frogies","eclipse","void-purple","void-white"];
+  document.body.dataset.theme=validThemes.includes(saved.theme)?saved.theme:"moonstone";
+  const pos=["left","right","bottom"].includes(saved.dockPosition)?saved.dockPosition:"left";
+  document.body.classList.remove("dock-left","dock-right","dock-bottom");
+  document.body.classList.add("dock-"+pos);
+  document.body.classList.toggle("dock-span-full",saved.dockSpan==="full");
+  if(typeof saved.siteFont==="string"&&saved.siteFont.trim())document.body.style.setProperty("--site-font",saved.siteFont.replace(/["<>]/g,"")+" , Arial, sans-serif");
+  else document.body.style.removeProperty("--site-font");
+  if(saved.cursorStyle==="cream")document.body.style.cursor="pointer";
+  else document.body.style.removeProperty("cursor");
+}
+applyMoonstoneSettings();
+window.addEventListener("storage",event=>{if(event.key==="moonstone-settings")applyMoonstoneSettings()});
+form.addEventListener("submit",event=>{
   event.preventDefault();
-  let value = field.value.trim();
-  if (!value) return;
-
-  if (!/^[a-zA-Z][a-zA-Z\\d+.-]*:\/\//.test(value)) {
-    value = "https://" + value;
-  }
-
+  let value=field.value.trim();
+  if(!value)return;
+  if(!/^[a-zA-Z][a-zA-Z\\d+.-]*:\/\//.test(value))value="https://"+value;
   let destination;
-  try {
-    destination = new URL(value);
-  } catch {
-    alert("Enter a valid website address.");
-    return;
-  }
-
-  if (!["http:", "https:"].includes(destination.protocol)) {
-    alert("Only HTTP and HTTPS website addresses are supported.");
-    return;
-  }
-
-  const tab = window.open("about:blank", "_blank");
-  if (!tab) {
-    alert("The browser blocked the new tab. Allow pop-ups for MoonStone and try again.");
-    return;
-  }
-
-  const frame = tab.document.createElement("iframe");
-  frame.title = "Launched website";
-  frame.referrerPolicy = "no-referrer";
-  Object.assign(frame.style, {
-    position: "fixed",
-    inset: "0",
-    width: "100%",
-    height: "100%",
-    border: "0"
-  });
-
-  tab.document.title = "Blank Tab";
-  tab.document.body.style.cssText = "margin:0;overflow:hidden;background:#000";
+  try{destination=new URL(value)}catch{alert("Enter a valid website address.");return}
+  if(!["http:","https:"].includes(destination.protocol)){alert("Only HTTP and HTTPS website addresses are supported.");return}
+  const tab=window.open("about:blank","_blank");
+  if(!tab){alert("The browser blocked the new tab. Allow pop-ups for MoonStone and try again.");return}
+  const frame=tab.document.createElement("iframe");
+  frame.title="Launched website";
+  frame.referrerPolicy="no-referrer";
+  Object.assign(frame.style,{position:"fixed",inset:"0",width:"100%",height:"100%",border:"0"});
+  tab.document.title="Blank Tab";
+  tab.document.body.style.cssText="margin:0;overflow:hidden;background:#000";
   tab.document.body.replaceChildren(frame);
-  frame.src = destination.href;
+  frame.src=destination.href;
 });
 </script>
 </body>
