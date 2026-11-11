@@ -308,7 +308,7 @@ body[data-cursor="flame"],body[data-cursor="flame"] *{cursor:url("data:image/svg
 <script>
 (()=>{
 const instances=["https://inv.nadeko.net","https://invidious.nerdvpn.de","https://yt.chocolatemoo53.com","https://invidious.tiekoetter.com"];
-const pipedInstances=["https://pipedapi.kavin.rocks"];
+const pipedInstances=["https://pipedapi.kavin.rocks","https://pipedapi.leptons.xyz","https://pipedapi.nosebs.ru","https://pipedapi-libre.kavin.rocks","https://piped-api.privacy.com.de","https://pipedapi.adminforge.de"];
 const providers=[{id:"invidious",label:"Invidious",instances:instances},{id:"piped",label:"Piped",instances:pipedInstances}];
 const providerCooldown=new Map();
 let activeProvider="invidious",api=instances[0],page="home",category="default",currentVideo=null,feed=[],searchTerm="",currentPlaylist=null;
@@ -336,7 +336,7 @@ function pipedVideo(v){
  return {videoId:id,title:v.title||"Untitled video",author:v.uploader||v.uploaderName||v.author||"YouTube",authorId:(String(v.uploaderUrl||"").match(/\/channel\/([^/?]+)/)||[])[1]||"",authorThumbnails:v.uploaderAvatar?[{url:v.uploaderAvatar}]:[],videoThumbnails:thumbnail?[{quality:"high",url:thumbnail}]:[],viewCount:v.views??v.viewCount??0,lengthSeconds:v.duration||0,publishedText:v.uploadedDate||v.publishedText||"",type:v.type==="stream"?"stream":"video",liveNow:!!v.isLive};
 }
 async function fetchJson(url,fresh){
- const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8500);
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),5000);
  try{const res=await fetch(url,{headers:{"Accept":"application/json"},cache:fresh?"no-store":"default",signal:controller.signal});if(!res.ok)throw Error("HTTP "+res.status);return await res.json()}
  finally{clearTimeout(timer)}
 }
