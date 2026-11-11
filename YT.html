@@ -312,7 +312,7 @@ const pipedInstances=["https://pipedapi.kavin.rocks"];
 const providers=[{id:"invidious",label:"Invidious",instances:instances},{id:"piped",label:"Piped",instances:pipedInstances}];
 const providerCooldown=new Map();
 let activeProvider="invidious",api=instances[0],page="home",category="default",currentVideo=null,feed=[],searchTerm="",currentPlaylist=null;
- let ytPlayerInstance=null,ytApiPromise=null;
+ let ytPlayerInstance=null,ytApiPromise=null,ytEndPoll=null;
 const $=id=>document.getElementById(id),content=$("content"),chips=$("chips");
 const get=(k,d=[])=>{try{return JSON.parse(localStorage.getItem("msyt_"+k)||"null")??d}catch{return d}};
 const put=(k,v)=>localStorage.setItem("msyt_"+k,JSON.stringify(v));
@@ -533,6 +533,7 @@ function loadYouTubeIframeAPI(){
  }
  async function watch(id,playlistIndex){
  if(playlistIndex===undefined){const found=currentPlaylist?.videos?.findIndex(v=>v.videoId===id)??-1;if(found<0)currentPlaylist=null;else playlistIndex=found}
+ if(ytEndPoll){clearInterval(ytEndPoll);ytEndPoll=null}
  page="watch";chips.classList.add("hidden");content.innerHTML='<div class="loading">Loading video…</div>';
  try{
   const v=await request("/api/v1/videos/"+encodeURIComponent(id));currentVideo=v;
@@ -554,13 +555,28 @@ function loadYouTubeIframeAPI(){
   try{
    const YTApi=await loadYouTubeIframeAPI();
    if(page!=="watch"||currentVideo?.videoId!==id)return;
+   let advanceStarted=false;
+   const advancePlaylist=()=>{
+    if(advanceStarted||!inPlaylist||!playlistAutoplay||!next)return;
+    advanceStarted=true;
+    if(ytEndPoll){clearInterval(ytEndPoll);ytEndPoll=null}
+    watch(next.videoId||next.id,playlistIndex+1);
+   };
    ytPlayerInstance=new YTApi.Player("ytPlayer",{
     videoId:id,
     playerVars:{autoplay:1,mute:1,playsinline:1,rel:0,origin:location.origin},
-    events:{onStateChange:event=>{
-     if(event.data===YTApi.PlayerState.ENDED&&inPlaylist&&playlistAutoplay&&next)watch(next.videoId||next.id,playlistIndex+1);
-    }}
+    events:{
+     onReady:event=>{try{event.target.playVideo()}catch(e){}},
+     onStateChange:event=>{if(event.data===YTApi.PlayerState.ENDED)advancePlaylist()},
+     onError:event=>{toast("YouTube player error ("+event.data+"). Try Open player.")}
+    }
    });
+   if(inPlaylist&&next){
+    ytEndPoll=setInterval(()=>{
+     if(!ytPlayerInstance||advanceStarted)return;
+     try{if(ytPlayerInstance.getPlayerState()===YTApi.PlayerState.ENDED)advancePlaylist()}catch(e){}
+    },500);
+   }
   }catch(playerError){
    const mount=$("ytPlayer");
    if(mount)mount.outerHTML='<iframe class="player" id="ytPlayer" src="https://www.yout-ube.com/watch?v='+encodeURIComponent(id)+'&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
