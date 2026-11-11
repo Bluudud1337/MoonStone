@@ -397,7 +397,7 @@ function playbackCandidates(data){
  const progressive=(Array.isArray(data.formatStreams)?data.formatStreams:[])
   .filter(x=>x?.url&&/video\/mp4/i.test(String(x.type||x.mimeType||"")))
   .sort((a,b)=>{
-   const q=x=>Number((String(x.qualityLabel||x.resolution||"").match(/(\\d+)p?/i)||[])[1]||0);
+   const q=x=>Number((String(x.qualityLabel||x.resolution||"").match(/(\d+)p?/i)||[])[1]||0);
    return q(b)-q(a);
   });
  progressive.forEach(x=>candidates.push({kind:"mp4",url:x.url,label:x.qualityLabel||"MP4"}));
