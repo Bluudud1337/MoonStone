@@ -312,6 +312,7 @@ const pipedInstances=["https://pipedapi.kavin.rocks"];
 const providers=[{id:"invidious",label:"Invidious",instances:instances},{id:"piped",label:"Piped",instances:pipedInstances}];
 const providerCooldown=new Map();
 let activeProvider="invidious",api=instances[0],page="home",category="default",currentVideo=null,feed=[],searchTerm="",currentPlaylist=null;
+ let playlistAutoplay=get("playlist_autoplay",true),ytPlayerInstance=null,ytApiPromise=null;
 const $=id=>document.getElementById(id),content=$("content"),chips=$("chips");
 const get=(k,d=[])=>{try{return JSON.parse(localStorage.getItem("msyt_"+k)||"null")??d}catch{return d}};
 const put=(k,v)=>localStorage.setItem("msyt_"+k,JSON.stringify(v));
@@ -512,7 +513,24 @@ async function channel(id){
  $("followBtn").onclick=()=>{let list=get("channels",[]);if(saved)list=list.filter(x=>x.id!==c.authorId);else list.unshift({id:c.authorId,name:c.author,avatar:avatar(c)});put("channels",list);$("followBtn").textContent=saved?"Subscribe +":"Following ✓";renderSubscriptions()};
  }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div>'}
 }
-async function watch(id,playlistIndex){
+function loadYouTubeIframeAPI(){
+  if(window.YT&&window.YT.Player)return Promise.resolve(window.YT);
+  if(ytApiPromise)return ytApiPromise;
+  ytApiPromise=new Promise((resolve,reject)=>{
+   const previous=window.onYouTubeIframeAPIReady;
+   window.onYouTubeIframeAPIReady=()=>{try{if(typeof previous==="function")previous()}catch(e){};resolve(window.YT)};
+   let script=document.querySelector('script[data-ms-youtube-iframe-api]');
+   if(!script){script=document.createElement("script");script.src="https://www.youtube.com/iframe_api";script.async=true;script.dataset.msYoutubeIframeApi="1";script.onerror=()=>reject(Error("YouTube player API could not load"));document.head.appendChild(script)}
+   setTimeout(()=>{if(!(window.YT&&window.YT.Player))reject(Error("YouTube player API timed out"))},12000);
+  });
+  return ytApiPromise;
+ }
+ function setPlaylistAutoplay(enabled){
+  playlistAutoplay=!!enabled;put("playlist_autoplay",playlistAutoplay);
+  const button=$("playlistAutoplayBtn");
+  if(button){button.textContent="Autoplay: "+(playlistAutoplay?"On":"Off");button.setAttribute("aria-pressed",String(playlistAutoplay))}
+ }
+ async function watch(id,playlistIndex){
  if(playlistIndex===undefined){const found=currentPlaylist?.videos?.findIndex(v=>v.videoId===id)??-1;if(found<0)currentPlaylist=null;else playlistIndex=found}
  page="watch";chips.classList.add("hidden");content.innerHTML='<div class="loading">Loading video…</div>';
  try{
@@ -523,10 +541,30 @@ async function watch(id,playlistIndex){
   const previous=inPlaylist&&playlistIndex>0?currentPlaylist.videos[playlistIndex-1]:null;
   const next=inPlaylist&&playlistIndex<currentPlaylist.videos.length-1?currentPlaylist.videos[playlistIndex+1]:null;
   put("history",[{id,title:videoTitle(v),author:v.author,thumb:thumb(v),lengthSeconds:v.lengthSeconds},...get("history",[]).filter(x=>x.id!==id)].slice(0,80));
-  content.innerHTML='<button class="pill back" id="backBtn">← Back</button><div class="watchlayout"><div><div class="playerShell" id="playerShell"><iframe class="player" id="ytPlayer" src="https://www.yout-ube.com/watch?v='+encodeURIComponent(id)+'&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><button class="videoFullscreenBtn" id="fullscreenBtn" type="button" title="Fullscreen">⛶</button></div><div class="playercontrols">'+(inPlaylist?'<button id="prevPlaylistBtn" type="button" '+(previous?'':'disabled')+'>← Previous</button><button id="nextPlaylistBtn" type="button" '+(next?'':'disabled')+'>Next →</button>':'')+'</div><h2 class="watchtitle">'+esc(videoTitle(v))+'</h2><div class="watchmeta"><div class="channelline"><img class="channelavatar" src="'+esc(avatar(v))+'"><div><strong>'+esc(v.author)+'</strong><small>'+fmt(v.subCount)+' subscribers</small></div><button class="pill" id="watchChannel">View channel</button></div><div class="actions"><button class="pill" id="saveVideo">＋ Save</button><button class="pill" id="addToPlaylist">＋ Playlist</button><button class="pill" id="openNative">Open player ↗</button></div></div><div class="description">'+views(v)+' views · '+esc(v.publishedText||"")+'\n\n'+esc(v.description||"")+'</div><section class="comments" id="commentsSection"><div class="commentshead"><h3>Comments</h3><span class="muted">Read-only</span></div><div class="commentstate">Loading comments…</div></section></div><aside class="related"><h3>Up next</h3>'+(rec.length?rec.map(videoCard).join(""):'<p class="muted">No related videos available.</p>')+'</aside></div>';
+  content.innerHTML='<button class="pill back" id="backBtn">← Back</button><div class="watchlayout"><div><div class="playerShell" id="playerShell"><div class="player" id="ytPlayer"></div><button class="videoFullscreenBtn" id="fullscreenBtn" type="button" title="Fullscreen">⛶</button></div><div class="playercontrols">'+(inPlaylist?'<button id="prevPlaylistBtn" type="button" '+(previous?'':'disabled')+'>← Previous</button><button id="nextPlaylistBtn" type="button" '+(next?'':'disabled')+'>Next →</button><button id="playlistAutoplayBtn" type="button" aria-pressed="'+(playlistAutoplay?'true':'false')+'">Autoplay: '+(playlistAutoplay?'On':'Off')+'</button>':'')+'</div><h2 class="watchtitle">'+esc(videoTitle(v))+'</h2><div class="watchmeta"><div class="channelline"><img class="channelavatar" src="'+esc(avatar(v))+'"><div><strong>'+esc(v.author)+'</strong><small>'+fmt(v.subCount)+' subscribers</small></div><button class="pill" id="watchChannel">View channel</button></div><div class="actions"><button class="pill" id="saveVideo">＋ Save</button><button class="pill" id="addToPlaylist">＋ Playlist</button><button class="pill" id="openNative">Open player ↗</button></div></div><div class="description">'+views(v)+' views · '+esc(v.publishedText||"")+'\n\n'+esc(v.description||"")+'</div><section class="comments" id="commentsSection"><div class="commentshead"><h3>Comments</h3><span class="muted">Read-only</span></div><div class="commentstate">Loading comments…</div></section></div><aside class="related"><h3>Up next</h3>'+(rec.length?rec.map(videoCard).join(""):'<p class="muted">No related videos available.</p>')+'</aside></div>';
   $("backBtn").onclick=()=>{if(currentPlaylist?.kind==="user")openUserPlaylist(currentPlaylist.id);else if(currentPlaylist)playlist(currentPlaylist.id);else home()};
-  if(inPlaylist){$("prevPlaylistBtn").onclick=()=>{if(previous)watch(previous.videoId||previous.id,playlistIndex-1)};$("nextPlaylistBtn").onclick=()=>{if(next)watch(next.videoId||next.id,playlistIndex+1)}}
+  if(ytPlayerInstance){try{ytPlayerInstance.destroy()}catch(e){};ytPlayerInstance=null}
+  if(inPlaylist){
+   $("prevPlaylistBtn").onclick=()=>{if(previous)watch(previous.videoId||previous.id,playlistIndex-1)};
+   $("nextPlaylistBtn").onclick=()=>{if(next)watch(next.videoId||next.id,playlistIndex+1)};
+   $("playlistAutoplayBtn").onclick=()=>setPlaylistAutoplay(!playlistAutoplay);
+  }
   $("fullscreenBtn").onclick=async()=>{const player=$("playerShell");try{if(document.fullscreenElement)await document.exitFullscreen();else if(player.requestFullscreen)await player.requestFullscreen();else throw Error("Unsupported")}catch(e){toast("Fullscreen is not available in this browser")}};
+  try{
+   const YTApi=await loadYouTubeIframeAPI();
+   if(page!=="watch"||currentVideo?.videoId!==id)return;
+   ytPlayerInstance=new YTApi.Player("ytPlayer",{
+    videoId:id,
+    playerVars:{autoplay:1,mute:1,playsinline:1,rel:0,origin:location.origin},
+    events:{onStateChange:event=>{
+     if(event.data===YTApi.PlayerState.ENDED&&inPlaylist&&playlistAutoplay&&next)watch(next.videoId||next.id,playlistIndex+1);
+    }}
+   });
+  }catch(playerError){
+   const mount=$("ytPlayer");
+   if(mount)mount.outerHTML='<iframe class="player" id="ytPlayer" src="https://www.yout-ube.com/watch?v='+encodeURIComponent(id)+'&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+   if(inPlaylist)toast("Autoplay detection unavailable. Playlist controls still work.");
+  }
   $("watchChannel").onclick=()=>channel(channelId);
   $("saveVideo").onclick=()=>{let list=get("saved",[]);if(!list.some(x=>x.id===id)){list.unshift({id,title:videoTitle(v),author:v.author,thumb:thumb(v),lengthSeconds:v.lengthSeconds});put("saved",list)}toast("Saved to your videos")};
   $("addToPlaylist").onclick=()=>addVideoToPlaylist(v);
