@@ -313,6 +313,7 @@ const providers=[{id:"invidious",label:"Invidious",instances:instances},{id:"pip
 const providerCooldown=new Map();
 let activeProvider="invidious",api=instances[0],page="home",category="default",currentVideo=null,feed=[],searchTerm="",currentPlaylist=null;
  let ytEndPoll=null;
+ let activeHlsPlayer=null,activeDashPlayer=null;
 const $=id=>document.getElementById(id),content=$("content"),chips=$("chips");
 const get=(k,d=[])=>{try{return JSON.parse(localStorage.getItem("msyt_"+k)||"null")??d}catch{return d}};
 const put=(k,v)=>localStorage.setItem("msyt_"+k,JSON.stringify(v));
@@ -362,22 +363,107 @@ async function pipedRequest(path,base,fresh){
  if(m){const d=await fetchJson(base+"/comments/"+encodeURIComponent(m[1]),fresh);return {comments:(d.comments||[]).map(c=>({author:c.author||"Unknown user",content:c.commentText||"",publishedText:c.commentedTime||"",likeCount:c.likeCount||0,pinned:!!c.pinned,authorThumbnails:c.thumbnail?[{url:c.thumbnail}]:[],authorIsChannelOwner:!!c.creatorReplied}))}}
  throw Error("Piped does not support this request yet.");
 }
+const externalScripts=new Map();
+function loadExternalScript(src){
+ if(externalScripts.has(src))return externalScripts.get(src);
+ const promise=new Promise((resolve,reject)=>{
+  const existing=[...document.scripts].find(x=>x.src===src);
+  if(existing){if(existing.dataset.loaded==="true")return resolve();existing.addEventListener("load",resolve,{once:true});existing.addEventListener("error",()=>reject(Error("Playback library failed to load.")),{once:true});return}
+  const script=document.createElement("script");script.src=src;script.async=true;
+  script.onload=()=>{script.dataset.loaded="true";resolve()};
+  script.onerror=()=>{externalScripts.delete(src);reject(Error("Playback library failed to load."))};
+  document.head.appendChild(script);
+ });
+ externalScripts.set(src,promise);return promise;
+}
+function clearPlaybackEngines(){
+ try{activeHlsPlayer?.destroy()}catch(e){}
+ try{activeDashPlayer?.reset()}catch(e){}
+ activeHlsPlayer=null;activeDashPlayer=null;
+}
+function waitForMedia(player,events,timeout=14000){
+ return new Promise((resolve,reject)=>{
+  let timer=setTimeout(()=>finish(Error("The stream took too long to start.")),timeout);
+  const cleanup=()=>{clearTimeout(timer);events.forEach(name=>{player.removeEventListener(name,onReady);player.removeEventListener(name,onError)})};
+  const onReady=()=>{cleanup();resolve()};
+  const onError=()=>{cleanup();reject(Error("The browser could not decode this stream."))};
+  const finish=error=>{cleanup();reject(error)};
+  events.forEach(name=>player.addEventListener(name,onReady,{once:true}));
+  player.addEventListener("error",onError,{once:true});
+ });
+}
+function playbackCandidates(data){
+ const candidates=[];
+ const progressive=(Array.isArray(data.formatStreams)?data.formatStreams:[])
+  .filter(x=>x?.url&&/video\/mp4/i.test(String(x.type||x.mimeType||"")))
+  .sort((a,b)=>{
+   const q=x=>Number((String(x.qualityLabel||x.resolution||"").match(/(\\d+)p?/i)||[])[1]||0);
+   return q(b)-q(a);
+  });
+ progressive.forEach(x=>candidates.push({kind:"mp4",url:x.url,label:x.qualityLabel||"MP4"}));
+ if(data.hlsUrl)candidates.push({kind:"hls",url:data.hlsUrl,label:"HLS"});
+ if(data.dashUrl)candidates.push({kind:"dash",url:data.dashUrl,label:"DASH"});
+ return candidates;
+}
 async function getInvidiousPlayback(id){
  let lastError=null;
  for(const base of instances){
   try{
    const data=await fetchJson(base+"/api/v1/videos/"+encodeURIComponent(id),true);
-   const streams=Array.isArray(data.formatStreams)?data.formatStreams:[];
-   const playable=streams.filter(x=>x&&x.url&&String(x.type||"").includes("video/mp4"));
-   playable.sort((a,b)=>{
-    const quality=x=>{const m=String(x.qualityLabel||x.resolution||"").match(/([0-9]+)p?/i);return m?Number(m[1]):0};
-    return quality(b)-quality(a);
-   });
-   if(playable.length)return {data,stream:playable[0],base};
-   lastError=Error("This Invidious instance did not return a combined MP4 stream.");
+   const candidates=playbackCandidates(data);
+   if(candidates.length)return {data,candidates,base};
+   lastError=Error("This Invidious instance returned no MP4, HLS, or DASH playback streams.");
   }catch(e){lastError=e}
  }
- throw lastError||Error("No Invidious playback stream was found.");
+ throw lastError||Error("No Invidious playback streams were found.");
+}
+async function attachPlayback(player,candidate){
+ clearPlaybackEngines();
+ player.pause();player.removeAttribute("src");player.load();
+ if(candidate.kind==="mp4"){
+  player.src=candidate.url;player.load();
+  await waitForMedia(player,["loadedmetadata","canplay"]);
+ }else if(candidate.kind==="hls"){
+  if(player.canPlayType("application/vnd.apple.mpegurl")){
+   player.src=candidate.url;player.load();
+   await waitForMedia(player,["loadedmetadata","canplay"]);
+  }else{
+   await loadExternalScript("https://cdn.jsdelivr.net/npm/hls.js@1.5.18/dist/hls.min.js");
+   if(!window.Hls||!window.Hls.isSupported())throw Error("HLS playback is not supported by this browser.");
+   const hls=new window.Hls({enableWorker:true});activeHlsPlayer=hls;
+   await new Promise((resolve,reject)=>{
+    const timeout=setTimeout(()=>reject(Error("HLS manifest timed out.")),15000);
+    hls.on(window.Hls.Events.ERROR,(_,data)=>{if(data?.fatal){clearTimeout(timeout);reject(Error("HLS stream failed to load."))}});
+    hls.on(window.Hls.Events.MANIFEST_PARSED,()=>{clearTimeout(timeout);resolve()});
+    hls.attachMedia(player);hls.loadSource(candidate.url);
+   });
+  }
+ }else if(candidate.kind==="dash"){
+  await loadExternalScript("https://cdn.dashjs.org/v4.7.4/modern/umd/dash.all.min.js");
+  if(!window.dashjs?.MediaPlayer)throw Error("DASH playback library is unavailable.");
+  const dash=window.dashjs.MediaPlayer().create();activeDashPlayer=dash;
+  await new Promise((resolve,reject)=>{
+   const timeout=setTimeout(()=>reject(Error("DASH stream timed out.")),18000);
+   dash.on(window.dashjs.MediaPlayer.events.STREAM_INITIALIZED,()=>{clearTimeout(timeout);resolve()});
+   dash.on(window.dashjs.MediaPlayer.events.ERROR,()=>{clearTimeout(timeout);reject(Error("DASH stream failed to load."))});
+   dash.initialize(player,candidate.url,false);
+  });
+ }
+ const started=player.play();
+ if(started&&typeof started.catch==="function")started.catch(()=>toast("Press Play to start this video. Your browser may block automatic playback."));
+}
+async function startVideoPlayback(player,id){
+ const playback=await getInvidiousPlayback(id);
+ let lastError=null;
+ for(const candidate of playback.candidates){
+  if(page!=="watch"||currentVideo?.videoId!==id)return;
+  try{
+   await attachPlayback(player,candidate);
+   if(player.muted)toast("Video is muted for autoplay. You can unmute using the player controls.");
+   return;
+  }catch(e){lastError=e;clearPlaybackEngines();player.removeAttribute("src");player.load()}
+ }
+ throw lastError||Error("None of the available video formats could be played.");
 }
 async function request(path,fresh=false){
  let last;
@@ -572,20 +658,12 @@ function loadYouTubeIframeAPI(){
   };
   if(player){
    player.onended=advancePlaylist;
+   player.onloadedmetadata=()=>{if(player.muted)toast("Video is muted for autoplay. You can unmute using the player controls.")};
    try{
-    const playback=await getInvidiousPlayback(id);
-    if(page!=="watch"||currentVideo?.videoId!==id)return;
-    player.src=playback.stream.url;
-    player.load();
-    const startPlayback=player.play();
-    if(startPlayback&&typeof startPlayback.catch==="function"){
-     startPlayback.catch(()=>toast("Press Play to start this video. Your browser may block automatic playback."));
-    }
-    player.onloadedmetadata=()=>{if(player.muted)toast("Video is muted for autoplay. You can unmute using the player controls.")};
-    player.onerror=()=>toast("Invidious supplied a stream, but this browser could not play it.");
+    await startVideoPlayback(player,id);
    }catch(playbackError){
-    player.outerHTML='<div class="errorbox" id="ytPlayer">Invidious could not provide a playable MP4 stream for this video. Try another video or provider instance.</div>';
-    toast(playbackError?.message||"Invidious playback unavailable.");
+    player.outerHTML='<div class="errorbox" id="ytPlayer">MoonStone could not start this video. The available Invidious MP4, HLS, and DASH streams were unavailable or unsupported. Try again later or choose another video.</div>';
+    toast(playbackError?.message||"Video playback unavailable.");
    }
   }
   $("watchChannel").onclick=()=>channel(channelId);
