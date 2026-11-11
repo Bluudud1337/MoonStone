@@ -280,13 +280,13 @@ body[data-cursor="sparkle"],body[data-cursor="sparkle"] *{cursor:url("data:image
 body[data-cursor="lightning"],body[data-cursor="lightning"] *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M18 1L5 18h9l-1 13 14-19h-9z' fill='%23ffe34d' stroke='%23101010' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 12 3,auto}
 body[data-cursor="heart"],body[data-cursor="heart"] *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16 28S3 20 3 10a7 7 0 0 1 13-3 7 7 0 0 1 13 3c0 10-13 18-13 18z' fill='%23ff5d91' stroke='%23101010' stroke-width='2'/%3E%3C/svg%3E") 16 16,auto}
 body[data-cursor="flame"],body[data-cursor="flame"] *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M17 1c2 8-5 9-2 15 1-3 4-4 5-8 7 7 10 13 5 20-5 7-18 3-19-5-1-6 4-11 7-15 0 6 2 7 4 9-1-7 2-10 0-16z' fill='%23ff7138' stroke='%237a1d0b' stroke-width='2'/%3E%3C/svg%3E") 15 4,auto}
-</style>
+.provider-status{font-size:11px;opacity:.72;padding:0 5px;white-space:nowrap}.provider-status:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#39b879;margin-right:6px;vertical-align:middle}.provider-status[data-provider="piped"]:before{background:#e2a94b}@media(max-width:600px){.provider-status{display:none}}\n</style>
 </head>
 <body>
 <header class="top">
  <a class="brand" href="YT.html" style="text-decoration:none"><span class="brandmark">▶</span><span>YouTube <small>MOONSTONE</small></span></a>
  <form class="search" id="searchForm"><input id="searchInput" placeholder="Search videos, channels..." autocomplete="off"><button aria-label="Search">⌕</button></form>
- <div class="topright"><button class="iconbtn" id="tvModeBtn" type="button" aria-pressed="false" title="Switch to TV layout">TV layout</button><button class="iconbtn" id="refreshBtn" title="Refresh feed">↻</button><button class="iconbtn" id="homeBtn">MoonStone ↗</button></div>
+ <div class="topright"><span class="provider-status" id="providerStatus" data-provider="invidious" title="Active data provider: Invidious">Invidious</span><button class="iconbtn" id="tvModeBtn" type="button" aria-pressed="false" title="Switch to TV layout">TV layout</button><button class="iconbtn" id="refreshBtn" title="Refresh feed">↻</button><button class="iconbtn" id="homeBtn">MoonStone ↗</button></div>
 </header>
 <div class="layout">
 <aside class="side">
@@ -308,26 +308,73 @@ body[data-cursor="flame"],body[data-cursor="flame"] *{cursor:url("data:image/svg
 <script>
 (()=>{
 const instances=["https://inv.nadeko.net","https://invidious.nerdvpn.de","https://yt.chocolatemoo53.com","https://invidious.tiekoetter.com"];
-let api=instances[0],page="home",category="default",currentVideo=null,feed=[],searchTerm="",currentPlaylist=null;
+const pipedInstances=["https://pipedapi.kavin.rocks"];
+const providers=[{id:"invidious",label:"Invidious",instances:instances},{id:"piped",label:"Piped",instances:pipedInstances}];
+const providerCooldown=new Map();
+let activeProvider="invidious",api=instances[0],page="home",category="default",currentVideo=null,feed=[],searchTerm="",currentPlaylist=null;
 const $=id=>document.getElementById(id),content=$("content"),chips=$("chips");
 const get=(k,d=[])=>{try{return JSON.parse(localStorage.getItem("msyt_"+k)||"null")??d}catch{return d}};
 const put=(k,v)=>localStorage.setItem("msyt_"+k,JSON.stringify(v));
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=n=>{n=Number(n)||0;return n>=1e9?(n/1e9).toFixed(1)+"B":n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?(n/1e3).toFixed(1)+"K":String(n)};
-const views=v=>{const candidates=[v?.viewCountText,v?.viewCountShort,v?.viewCountLabel,v?.views,v?.viewCount].filter(x=>x!==undefined&&x!==null&&String(x).trim()!=="");const parsed=candidates.map(raw=>{if(typeof raw==="number")return {raw,n:raw};const s=String(raw).trim();const m=s.match(/[\d,.]+\s*[KMB]?/i);if(!m)return {raw,n:NaN};let z=m[0].replace(/,/g,"").replace(/\s/g,"");const suffix=z.slice(-1).toUpperCase();let n=parseFloat(/[KMB]/.test(suffix)?z.slice(0,-1):z);if(suffix==="K")n*=1e3;else if(suffix==="M")n*=1e6;else if(suffix==="B")n*=1e9;return {raw,n}});const best=parsed.find(x=>Number.isFinite(x.n)&&x.n>0)||parsed.find(x=>Number.isFinite(x.n))||parsed[0];if(!best)return "Views unavailable";if(Number.isFinite(best.n))return fmt(best.n);return String(best.raw).replace(/\s*views?\s*$/i,"")};
+const views=v=>{const candidates=[v?.viewCountText,v?.viewCountShort,v?.viewCountLabel,v?.views,v?.viewCount].filter(x=>x!==undefined&&x!==null&&String(x).trim()!=="");const parsed=candidates.map(raw=>{if(typeof raw==="number")return {raw,n:raw};const s=String(raw).trim();const m=s.match(/[\d,.]+\s*[KMB]?/i);if(!m)return {raw,n:NaN};let z=m[0].replace(/,/g,"").replace(/\s/g,"");const suffix=z.slice(-1).toUpperCase();let n=parseFloat(/[KMB]/.test(suffix)?z.slice(0,-1):z);if(suffix==="K")n*=1e3;if(suffix==="M")n*=1e6;if(suffix==="B")n*=1e9;return {raw,n}});const best=parsed.find(x=>Number.isFinite(x.n)&&x.n>0)||parsed.find(x=>Number.isFinite(x.n))||parsed[0];if(!best)return "Views unavailable";if(Number.isFinite(best.n))return fmt(best.n);return String(best.raw).replace(/\s*views?\s*$/i,"")};
 const duration=n=>{n=Number(n)||0;return Math.floor(n/3600)?[Math.floor(n/3600),String(Math.floor(n/60)%60).padStart(2,"0"),String(n%60).padStart(2,"0")].join(":"):[Math.floor(n/60),String(n%60).padStart(2,"0")].join(":")};
 const thumb=v=>{let a=v.videoThumbnails||[];return a.find(x=>x.quality==="maxres")?.url||a.find(x=>x.quality==="high")?.url||a[a.length-1]?.url||"https://i.ytimg.com/vi/"+v.videoId+"/hqdefault.jpg"};
 const avatar=v=>v.authorThumbnails?.slice(-1)[0]?.url||"";
 const isLive=v=>v?.liveNow===true||v?.isLive===true||v?.type==="stream"||v?.type==="livestream"||v?.liveBroadcastContent==="live";
 const videoTitle=v=>{const value=[v?.title,v?.titleText,v?.videoTitle,v?.name].find(x=>typeof x==="string"&&x.trim());return value?.trim()||(isLive(v)?((v?.author||v?.authorName||"Channel")+" · Live"):((v?.author||"Video")+" · Untitled video"))};
+function setProviderStatus(provider,base){
+ const el=$("providerStatus");if(!el)return;
+ const label=provider==="piped"?"Piped":"Invidious";
+ el.textContent=label;el.title="Active data provider: "+label+" ("+base+")";el.dataset.provider=provider;
+}
+function pipedId(url){const value=String(url||"");return value.match(/[?&]v=([^&]+)/)?.[1]||value.match(/\/watch\/([a-zA-Z0-9_-]{11})/)?.[1]||""}
+function pipedVideo(v){
+ const id=v.videoId||pipedId(v.url)||v.id||"",thumbnail=v.thumbnail||v.thumbnailUrl||"";
+ return {videoId:id,title:v.title||"Untitled video",author:v.uploader||v.uploaderName||v.author||"YouTube",authorId:(String(v.uploaderUrl||"").match(/\/channel\/([^/?]+)/)||[])[1]||"",authorThumbnails:v.uploaderAvatar?[{url:v.uploaderAvatar}]:[],videoThumbnails:thumbnail?[{quality:"high",url:thumbnail}]:[],viewCount:v.views??v.viewCount??0,lengthSeconds:v.duration||0,publishedText:v.uploadedDate||v.publishedText||"",type:v.type==="stream"?"stream":"video",liveNow:!!v.isLive};
+}
+async function fetchJson(url,fresh){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8500);
+ try{const res=await fetch(url,{headers:{"Accept":"application/json"},cache:fresh?"no-store":"default",signal:controller.signal});if(!res.ok)throw Error("HTTP "+res.status);return await res.json()}
+ finally{clearTimeout(timer)}
+}
+async function pipedRequest(path,base,fresh){
+ const clean=path.replace(/([?&])_msfresh=\d+/,"$1").replace(/[?&]$/,"");
+ let m=clean.match(/^\/api\/v1\/search\?(.*)$/);
+ if(m){
+  const params=new URLSearchParams(m[1]),q=params.get("q")||"",type=params.get("type")||"all";
+  const fetchSearch=async filter=>{const d=await fetchJson(base+"/search?q="+encodeURIComponent(q)+"&filter="+filter,fresh);return Array.isArray(d)?d:(d?.items||d?.results||[])};
+  const videos=await fetchSearch("videos");let channels=[];
+  if(type==="all")channels=await fetchSearch("channels").catch(()=>[]);
+  return videos.map(pipedVideo).filter(v=>v.videoId).concat(channels.map(c=>({type:"channel",author:c.name||c.uploader||c.title||"Channel",authorId:(String(c.url||c.uploaderUrl||"").match(/\/channel\/([^/?]+)/)||[])[1]||"",subCount:c.subscribers??c.subscriberCount??0,videoCount:c.videos??c.videoCount??0,authorThumbnails:c.thumbnail?[{url:c.thumbnail}]:c.uploaderAvatar?[{url:c.uploaderAvatar}]:[]})));
+ }
+ m=clean.match(/^\/api\/v1\/trending(?:\?(.*))?$/);
+ if(m){const p=new URLSearchParams(m[1]||""),d=await fetchJson(base+"/trending?region="+encodeURIComponent(p.get("region")||"US"),fresh);return (Array.isArray(d)?d:[]).map(pipedVideo).filter(v=>v.videoId)}
+ m=clean.match(/^\/api\/v1\/videos\/([^/?]+)/);
+ if(m){const d=await fetchJson(base+"/streams/"+encodeURIComponent(m[1]),fresh);return {videoId:m[1],title:d.title||"Untitled video",author:d.uploader||"YouTube",authorId:(String(d.uploaderUrl||"").match(/\/channel\/([^/?]+)/)||[])[1]||"",authorThumbnails:d.uploaderAvatar?[{url:d.uploaderAvatar}]:[],videoThumbnails:d.thumbnailUrl?[{quality:"high",url:d.thumbnailUrl}]:[],viewCount:d.views||0,lengthSeconds:d.duration||0,description:d.description||"",recommendedVideos:(d.relatedStreams||[]).map(pipedVideo),liveNow:!!d.livestream,type:d.livestream?"stream":"video"}}
+ m=clean.match(/^\/api\/v1\/channels\/([^/?]+)/);
+ if(m){const d=await fetchJson(base+"/channel/"+encodeURIComponent(m[1]),fresh);return {author:d.name||"Channel",authorId:d.id||m[1],authorThumbnails:d.avatarUrl?[{url:d.avatarUrl}]:[],authorBanners:d.bannerUrl?[{url:d.bannerUrl}]:[],subCount:d.subscriberCount||0,description:d.description||"",videoCount:(d.relatedStreams||[]).length,latestVideos:(d.relatedStreams||[]).map(pipedVideo)}}
+ m=clean.match(/^\/api\/v1\/playlists\/([^/?]+)/);
+ if(m){const d=await fetchJson(base+"/playlists/"+encodeURIComponent(m[1]),fresh),videos=(d.relatedStreams||[]).map(pipedVideo);return {playlistId:m[1],title:d.name||"YouTube playlist",author:d.uploader||"",videoCount:d.videos||videos.length,videos}}
+ m=clean.match(/^\/api\/v1\/comments\/([^/?]+)/);
+ if(m){const d=await fetchJson(base+"/comments/"+encodeURIComponent(m[1]),fresh);return {comments:(d.comments||[]).map(c=>({author:c.author||"Unknown user",content:c.commentText||"",publishedText:c.commentedTime||"",likeCount:c.likeCount||0,pinned:!!c.pinned,authorThumbnails:c.thumbnail?[{url:c.thumbnail}]:[],authorIsChannelOwner:!!c.creatorReplied}))}}
+ throw Error("Piped does not support this request yet.");
+}
 async function request(path,fresh=false){
  let last;
- const url= fresh ? path+(path.includes("?")?"&":"?")+"_msfresh="+Date.now() : path;
- for(let i=0;i<instances.length;i++){
-  const base=instances[(instances.indexOf(api)+i)%instances.length];
-  try{const res=await fetch(base+url,{headers:{"Accept":"application/json"},cache:fresh?"no-store":"default"});if(!res.ok)throw Error("HTTP "+res.status);const data=await res.json();api=base;return data}catch(e){last=e}
+ const ordered=[...providers].sort((a,b)=>(a.id===activeProvider?-1:0)-(b.id===activeProvider?-1:0));
+ for(const provider of ordered){
+  for(const base of provider.instances){
+   const key=provider.id+"|"+base;if((providerCooldown.get(key)||0)>Date.now())continue;
+   try{
+    let data;
+    if(provider.id==="piped")data=await pipedRequest(path,base,fresh);
+    else{const url=fresh?path+(path.includes("?")?"&":"?")+"_msfresh="+Date.now():path;data=await fetchJson(base+url,fresh)}
+    activeProvider=provider.id;api=base;providerCooldown.delete(key);setProviderStatus(provider.id,base);return data;
+   }catch(e){last=e;providerCooldown.set(key,Date.now()+45000)}
+  }
  }
- throw Error("Video search service is temporarily unavailable. Try again in a moment. "+(last?.message||""));
+ throw Error("Video providers are temporarily unavailable. Moonstone tried Invidious and Piped. "+(last?.message||""));
 }
 function videoCard(v){const live=isLive(v);return `<article class="video" data-video="${esc(v.videoId)}"><div class="thumbwrap"><img class="thumb" loading="lazy" data-video-id="${esc(v.videoId)}" src="${esc(thumb(v))}" alt=""><span class="duration">${live?"LIVE":duration(v.lengthSeconds)}</span></div><div class="vrow"><img class="channelavatar" loading="lazy" src="${esc(avatar(v))}" alt=""><div><div class="vtitle">${esc(videoTitle(v))}</div><div class="vmeta">${esc(v.author||v.authorName||"YouTube")}<br>${live?"Live now":views(v)+" views"} · ${esc(v.publishedText||"")}</div></div></div></article>`}
 function renderVideos(items,heading="Recommended"){
