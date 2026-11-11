@@ -329,33 +329,6 @@ async function request(path,fresh=false){
  }
  throw Error("Video search service is temporarily unavailable. Try again in a moment. "+(last?.message||""));
 }
-function hasVideoDescription(v){
- return !!(v&&(
-  (typeof v.description==="string"&&v.description.trim())||
-  (typeof v.descriptionHtml==="string"&&v.descriptionHtml.trim())||
-  (typeof v.description_html==="string"&&v.description_html.trim())
- ));
-}
-async function videoDetails(id){
- const path="/api/v1/videos/"+encodeURIComponent(id);
- let first=await request(path);
- if(hasVideoDescription(first))return first;
- for(const base of instances){
-  if(base===api)continue;
-  try{
-   const res=await fetch(base+path,{headers:{"Accept":"application/json"},cache:"no-store"});
-   if(!res.ok)continue;
-   const candidate=await res.json();
-   if(hasVideoDescription(candidate)){api=base;return candidate}
-  }catch(e){}
- }
- return first;
-}
-function videoDescription(v){
- let value=v?.description||v?.descriptionHtml||v?.description_html||"";
- if(Array.isArray(value))value=value.map(x=>typeof x==="string"?x:(x?.text||"")).join("");
- return String(value).replace(/<br\\s*\\/?\\s*>/gi,"\\n").replace(/<\\/p>\\s*<p[^>]*>/gi,"\\n\\n").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'");
-}
 function videoCard(v){const live=isLive(v);return `<article class="video" data-video="${esc(v.videoId)}"><div class="thumbwrap"><img class="thumb" loading="lazy" data-video-id="${esc(v.videoId)}" src="${esc(thumb(v))}" alt=""><span class="duration">${live?"LIVE":duration(v.lengthSeconds)}</span></div><div class="vrow"><img class="channelavatar" loading="lazy" src="${esc(avatar(v))}" alt=""><div><div class="vtitle">${esc(videoTitle(v))}</div><div class="vmeta">${esc(v.author||v.authorName||"YouTube")}<br>${live?"Live now":views(v)+" views"} · ${esc(v.publishedText||"")}</div></div></div></article>`}
 function renderVideos(items,heading="Recommended"){
  feed=(Array.isArray(items)?items:[]).slice(0,30);
@@ -496,14 +469,14 @@ async function watch(id,playlistIndex){
  if(playlistIndex===undefined){const found=currentPlaylist?.videos?.findIndex(v=>v.videoId===id)??-1;if(found<0)currentPlaylist=null;else playlistIndex=found}
  page="watch";chips.classList.add("hidden");content.innerHTML='<div class="loading">Loading video…</div>';
  try{
-  const v=await videoDetails(id);currentVideo=v;
+  const v=await request("/api/v1/videos/"+encodeURIComponent(id));currentVideo=v;
   const rec=v.recommendedVideos||[];
   const channelId=v.authorId||"";
   const inPlaylist=!!currentPlaylist&&Number.isInteger(playlistIndex)&&playlistIndex>=0&&playlistIndex<currentPlaylist.videos.length;
   const previous=inPlaylist&&playlistIndex>0?currentPlaylist.videos[playlistIndex-1]:null;
   const next=inPlaylist&&playlistIndex<currentPlaylist.videos.length-1?currentPlaylist.videos[playlistIndex+1]:null;
   put("history",[{id,title:videoTitle(v),author:v.author,thumb:thumb(v),lengthSeconds:v.lengthSeconds},...get("history",[]).filter(x=>x.id!==id)].slice(0,80));
-  content.innerHTML='<button class="pill back" id="backBtn">← Back</button><div class="watchlayout"><div><div class="playerShell" id="playerShell"><iframe class="player" id="ytPlayer" src="https://www.yout-ube.com/watch?v='+encodeURIComponent(id)+'&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><button class="videoFullscreenBtn" id="fullscreenBtn" type="button" title="Fullscreen">⛶</button></div><div class="playercontrols">'+(inPlaylist?'<button id="prevPlaylistBtn" type="button" '+(previous?'':'disabled')+'>← Previous</button><button id="nextPlaylistBtn" type="button" '+(next?'':'disabled')+'>Next →</button>':'')+'</div><h2 class="watchtitle">'+esc(videoTitle(v))+'</h2><div class="watchmeta"><div class="channelline"><img class="channelavatar" src="'+esc(avatar(v))+'"><div><strong>'+esc(v.author)+'</strong><small>'+fmt(v.subCount)+' subscribers</small></div><button class="pill" id="watchChannel">View channel</button></div><div class="actions"><button class="pill" id="saveVideo">＋ Save</button><button class="pill" id="addToPlaylist">＋ Playlist</button><button class="pill" id="openNative">Open player ↗</button></div></div><div class="description">'+views(v)+' views · '+esc(v.publishedText||"")+'\n\n'+esc(videoDescription(v)||"No description provided.")+'</div><section class="comments" id="commentsSection"><div class="commentshead"><h3>Comments</h3><span class="muted">Read-only</span></div><div class="commentstate">Loading comments…</div></section></div><aside class="related"><h3>Up next</h3>'+(rec.length?rec.map(videoCard).join(""):'<p class="muted">No related videos available.</p>')+'</aside></div>';
+  content.innerHTML='<button class="pill back" id="backBtn">← Back</button><div class="watchlayout"><div><div class="playerShell" id="playerShell"><iframe class="player" id="ytPlayer" src="https://www.yout-ube.com/watch?v='+encodeURIComponent(id)+'&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><button class="videoFullscreenBtn" id="fullscreenBtn" type="button" title="Fullscreen">⛶</button></div><div class="playercontrols">'+(inPlaylist?'<button id="prevPlaylistBtn" type="button" '+(previous?'':'disabled')+'>← Previous</button><button id="nextPlaylistBtn" type="button" '+(next?'':'disabled')+'>Next →</button>':'')+'</div><h2 class="watchtitle">'+esc(videoTitle(v))+'</h2><div class="watchmeta"><div class="channelline"><img class="channelavatar" src="'+esc(avatar(v))+'"><div><strong>'+esc(v.author)+'</strong><small>'+fmt(v.subCount)+' subscribers</small></div><button class="pill" id="watchChannel">View channel</button></div><div class="actions"><button class="pill" id="saveVideo">＋ Save</button><button class="pill" id="addToPlaylist">＋ Playlist</button><button class="pill" id="openNative">Open player ↗</button></div></div><div class="description">'+views(v)+' views · '+esc(v.publishedText||"")+'\n\n'+esc(v.description||"")+'</div><section class="comments" id="commentsSection"><div class="commentshead"><h3>Comments</h3><span class="muted">Read-only</span></div><div class="commentstate">Loading comments…</div></section></div><aside class="related"><h3>Up next</h3>'+(rec.length?rec.map(videoCard).join(""):'<p class="muted">No related videos available.</p>')+'</aside></div>';
   $("backBtn").onclick=()=>{if(currentPlaylist?.kind==="user")openUserPlaylist(currentPlaylist.id);else if(currentPlaylist)playlist(currentPlaylist.id);else home()};
   if(inPlaylist){$("prevPlaylistBtn").onclick=()=>{if(previous)watch(previous.videoId||previous.id,playlistIndex-1)};$("nextPlaylistBtn").onclick=()=>{if(next)watch(next.videoId||next.id,playlistIndex+1)}}
   $("fullscreenBtn").onclick=async()=>{const player=$("playerShell");try{if(document.fullscreenElement)await document.exitFullscreen();else if(player.requestFullscreen)await player.requestFullscreen();else throw Error("Unsupported")}catch(e){toast("Fullscreen is not available in this browser")}};
