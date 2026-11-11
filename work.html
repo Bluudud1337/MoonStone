@@ -1170,6 +1170,18 @@ body.no-animations *,body.no-animations *::before,body.no-animations *::after{an
 
 .work-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:9px;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:.19em;text-transform:uppercase}.work-kicker:before{content:"";width:18px;height:2px;background:var(--accent);border-radius:2px;box-shadow:0 0 10px var(--accent)}
 .apps-title{letter-spacing:-.045em}
+
+.work-viewer{display:none;position:fixed;inset:0;z-index:10050;align-items:center;justify-content:center;padding:clamp(8px,2vw,24px);background:#000b;backdrop-filter:blur(9px)}
+.work-viewer.open{display:flex}
+.work-viewer-panel{display:flex;flex-direction:column;width:min(1500px,100%);height:min(94svh,1000px);min-height:0;overflow:hidden;border:1px solid var(--border);border-radius:16px;background:var(--bg);box-shadow:0 24px 90px #0009}
+.work-viewer-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px;padding:8px 12px 8px 16px;border-bottom:1px solid var(--border);background:var(--panel)}
+.work-viewer-heading{display:flex;flex-direction:column;gap:3px;min-width:0}.work-viewer-heading strong{font-size:13px;font-weight:600;color:var(--text)}.work-viewer-heading span{font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.work-viewer-actions{display:flex;gap:6px;flex-shrink:0}.work-viewer-button{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);font-size:19px;text-decoration:none;cursor:pointer}.work-viewer-button:hover{background:var(--hover);border-color:var(--accent)}.work-viewer-close{font-size:23px}
+.work-viewer-frame-wrap{flex:1;min-height:0;background:#fff}.work-viewer-frame-wrap:fullscreen{width:100vw;height:100vh;border:0;border-radius:0}.work-viewer-frame-wrap iframe{display:block;width:100%;height:100%;border:0;background:#fff}
+.work-viewer-note{margin:0;padding:8px 12px;color:var(--muted);font-size:10px;text-align:center;border-top:1px solid var(--border);background:var(--panel)}
+body.work-viewer-open{overflow:hidden}
+@media(max-width:600px){.work-viewer{padding:0}.work-viewer-panel{width:100%;height:100svh;border-radius:0;border:0}.work-viewer-toolbar{padding-top:calc(8px + env(safe-area-inset-top))}.work-viewer-note{padding-bottom:calc(8px + env(safe-area-inset-bottom))}}
+
 </style>
 </head>
 <body>
@@ -1178,7 +1190,7 @@ body.no-animations *,body.no-animations *::before,body.no-animations *::after{an
   <a class="side-link" href="index.html" aria-label="Home" title="Home"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9M9 21v-7h6v7"/></svg></a>
   <a class="side-link" href="games.html" aria-label="Games" title="Games"><svg viewBox="0 0 24 24"><path d="M6 11h4m-2-2v4"/><path d="M15 10h.01M18 12h.01"/><path d="M7 6h10a4 4 0 0 1 3.8 5.2l-1.3 4.3a2.5 2.5 0 0 1-4.1 1.1L13 14h-2l-2.4 2.6a2.5 2.5 0 0 1-4.1-1.1l-1.3-4.3A4 4 0 0 1 7 6Z"/></svg></a>
   <a class="side-link" href="movies.html" aria-label="Movies" title="Movies"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v4m5-4v4m5-4v4M7 16v4m5-4v4m5-4v4M3 12h18"/></svg></a>
-  <a class="side-link active" href="apps.html" aria-label="Apps" title="Apps"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></a><a class="side-link" href="calculator.html" aria-label="Calculator" title="Calculator"><svg viewBox="0 0 24 24"><rect x="4" y="2.5" width="16" height="19" rx="2"/><path d="M7 6h10M7 11h2m3 0h2m3 0h.01M7 15h2m3 0h2m3 0h.01M7 19h2m3 0h2"/></svg></a>
+  <a class="side-link active" href="work.html" aria-label="Work" title="Work"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></a><a class="side-link" href="calculator.html" aria-label="Calculator" title="Calculator"><svg viewBox="0 0 24 24"><rect x="4" y="2.5" width="16" height="19" rx="2"/><path d="M7 6h10M7 11h2m3 0h2m3 0h.01M7 15h2m3 0h2m3 0h.01M7 19h2m3 0h2"/></svg></a>
   <a class="side-link" href="chatroom.html" aria-label="Chatroom" title="Chatroom"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 8.7 4a8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg></a>
   <a class="side-link" href="tidal.html" aria-label="Music" title="Music"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></a>
   <div class="side-divider"></div><a class="side-button" href="index.html?openSettings=1" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1a1.7 1.7 0 0 1-2.4 2.4l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a1.7 1.7 0 0 1-3.4 0v-.2a1.7 1.7 0 0 0-2.9-1.2l-.1.1a1.7 1.7 0 0 1-2.4-2.4l.1-.1a1.7 1.7 0 0 0-1.2-2.9H4a1.7 1.7 0 0 1 0-3.4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a1.7 1.7 0 0 1 2.4-2.4l.1.1a1.7 1.7 0 0 0 2.9-1.2V4a1.7 1.7 0 0 1 3.4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a1.7 1.7 0 0 1 2.4 2.4l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.2a1.7 1.7 0 0 1 0 3.4h-.2a1.7 1.7 0 0 0-1.2 1.0Z"/></svg></a>
@@ -1565,6 +1577,24 @@ body.no-animations *,body.no-animations *::before,body.no-animations *::after{an
       </button>
       </div><div class="apps-empty" id="appsEmpty">No apps match your search.</div>
 </div></main>
+
+<div class="work-viewer" id="workAppViewer" aria-hidden="true">
+  <section class="work-viewer-panel" role="dialog" aria-modal="true" aria-labelledby="workAppTitle">
+    <header class="work-viewer-toolbar">
+      <div class="work-viewer-heading"><strong id="workAppTitle">App</strong><span id="workAppAddress"></span></div>
+      <div class="work-viewer-actions">
+        <a class="work-viewer-button" id="workAppExternal" href="#" target="_blank" rel="noopener noreferrer" title="Open in new tab" aria-label="Open in new tab">↗</a>
+        <button class="work-viewer-button" id="workAppReload" type="button" title="Reload" aria-label="Reload">↻</button>
+        <button class="work-viewer-button" id="workAppFullscreen" type="button" title="Fullscreen" aria-label="Fullscreen">⛶</button>
+        <button class="work-viewer-button work-viewer-close" id="workAppClose" type="button" title="Close" aria-label="Close">×</button>
+      </div>
+    </header>
+    <div class="work-viewer-frame-wrap" id="workAppFrameWrap">
+      <iframe id="workAppFrame" title="Embedded app" src="about:blank" allow="fullscreen; clipboard-read; clipboard-write; autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+    <p class="work-viewer-note">If the page stays blank, that website may block iframe embedding. Use ↗ to open it in a new tab.</p>
+  </section>
+</div>
 <script>
 (() => {
  const $=s=>document.querySelector(s);
@@ -1596,6 +1626,48 @@ body.no-animations *,body.no-animations *::before,body.no-animations *::after{an
  const input=$("#appSearch"),grid=$("#appsGrid"),count=$("#appsCount"),empty=$("#appsEmpty");
  input.addEventListener("input",()=>{const q=input.value.trim().toLowerCase();let shown=0;grid.querySelectorAll(".app-card").forEach(c=>{const yes=c.dataset.name.toLowerCase().includes(q);c.hidden=!yes;if(yes)shown++});count.textContent=shown+" app"+(shown===1?"":"s");empty.style.display=shown?"none":"block"});
 })();
-function openApp(url){const safe=new URL(url);if(!["http:","https:"].includes(safe.protocol))return;location.href="index.html?openApp="+encodeURIComponent(safe.href)}
+function openApp(url){
+  let safe;
+  try { safe = new URL(url, location.href); } catch { return; }
+  if (!["http:","https:"].includes(safe.protocol)) return;
+  const viewer = document.getElementById("workAppViewer");
+  const frame = document.getElementById("workAppFrame");
+  const title = document.getElementById("workAppTitle");
+  const address = document.getElementById("workAppAddress");
+  const external = document.getElementById("workAppExternal");
+  if (!viewer || !frame) return;
+  const card = [...document.querySelectorAll(".app-card")].find(el => el.dataset.url === url);
+  title.textContent = card?.dataset.name || safe.hostname;
+  address.textContent = safe.hostname;
+  external.href = safe.href;
+  frame.src = safe.href;
+  viewer.classList.add("open");
+  viewer.setAttribute("aria-hidden", "false");
+  document.body.classList.add("work-viewer-open");
+}
+(() => {
+  const viewer = document.getElementById("workAppViewer");
+  const frame = document.getElementById("workAppFrame");
+  const close = () => {
+    viewer.classList.remove("open");
+    viewer.setAttribute("aria-hidden", "true");
+    frame.src = "about:blank";
+    document.body.classList.remove("work-viewer-open");
+  };
+  document.getElementById("workAppClose").addEventListener("click", close);
+  document.getElementById("workAppReload").addEventListener("click", () => {
+    if (frame.src && frame.src !== "about:blank") frame.src = frame.src;
+  });
+  document.getElementById("workAppFullscreen").addEventListener("click", async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.getElementById("workAppFrameWrap").requestFullscreen();
+    } catch { /* Fullscreen may be restricted by the browser or embedded site. */ }
+  });
+  viewer.addEventListener("click", event => { if (event.target === viewer) close(); });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && viewer.classList.contains("open")) close();
+  });
+})();
 </script>
 </body></html>
