@@ -370,7 +370,7 @@ async function getInvidiousPlayback(id){
    const streams=Array.isArray(data.formatStreams)?data.formatStreams:[];
    const playable=streams.filter(x=>x&&x.url&&String(x.type||"").includes("video/mp4"));
    playable.sort((a,b)=>{
-    const quality=x=>{const m=String(x.qualityLabel||x.resolution||"").match(/(\\d+)p?/i);return m?Number(m[1]):0};
+    const quality=x=>{const m=String(x.qualityLabel||x.resolution||"").match(/([0-9]+)p?/i);return m?Number(m[1]):0};
     return quality(b)-quality(a);
    });
    if(playable.length)return {data,stream:playable[0],base};
