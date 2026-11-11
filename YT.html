@@ -470,10 +470,59 @@ async function channel(id){
    content.querySelectorAll("[data-channel-tab]").forEach(btn=>btn.onclick=()=>{if(btn.dataset.channelTab==="videos")showVideos();else showPlaylists()});
   };
   const shell=body=>{content.innerHTML=header()+tabs()+'<div id="channelTabContent">'+body+'</div>';bindShell()};
-  const showVideos=()=>{
-   activeTab="videos";
-   const vids=c.latestVideos||[];
-   shell('<div class="sectionhead"><h2>Videos</h2></div><div class="grid">'+(vids.length?vids.map(videoCard).join(""):'<div class="empty">No recent videos listed.</div>')+'</div>');
+  let videoSort="newest";
+  let videoContinuation="";
+  let videoBuffer=[];
+  let videoLoadedIds=new Set();
+  let videoLoading=false;
+  const videoSortLabel=sort=>sort==="popular"?"Most popular":sort==="oldest"?"Oldest":"Newest";
+  const videoPanel=()=>'<div class="sectionhead"><div><h2>Videos</h2><span class="muted" id="channelVideoCount">'+videoLoadedIds.size+' loaded</span></div><select id="channelVideoSort" class="pill" aria-label="Sort channel videos" style="background:var(--panel);color:var(--text);border:1px solid var(--border);padding:9px 12px"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="popular">Most popular</option></select></div><div class="grid" id="channelVideoGrid"></div><div style="text-align:center;padding:24px" id="channelVideoMore"></div>';
+  const updateVideoMore=()=>{
+   const slot=$("channelVideoMore");if(!slot)return;
+   const canShow=videoBuffer.length>0||!!videoContinuation;
+   slot.innerHTML=canShow?'<button class="pill" id="channelLoadMoreVideos" '+(videoLoading?'disabled':'')+'>'+(videoLoading?'Loading…':'Load more videos')+'</button>':'<span class="muted">You’ve reached the end of this channel’s videos.</span>';
+   $("channelLoadMoreVideos")?.addEventListener("click",loadMoreVideos);
+  };
+  const appendChannelVideos=items=>{
+   const fresh=(Array.isArray(items)?items:[]).filter(v=>v?.videoId&&!videoLoadedIds.has(v.videoId));
+   fresh.forEach(v=>videoLoadedIds.add(v.videoId));
+   const grid=$("channelVideoGrid");
+   if(!grid)return;
+   if(!videoLoadedIds.size)grid.innerHTML='<div class="empty">No videos found for this channel.</div>';
+   else if(fresh.length)grid.insertAdjacentHTML("beforeend",fresh.map(videoCard).join(""));
+   $("channelVideoCount").textContent=videoLoadedIds.size+' loaded';
+  };
+  const fetchChannelVideoBatch=async()=>{
+   const query=new URLSearchParams({sort_by:videoSort});
+   if(videoContinuation)query.set("continuation",videoContinuation);
+   const result=await request("/api/v1/channels/"+encodeURIComponent(channelId)+"/videos?"+query.toString());
+   const items=Array.isArray(result)?result:(result.videos||[]);
+   videoContinuation=result.continuation||"";
+   videoBuffer.push(...items);
+  };
+  async function loadMoreVideos(){
+   if(videoLoading||page!=="channel"||activeTab!=="videos")return;
+   videoLoading=true;updateVideoMore();
+   try{
+    while(videoBuffer.length<30&&videoContinuation)await fetchChannelVideoBatch();
+    const batch=videoBuffer.splice(0,30);
+    appendChannelVideos(batch);
+   }catch(e){
+    const slot=$("channelVideoMore");if(slot)slot.innerHTML='<div class="errorbox">'+esc(e.message)+'</div><button class="pill" id="retryChannelVideos">Retry</button>';
+    $("retryChannelVideos")?.addEventListener("click",loadMoreVideos);
+   }finally{videoLoading=false;updateVideoMore()}
+  }
+  const showVideos=async()=>{
+   activeTab="videos";videoSort="newest";videoContinuation="";videoBuffer=[];videoLoadedIds=new Set();
+   shell(videoPanel());
+   $("channelVideoSort").value=videoSort;
+   $("channelVideoSort").onchange=async e=>{
+    videoSort=e.target.value;videoContinuation="";videoBuffer=[];videoLoadedIds=new Set();
+    $("channelVideoGrid").innerHTML='<div class="loading">Loading videos…</div>';
+    $("channelVideoCount").textContent="0 loaded";
+    await loadMoreVideos();
+   };
+   await loadMoreVideos();
   };
   const showPlaylists=async(continuation="",append=false)=>{
    activeTab="playlists";
