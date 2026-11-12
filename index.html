@@ -241,6 +241,31 @@ body[data-theme="frogies"] {
   --wallpaper: radial-gradient(ellipse at 12% 10%, rgba(56, 230, 93, .10), transparent 34%), radial-gradient(ellipse at 88% 82%, rgba(56, 230, 93, .07), transparent 38%);
 }
 
+/* Optional glass treatment, inspired by the supplied translucent rounded navigation bar. */
+body.glass-interface .sidebar,
+body.glass-interface .search,
+body.glass-interface .bookmark,
+body.glass-interface .small-button,
+body.glass-interface .modal,
+body.glass-interface .settings-nav,
+body.glass-interface .settings-nav-item.active,
+body.glass-interface .site-browser,
+body.glass-interface .site-browser .browser-head {
+  background: color-mix(in srgb, var(--panel) 48%, transparent);
+  border-color: color-mix(in srgb, white 18%, var(--border));
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  backdrop-filter: blur(22px) saturate(145%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 10px 34px rgba(0,0,0,.18);
+}
+body.glass-interface .sidebar { border-radius: 24px; }
+body.glass-interface .search { border-radius: 22px; }
+body.glass-interface .bookmark { background: color-mix(in srgb, var(--panel) 36%, transparent); }
+body.glass-interface .bookmark:hover { background: color-mix(in srgb, var(--hover) 72%, transparent); }
+body.glass-interface .modal-backdrop { background: rgba(0,0,0,.34); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+body.glass-interface .modal { background: color-mix(in srgb, var(--bg) 68%, transparent); border-color: rgba(255,255,255,.2); }
+body.glass-interface .small-button { border-radius: 50%; }
+body.glass-interface .side-link.active { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+
 /* Sidebar */
 
 .sidebar {
@@ -1228,7 +1253,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   <a class="side-link youtube-side-link" href="YT.html" aria-label="YouTube Watcher (New)" title="YouTube Watcher">
     <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4"/><path d="m10 9 5 3-5 3z"/></svg>
     <span class="youtube-new-label">NEW</span>
-  </a><a class="side-link" href="calculator.html" aria-label="Calculator" title="Calculator"><svg viewBox="0 0 24 24"><rect x="4" y="2.5" width="16" height="19" rx="2"/><path d="M7 6h10M7 11h2m3 0h2m3 0h.01M7 15h2m3 0h2m3 0h.01M7 19h2m3 0h2"/></svg></a><a class="side-link" href="chatroom.html" aria-label="Chatroom" title="Chatroom">
+  </a><a class="side-link" href="calculator.html" aria-label="Calculator" title="Calculator"><svg viewBox="0 0 24 24"><rect x="4" y="2.5" width="16" height="19" rx="2"/><path d="M7 6h10M7 11h2m3 0h2m3 0h.01M7 15h2m3 0h2m3 0h.01M7 19h2m3 0h2"/></svg></a><a class="side-link" href="https://academic-mathwork.vercel.app/chat.html" aria-label="Chatroom" title="Chatroom">
     <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 8.7 4a8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg>
   </a>
   <a class="side-link" href="tidal.html" aria-label="Music" title="Music"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></a>
@@ -1345,6 +1370,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
           <div class="setting-row"><div class="setting-description"><strong>Dock span</strong><span>Use a compact floating dock or stretch it along the full edge.</span></div><select class="settings-action" id="dockSpanSelect" aria-label="Dock span"><option value="compact">Compact</option><option value="full">Full edge</option></select></div>
           <div class="section-label">Visual effects</div>
           <div class="setting-row"><div class="setting-description"><strong>Particle background</strong><span>Floating ambient particles</span></div><button class="toggle" id="particleToggle" role="switch" aria-checked="true" aria-label="Particle background"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Particle type</strong><span>Choose the motion and shape of the theme particles.</span></div><select class="settings-action" id="particleTypeSelect" aria-label="Particle type"><option value="dust">Dust</option><option value="rain">Rain</option><option value="lightning">Lightning</option><option value="snow">Snow</option><option value="stars">Stars</option><option value="bubbles">Bubbles</option><option value="orbs">Glowing orbs</option></select></div>
+          <div class="setting-row"><div class="setting-description"><strong>Glass interface</strong><span>Translucent panels with soft blur and fine highlights.</span></div><button class="toggle" id="glassInterfaceToggle" role="switch" aria-checked="false" aria-label="Glass interface"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Animations</strong><span>Hover and transition effects</span></div><button class="toggle" id="animationToggle" role="switch" aria-checked="true" aria-label="Animations"></button></div>
         </section>
         <section class="settings-panel" data-settings-panel="behavior">
@@ -1424,7 +1451,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     { name: "Games", url: "games.html", icon: "gamepad" },
     { name: "Movies", url: "movies.html", icon: "film" },
     { name: "Work", url: "work.html", icon: "grid" },
-    { name: "Chatroom", url: "chatroom.html", icon: "chat" }
+    { name: "Chatroom", url: "https://academic-mathwork.vercel.app/chat.html", icon: "chat" }
   ];
 
   const themes = [
@@ -1556,6 +1583,8 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     theme: themes.some(t => t.id === savedSettings.theme)
       ? savedSettings.theme : "moonstone",
     particles: savedSettings.particles !== false,
+    particleType: ["dust","rain","lightning","snow","stars","bubbles","orbs"].includes(savedSettings.particleType) ? savedSettings.particleType : "dust",
+    glassInterface: savedSettings.glassInterface === true,
     cursorTrail: savedSettings.cursorTrail === true,
     animations: savedSettings.animations !== false,
     confirmLeave: savedSettings.confirmLeave !== false,
@@ -1783,6 +1812,11 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     const openBlobButton = $("#openMoonstoneBlob");
     if (openBlobButton) openBlobButton.addEventListener("click", () => openMoonstoneAsBlob());
     document.body.dataset.theme = settings.theme;
+    document.body.classList.toggle("glass-interface", settings.glassInterface);
+    const particleTypeSelect = $("#particleTypeSelect");
+    if (particleTypeSelect) particleTypeSelect.value = settings.particleType;
+    const glassInterfaceToggle = $("#glassInterfaceToggle");
+    if (glassInterfaceToggle) glassInterfaceToggle.setAttribute("aria-checked", String(settings.glassInterface));
     document.body.classList.toggle("layout-browser", settings.layout === "browser" || settings.layout === "edge");
     document.body.classList.toggle("layout-edge", settings.layout === "edge");
     document.body.dataset.cursor = settings.cursorStyle === "custom" && !settings.cursorImage ? "default" : settings.cursorStyle;
@@ -2161,6 +2195,19 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     applySettings();
   });
 
+  $("#particleTypeSelect").addEventListener("change", event => {
+    settings.particleType = ["dust","rain","lightning","snow","stars","bubbles","orbs"].includes(event.target.value) ? event.target.value : "dust";
+    resizeCanvas();
+    saveSettings();
+    applySettings();
+  });
+
+  $("#glassInterfaceToggle").addEventListener("click", () => {
+    settings.glassInterface = !settings.glassInterface;
+    saveSettings();
+    applySettings();
+  });
+
   $("#cursorTrailToggle").addEventListener("click", () => {
     settings.cursorTrail = !settings.cursorTrail;
     saveSettings();
@@ -2489,16 +2536,17 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     canvas.style.width = width + "px";
     canvas.style.height = height + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    const count = Math.min(95, Math.floor(width * height / 11000));
+    const type = settings.particleType || "dust";
+    const count = Math.min(type === "lightning" ? 18 : 95, Math.floor(width * height / (type === "rain" ? 6500 : 11000)));
     particles = Array.from({ length: count }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      r: Math.random() * 1.6 + .55,
-      vx: (Math.random() - .5) * .34,
-      vy: (Math.random() - .5) * .34,
+      r: type === "bubbles" || type === "orbs" ? Math.random() * 3 + 1.5 : Math.random() * 1.6 + .55,
+      vx: type === "rain" ? -.25 : (Math.random() - .5) * (type === "snow" ? .28 : .34),
+      vy: type === "rain" ? Math.random() * 3 + 2 : type === "snow" ? Math.random() * .7 + .25 : (Math.random() - .5) * .34,
       alpha: Math.random() * .42 + .38,
-      phase: Math.random() * Math.PI * 2
+      phase: Math.random() * Math.PI * 2,
+      length: Math.random() * 15 + 8
     }));
   }
 
@@ -2507,35 +2555,54 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       stopParticles();
       return;
     }
-
-    /* Limit the effect to about 30 frames per second. */
     if (timestamp - lastFrame < 33) {
       animationFrame = requestAnimationFrame(drawParticles);
       return;
     }
     lastFrame = timestamp;
-
     ctx.clearRect(0, 0, width, height);
     const color = getComputedStyle(document.body).getPropertyValue("--particle").trim() || "#d9d3bd";
-
+    const type = settings.particleType || "dust";
     particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.phase += .008;
-
-      if (p.x < -4) p.x = width + 4;
-      if (p.x > width + 4) p.x = -4;
-      if (p.y < -4) p.y = height + 4;
-      if (p.y > height + 4) p.y = -4;
-
-      const alpha = p.alpha * (.7 + Math.sin(p.phase) * .3);
-      ctx.globalAlpha = alpha;
+      p.phase += .012;
+      if (type === "rain") {
+        p.x += p.vx; p.y += p.vy;
+        if (p.y > height + 20) { p.y = -20; p.x = Math.random() * width; }
+        ctx.globalAlpha = p.alpha * .65; ctx.strokeStyle = color; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - 2, p.y + p.length); ctx.stroke();
+        return;
+      }
+      if (type === "lightning") {
+        p.x += (Math.random() - .5) * 1.2;
+        p.y += (Math.random() - .5) * 1.2;
+        if (Math.random() < .012) {
+          ctx.globalAlpha = .75; ctx.strokeStyle = color; ctx.lineWidth = 1.4;
+          ctx.beginPath(); ctx.moveTo(p.x, p.y);
+          let x = p.x, y = p.y;
+          for (let n = 0; n < 4; n++) { x += (Math.random() - .5) * 18; y += Math.random() * 15; ctx.lineTo(x, y); }
+          ctx.stroke();
+        }
+        return;
+      }
+      p.x += p.vx + (type === "snow" ? Math.sin(p.phase) * .18 : 0);
+      p.y += type === "snow" ? p.vy : p.vy;
+      if (type === "bubbles" || type === "orbs") p.y -= .35;
+      if (p.x < -8) p.x = width + 8;
+      if (p.x > width + 8) p.x = -8;
+      if (p.y < -10) p.y = height + 10;
+      if (p.y > height + 10) p.y = -10;
+      ctx.globalAlpha = p.alpha * (.7 + Math.sin(p.phase) * .3);
       ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fill();
+      if (type === "bubbles") {
+        ctx.strokeStyle = color; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(p.x,p.y,p.r+1,0,Math.PI*2); ctx.stroke();
+      } else if (type === "stars") {
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.phase * .25); ctx.fillRect(-p.r*2,-.6,p.r*4,1.2); ctx.fillRect(-.6,-p.r*2,1.2,p.r*4); ctx.restore();
+      } else if (type === "orbs") {
+        ctx.shadowBlur = 12; ctx.shadowColor = color; ctx.beginPath(); ctx.arc(p.x,p.y,p.r+1,0,Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
+      } else {
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+      }
     });
-
     ctx.globalAlpha = 1;
     animationFrame = requestAnimationFrame(drawParticles);
   }
