@@ -211,6 +211,22 @@ body[data-theme="void-white"] {
   --flowery-green: #9bc66b;
 }
 
+[data-theme="flowery"] {
+  --bg: #17120d;
+  --panel: #211a13;
+  --hover: #33271a;
+  --text: #fff3d3;
+  --muted: #d5b99a;
+  --border: #675033;
+  --accent: #f4d34e;
+  --particle: #f4d34e;
+  --wallpaper: linear-gradient(rgba(15, 11, 9, .48), rgba(15, 11, 9, .68)), url("https://i.redd.it/sarn4u1tl3ah1.png");
+  --flowery-yellow: #f4d34e;
+  --flowery-sunset: #f39a65;
+  --flowery-green: #9bc66b;
+}
+
+
 body[data-theme="halloween"] {
   --bg: #120a08;
   --panel: #21120d;
@@ -1599,7 +1615,7 @@ body.work-viewer-open{overflow:hidden}
 (() => {
  const $=s=>document.querySelector(s);
  let settings={};try{settings=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")}catch{}
- const themes=["moonstone","moonlight","midnight","terminal","garnet","cherry","paper","astralsync","eclipse","void-purple","void-white","flowery","halloween","frogies"];
+ const themes=["moonstone","youtube","nightmare","moonlight","midnight","terminal","cherry","garnet","paper","flowery","astralsync","halloween","frogies","eclipse","void-purple","void-white"];
  document.body.dataset.theme=themes.includes(settings.theme)?settings.theme:"moonstone";
  document.body.dataset.dockPosition=["left","right","bottom"].includes(settings.dockPosition)?settings.dockPosition:"left";
  document.body.dataset.dockSpan=settings.dockSpan==="full"?"full":"compact";
