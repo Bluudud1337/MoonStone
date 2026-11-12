@@ -1,5 +1,7 @@
 /* Shared MoonStone navigation dock. Keep this as the single source of truth. */
 .ms-dock.sidebar {
+  height:auto;width:max-content;min-width:0;flex-shrink:0;overflow:visible;
+  justify-content:flex-start;box-shadow:none;
   position:fixed; left:17px; top:50%; right:auto; bottom:auto;
   transform:translateY(-50%); display:flex; flex-direction:column;
   align-items:center; gap:7px; padding:9px;
