@@ -1224,7 +1224,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
       <button id="tempFullscreen" class="temp-fullscreen-button" type="button" title="Toggle fullscreen" aria-label="Toggle fullscreen" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/></svg></button>
       <button id="tempDevtools" class="temp-fullscreen-button" type="button" title="Toggle developer console" aria-label="Toggle developer console" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></svg></button>
     </div>
-    <iframe id="tempBrowserFrame" title="MoonStone browser" src="https://cosmic-dun-kappa.vercel.app/p" allow="fullscreen; clipboard-read; clipboard-write" referrerpolicy="no-referrer"></iframe>
+    <iframe id="tempBrowserFrame" title="MoonStone browser" src="https://cosmic-dun-kappa.vercel.app/p" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="origin"></iframe>
     <div class="temp-browser-note" id="tempBrowserStatus" aria-live="polite"></div>
   </div>
 </div>
@@ -2640,11 +2640,13 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   const active=()=>tabs.find(t=>t.id===activeId);
   function normalize(value){let raw=value.trim();if(!raw)return null;if(!/^https?:\/\//i.test(raw))raw="https://"+raw;try{const u=new URL(raw);return ["http:","https:"].includes(u.protocol)?u.href:null}catch{return null}}
   function sandbox(){
-    // This is the actual iframe that receives the destination URL.
-    // In Scramjet mode this only affects its outer frame, not its internal iframe.
+    // Match the iframe permissions used by the Movies player.
+    // The setting removes sandbox restrictions only when the user explicitly enables it.
     if(allowRedirects) frame.removeAttribute("sandbox");
-    else frame.setAttribute("sandbox","allow-scripts allow-forms allow-same-origin allow-popups");
-    frame.setAttribute("allow","fullscreen");
+    else frame.setAttribute("sandbox","allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock");
+    frame.setAttribute("allow","autoplay; fullscreen; picture-in-picture");
+    frame.setAttribute("allowfullscreen","");
+    frame.setAttribute("referrerpolicy","origin");
     return allowRedirects ? !frame.hasAttribute("sandbox") : frame.hasAttribute("sandbox");
   }
   function frameUrl(url){return browserEngine==="scramjet"?"https://moonstone-scramjet-browser.onrender.com/?embed=1&url="+encodeURIComponent(url):url}
