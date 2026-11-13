@@ -372,6 +372,34 @@ body.sidebar-collapsed .navico{font-size:19px}
  .description{padding:13px}
 }
 
+
+/* Chunk 3: Moonstube comments polish */
+.comments{margin-top:30px}
+.commentshead{display:flex;align-items:center;gap:12px;padding:0 0 14px;margin-bottom:18px;border-bottom:1px solid var(--border)}
+.commentshead h3{font-size:18px;letter-spacing:-.2px}
+.commentshead .muted{margin-left:auto;font-size:11px;letter-spacing:.2px}
+.commentlist{gap:0}
+.comment{padding:15px 3px;border-bottom:1px solid color-mix(in srgb,var(--border) 72%,transparent);gap:13px;border-radius:9px;transition:background .16s}
+.comment:hover{background:color-mix(in srgb,var(--hover) 55%,transparent)}
+.commentavatarwrap,.commentavatar{width:40px;height:40px}
+.commentavatarfallback{font-size:12px;font-weight:750;background:color-mix(in srgb,var(--accent) 13%,var(--hover));color:var(--text)}
+.commentavatarwrap .commentavatar{border:1px solid var(--border);object-fit:cover}
+.commentbyline{gap:8px;margin:1px 0 7px}
+.commentauthor{font-size:12px;font-weight:750}
+.commentdate{font-size:11px}
+.commenttext{font-size:13px;line-height:1.65;max-width:850px}
+.commentbadge{font-size:9px;letter-spacing:.35px;text-transform:uppercase;font-weight:750;padding:3px 7px;border:1px solid var(--border);background:var(--panel);border-radius:20px}
+.commentbadge:first-of-type{color:var(--accent)}
+.commentlikes{font-size:11px;margin-top:9px;color:var(--muted)}
+.commentstate{padding:22px 15px;border:1px dashed var(--border);border-radius:11px;background:color-mix(in srgb,var(--panel) 55%,transparent);font-size:12px}
+@media(max-width:700px){
+ .comments{margin-top:24px}
+ .comment{gap:10px;padding:13px 2px}
+ .commentavatarwrap,.commentavatar{width:35px;height:35px}
+ .commenttext{font-size:12px}
+ .commentshead h3{font-size:17px}
+}
+
 </style>
 </head>
 <body>
