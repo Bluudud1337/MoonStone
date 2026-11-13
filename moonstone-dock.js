@@ -15,15 +15,30 @@
   ];
   const current = location.pathname.split("/").pop() || "index.html";
   const links = items.map(([href,label,path]) => '<a class="side-link '+(href===current?'active':'')+'" href="'+href+'" aria-label="'+label+'" title="'+label+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+path+'</svg>'+(href==="YT.html"?'<span class="youtube-new-label">NEW</span>':"")+'</a>').join("");
-  root.innerHTML = '<nav class="sidebar ms-dock" aria-label="Main navigation">'+links+'<div class="side-divider"></div><button class="side-button" id="settingsOpen" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.25a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5Z"/><path d="M19.4 13.5a7.8 7.8 0 0 0 0-3l1.45-1.12-1.5-2.6-1.75.6a7.8 7.8 0 0 0-2.6-1.5L14.7 4h-3.4l-.3 1.88a7.8 7.8 0 0 0-2.6 1.5l-1.75-.6-1.5 2.6L6.6 10.5a7.8 7.8 0 0 0 0 3l-1.45 1.12 1.5 2.6 1.75-.6a7.8 7.8 0 0 0 2.6 1.5L11.3 20h3.4l.3-1.88a7.8 7.8 0 0 0 2.6-1.5l1.75.6 1.5-2.6L19.4 13.5Z"/></svg></button></nav>';
+  root.innerHTML = '<nav class="sidebar ms-dock" aria-label="Main navigation">'+links+'<div class="side-divider"></div><button class="side-button" id="settingsOpen" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.25a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5Z"/><path d="M19.4 13.5a7.8 7.8 0 0 0 0-3l1.45-1.12-1.5-2.6-1.75.6a7.8 7.8 0 0 0-2.6-1.5L14.7 4h-3.4l-.3 1.88a7.8 7.8 0 0 0-2.6 1.5l-1.75-.6-1.5 2.6L6.6 10.5a7.8 7.8 0 0 0 0 3l-1.45 1.12 1.5 2.6 1.75-.6a7.8 7.8 0 0 0 2.6 1.5L11.3 20h3.4l.3-1.88a7.8 7.8 0 0 0 2.6-1.5l1.75.6 1.5-2.6L19.4 13.5Z"/></svg></button></nav><button class="ms-dock-toggle" type="button" aria-label="Hide dock" title="Hide dock"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>';
   function sync(){
     let settings={};try{settings=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")}catch(e){}
     const pos=["left","right","bottom"].includes(settings.dockPosition)?settings.dockPosition:"left";
     document.body.classList.remove("dock-left","dock-right","dock-bottom");
     document.body.classList.add("dock-"+pos);
     document.body.classList.toggle("dock-span-full",settings.dockSpan==="full");
+    const toggle=root.querySelector(".ms-dock-toggle");
+    if(toggle){
+      const hidden=document.body.classList.contains("sidebar-pushed");
+      const vertical=pos!=="bottom";
+      const pointsRight=pos==="left"?hidden:pos==="right"?!hidden:hidden;
+      const pointsUp=pos==="bottom"?!hidden:hidden;
+      toggle.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(vertical?(pointsRight?"m9 18 6-6-6-6":"m15 18-6-6 6-6"):(pointsUp?"m18 15-6-6-6 6":"m18 9-6 6-6-6"))+'"/></svg>';
+      toggle.setAttribute("aria-label",hidden?"Show dock":"Hide dock");
+      toggle.title=hidden?"Show dock":"Hide dock";
+    }
   }
   sync();
+  root.addEventListener("click",e=>{
+    if(!e.target.closest(".ms-dock-toggle"))return;
+    document.body.classList.toggle("sidebar-pushed");
+    sync();
+  });
   addEventListener("storage",e=>{if(e.key==="moonstone-settings")sync()});
   addEventListener("focus",sync);
   document.addEventListener("visibilitychange",()=>{if(!document.hidden)sync()});
