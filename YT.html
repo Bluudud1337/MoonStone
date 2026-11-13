@@ -430,6 +430,82 @@ body.sidebar-collapsed .navico{font-size:19px}
 .commentavatarlink:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 @media(max-width:700px){.searchfilters{align-items:flex-start}.searchsortlabel{width:100%;justify-content:flex-end}.commentavatarlink{width:35px;height:35px}}
 
+
+/* Moonstube channel page polish */
+.channelbanner{
+ height:clamp(130px,19vw,220px);
+ border:1px solid var(--border);
+ border-radius:18px;
+ background:
+  radial-gradient(ellipse at 18% 15%,color-mix(in srgb,var(--accent) 25%,transparent),transparent 48%),
+  linear-gradient(125deg,var(--panel),var(--hover) 58%,var(--bg));
+ box-shadow:0 12px 34px rgba(0,0,0,.14);
+ margin-bottom:24px;
+}
+.channelbanner img{display:block;width:100%;height:100%;object-fit:cover}
+.channelhero{
+ position:relative;
+ gap:20px;
+ padding:4px 2px 24px;
+ border-bottom:1px solid var(--border);
+ margin-bottom:18px;
+}
+.channelhero>div{flex:1;min-width:0}
+.channelhero .channelavatar{
+ width:clamp(72px,8vw,104px);
+ height:clamp(72px,8vw,104px);
+ border:3px solid var(--panel);
+ outline:1px solid var(--border);
+ box-shadow:0 5px 18px rgba(0,0,0,.22);
+}
+.channelhero h1{font-size:clamp(22px,3vw,30px);letter-spacing:-.8px;overflow-wrap:anywhere}
+.channelhero p:first-of-type{margin-bottom:9px;font-weight:600}
+.channelhero p:last-of-type{
+ max-width:760px;
+ line-height:1.55;
+ display:-webkit-box;
+ -webkit-line-clamp:3;
+ -webkit-box-orient:vertical;
+ overflow:hidden;
+}
+.channelhero #followBtn{
+ margin-left:0;
+ flex:none;
+ min-width:112px;
+ border-color:var(--accent);
+ font-weight:700;
+ transition:background .16s,transform .16s;
+}
+.channelhero #followBtn:hover{background:var(--hover);transform:translateY(-1px)}
+.channelTabs{
+ position:relative;
+ top:auto;
+ background:transparent;
+ border-bottom:1px solid var(--border);
+ padding:0 0 12px;
+ margin:0 0 22px;
+ gap:8px;
+}
+.channelTabs .chip{border-radius:9px;padding:9px 17px}
+.channelTabs .chip.active{box-shadow:0 2px 0 var(--accent)}
+#channelTabContent>.sectionhead{margin:8px 0 20px}
+#channelVideoSort{font-size:12px;cursor:pointer}
+#channelVideoMore,#channelPlaylistMore{min-height:54px}
+@media(max-width:700px){
+ .channelbanner{height:clamp(105px,28vw,155px);border-radius:13px;margin-bottom:18px}
+ .channelhero{gap:12px;flex-wrap:wrap;padding-bottom:18px}
+ .channelhero .channelavatar{width:66px;height:66px}
+ .channelhero>div{flex:1 1 calc(100% - 82px)}
+ .channelhero h1{font-size:21px}
+ .channelhero p{font-size:12px}
+ .channelhero #followBtn{margin-left:78px}
+ .channelTabs{padding-bottom:10px}
+}
+@media(max-width:430px){
+ .channelhero #followBtn{margin-left:0}
+ .channelhero>div{flex-basis:calc(100% - 80px)}
+}
+
 </style>
 </head>
 <body>
