@@ -313,6 +313,65 @@ body.sidebar-collapsed .navico{font-size:19px}
  body.sidebar-collapsed main{margin:0;width:100%}
 }
 
+
+/* Chunk 2: YouTube-inspired watch page */
+.watchlayout{grid-template-columns:minmax(0,1fr) minmax(300px,370px);gap:30px;align-items:start}
+.watchprimary{min-width:0}
+.watchprimary .playerShell{aspect-ratio:16/9;border-radius:15px;box-shadow:0 12px 38px rgba(0,0,0,.22);overflow:hidden;background:#000}
+.watchprimary .player{width:100%;height:100%;max-height:none;border:0;border-radius:0}
+.watchtitle{font-size:21px;line-height:1.35;letter-spacing:-.35px;font-weight:750;margin:17px 0 13px}
+.watchmeta{padding:13px 0 15px;border-bottom:1px solid var(--border);gap:14px}
+.channelline{min-width:0;gap:12px}
+.channelline .channelavatar{width:44px;height:44px}
+.channelidentity{display:flex;flex-direction:column;gap:4px;min-width:0}
+.channelidentity strong{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.channelidentity small{font-size:11px;color:var(--muted)}
+.actions{flex-wrap:wrap;justify-content:flex-end}
+.actions .pill{border:0;background:var(--hover);font-weight:650;padding:10px 14px;transition:background .15s,transform .15s}
+.actions .pill:hover{background:color-mix(in srgb,var(--accent) 17%,var(--hover));transform:translateY(-1px)}
+.description{margin-top:15px;padding:15px 17px;border:0;border-radius:13px;background:var(--panel);max-height:240px;overflow:auto}
+.descriptionstats{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px;margin-bottom:9px}
+.descriptionstats span{color:var(--muted)}
+.descriptiontext{font-size:13px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.comments{margin-top:28px}
+.commentshead{padding-bottom:13px;border-bottom:1px solid var(--border)}
+.related{position:sticky;top:18px}
+.related h3{font-size:16px;font-weight:750;margin:0 0 15px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.related .video{display:flex;gap:11px;margin:0 0 14px;align-items:flex-start}
+.related .thumbwrap{width:158px;flex:0 0 158px;aspect-ratio:16/9;border-radius:10px}
+.related .vrow{margin:0;min-width:0}
+.related .channelavatar{display:none}
+.related .vtitle{font-size:12px;line-height:1.45}
+.related .vmeta{font-size:11px;line-height:1.45;margin-top:5px}
+.playercontrols{min-height:8px}
+.playercontrols button{border-radius:20px;font-size:12px;font-weight:650}
+.playercontrols button:disabled{opacity:.35;cursor:not-allowed}
+@media(max-width:1100px){
+ .watchlayout{grid-template-columns:minmax(0,1fr)}
+ .related{position:static;display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:16px}
+ .related h3{grid-column:1/-1}
+ .related .video{display:block;margin:0}
+ .related .thumbwrap{width:100%;aspect-ratio:16/9}
+ .related .vrow{margin-top:8px}
+}
+@media(max-width:700px){
+ .watchtitle{font-size:18px}
+ .watchmeta{align-items:flex-start}
+ .channelline{flex-wrap:nowrap}
+ .actions{justify-content:flex-start;width:100%}
+ .actions .pill{padding:9px 11px;font-size:12px}
+ .related{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+ .related .video{display:block}
+ .related .thumbwrap{width:100%}
+ .related .vtitle{font-size:12px}
+}
+@media(max-width:430px){
+ .related{grid-template-columns:1fr}
+ .related .video{display:flex}
+ .related .thumbwrap{width:42%;flex:0 0 42%}
+ .description{padding:13px}
+}
+
 </style>
 </head>
 <body>
@@ -600,7 +659,7 @@ async function watch(id,playlistIndex){
   const previous=inPlaylist&&playlistIndex>0?currentPlaylist.videos[playlistIndex-1]:null;
   const next=inPlaylist&&playlistIndex<currentPlaylist.videos.length-1?currentPlaylist.videos[playlistIndex+1]:null;
   put("history",[{id,title:videoTitle(v),author:v.author,thumb:thumb(v),lengthSeconds:v.lengthSeconds},...get("history",[]).filter(x=>x.id!==id)].slice(0,80));
-  content.innerHTML='<button class="pill back" id="backBtn">← Back</button><div class="watchlayout"><div><div class="playerShell" id="playerShell"><iframe class="player" id="ytPlayer" src="https://www.yout-ube.com/watch?v='+encodeURIComponent(id)+'&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><button class="videoFullscreenBtn" id="fullscreenBtn" type="button" title="Fullscreen">⛶</button></div><div class="playercontrols">'+(inPlaylist?'<button id="prevPlaylistBtn" type="button" '+(previous?'':'disabled')+'>← Previous</button><button id="nextPlaylistBtn" type="button" '+(next?'':'disabled')+'>Next →</button>':'')+'</div><h2 class="watchtitle">'+esc(videoTitle(v))+'</h2><div class="watchmeta"><div class="channelline"><img class="channelavatar" src="'+esc(avatar(v))+'"><div><strong>'+esc(v.author)+'</strong><small>'+fmt(v.subCount)+' subscribers</small></div><button class="pill" id="watchChannel">View channel</button></div><div class="actions"><button class="pill" id="saveVideo">＋ Save</button><button class="pill" id="addToPlaylist">＋ Playlist</button><button class="pill" id="openNative">Open player ↗</button></div></div><div class="description">'+views(v)+' views · '+esc(v.publishedText||"")+'\n\n'+esc(videoDescription(v))+'</div><section class="comments" id="commentsSection"><div class="commentshead"><h3>Comments</h3><span class="muted">Read-only</span></div><div class="commentstate">Loading comments…</div></section></div><aside class="related"><h3>Up next</h3>'+(rec.length?rec.map(videoCard).join(""):'<p class="muted">No related videos available.</p>')+'</aside></div>';
+  content.innerHTML='<button class="pill back" id="backBtn">← Back</button><div class="watchlayout"><div class="watchprimary"><div class="playerShell" id="playerShell"><iframe class="player" id="ytPlayer" src="https://www.yout-ube.com/watch?v='+encodeURIComponent(id)+'&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><button class="videoFullscreenBtn" id="fullscreenBtn" type="button" title="Fullscreen">⛶</button></div><div class="playercontrols">'+(inPlaylist?'<button id="prevPlaylistBtn" type="button" '+(previous?'':'disabled')+'>← Previous</button><button id="nextPlaylistBtn" type="button" '+(next?'':'disabled')+'>Next →</button>':'')+'</div><h2 class="watchtitle">'+esc(videoTitle(v))+'</h2><div class="watchmeta"><div class="channelline"><img class="channelavatar" src="'+esc(avatar(v))+'" alt=""><div class="channelidentity"><strong>'+esc(v.author)+'</strong><small>'+fmt(v.subCount)+' subscribers</small></div><button class="pill" id="watchChannel">View channel</button></div><div class="actions"><button class="pill" id="saveVideo">＋ Save</button><button class="pill" id="addToPlaylist">＋ Playlist</button><button class="pill" id="openNative">Open player ↗</button></div></div><div class="description"><div class="descriptionstats"><strong>'+views(v)+' views</strong><span>'+esc(v.publishedText||"") +'</span></div><div class="descriptiontext">'+esc(videoDescription(v))+'</div></div><section class="comments" id="commentsSection"><div class="commentshead"><h3>Comments</h3><span class="muted">Read-only</span></div><div class="commentstate">Loading comments…</div></section></div><aside class="related"><h3>Up next</h3>'+(rec.length?rec.map(videoCard).join(""):'<p class="muted">No related videos available.</p>')+'</aside></div>';
   $("backBtn").onclick=()=>{if(currentPlaylist?.kind==="user")openUserPlaylist(currentPlaylist.id);else if(currentPlaylist)playlist(currentPlaylist.id);else home()};
   if(inPlaylist){$("prevPlaylistBtn").onclick=()=>{if(previous)watch(previous.videoId||previous.id,playlistIndex-1)};$("nextPlaylistBtn").onclick=()=>{if(next)watch(next.videoId||next.id,playlistIndex+1)}}
   $("fullscreenBtn").onclick=async()=>{const player=$("playerShell");try{if(document.fullscreenElement)await document.exitFullscreen();else if(player.requestFullscreen)await player.requestFullscreen();else throw Error("Unsupported")}catch(e){toast("Fullscreen is not available in this browser")}};
