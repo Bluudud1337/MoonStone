@@ -280,11 +280,45 @@ body[data-cursor="sparkle"],body[data-cursor="sparkle"] *{cursor:url("data:image
 body[data-cursor="lightning"],body[data-cursor="lightning"] *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M18 1L5 18h9l-1 13 14-19h-9z' fill='%23ffe34d' stroke='%23101010' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 12 3,auto}
 body[data-cursor="heart"],body[data-cursor="heart"] *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16 28S3 20 3 10a7 7 0 0 1 13-3 7 7 0 0 1 13 3c0 10-13 18-13 18z' fill='%23ff5d91' stroke='%23101010' stroke-width='2'/%3E%3C/svg%3E") 16 16,auto}
 body[data-cursor="flame"],body[data-cursor="flame"] *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M17 1c2 8-5 9-2 15 1-3 4-4 5-8 7 7 10 13 5 20-5 7-18 3-19-5-1-6 4-11 7-15 0 6 2 7 4 9-1-7 2-10 0-16z' fill='%23ff7138' stroke='%237a1d0b' stroke-width='2'/%3E%3C/svg%3E") 15 4,auto}
+
+/* Moonstube homepage polish */
+.sidebarToggle{flex:none;width:40px;height:40px;padding:0;border-radius:50%;font-size:18px;display:grid;place-items:center}
+.brand{min-width:190px}
+.brandmark{border-radius:8px;position:relative}
+.brandmark:after{content:"";position:absolute;inset:-4px;border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:11px}
+.search input:focus{border-color:color-mix(in srgb,var(--accent) 75%,var(--border));box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent)}
+.chips{gap:9px}
+.chip{border-radius:8px;padding:8px 14px;font-weight:600;transition:background .16s,border-color .16s,transform .16s}
+.chip:hover{transform:translateY(-1px);border-color:var(--accent)}
+.grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:36px 22px}
+.thumbwrap{border:0;border-radius:13px}
+.video:hover .thumb{transform:scale(1.025)}
+.vrow{gap:12px}
+.vtitle{font-size:14px;font-weight:650}
+.navbtn{transition:background .15s ease}
+body.sidebar-collapsed .side{width:76px;padding-inline:8px}
+body.sidebar-collapsed main{margin-left:76px;width:calc(100% - 76px)}
+body.sidebar-collapsed .navbtn{justify-content:center;padding-inline:0;gap:0}
+body.sidebar-collapsed .navbtn span:last-child,body.sidebar-collapsed .navlabel,body.sidebar-collapsed .subscriptions{display:none}
+body.sidebar-collapsed .navico{font-size:19px}
+@media(max-width:900px){
+ .sidebarToggle{width:36px;height:36px}
+ body.sidebar-collapsed .side{width:76px}
+ body.sidebar-collapsed main{margin-left:76px;width:calc(100% - 76px)}
+}
+@media(max-width:700px){
+ .sidebarToggle{display:none}
+ .brand{min-width:0}
+ body.sidebar-collapsed .side{width:100%}
+ body.sidebar-collapsed main{margin:0;width:100%}
+}
+
 </style>
 </head>
 <body>
 <header class="top">
- <a class="brand" href="YT.html" style="text-decoration:none"><span class="brandmark">▶</span><span>YouTube <small>MOONSTONE</small></span></a>
+ <button class="iconbtn sidebarToggle" id="sidebarToggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar">☰</button>
+ <a class="brand" href="YT.html" style="text-decoration:none"><span class="brandmark">▶</span><span>Moonstube <small>BY MOONSTONE</small></span></a>
  <form class="search" id="searchForm"><input id="searchInput" placeholder="Search videos, channels..." autocomplete="off"><button aria-label="Search">⌕</button></form>
  <div class="topright"><button class="iconbtn" id="tvModeBtn" type="button" aria-pressed="false" title="Switch to TV layout">TV layout</button><button class="iconbtn" id="refreshBtn" title="Refresh feed">↻</button><button class="iconbtn" id="homeBtn">MoonStone ↗</button></div>
 </header>
@@ -301,7 +335,7 @@ body[data-cursor="flame"],body[data-cursor="flame"] *{cursor:url("data:image/svg
 </aside>
 <main>
  <div id="message" class="hidden"></div>
- <section id="chips" class="chips"><button class="chip active" data-category="default">For you</button><button class="chip" data-category="music">Music</button><button class="chip" data-category="gaming">Gaming</button><button class="chip" data-category="movies">Movies</button></section>
+ <section id="chips" class="chips"><button class="chip active" data-category="default">All</button><button class="chip" data-category="music">Music</button><button class="chip" data-category="gaming">Gaming</button><button class="chip" data-category="movies">Movies</button><button class="chip" data-category="science">Science</button><button class="chip" data-category="technology">Technology</button><button class="chip" data-category="animation">Animation</button><button class="chip" data-category="podcasts">Podcasts</button><button class="chip" data-category="news">News</button></section>
  <div id="content"><div class="loading">Loading your recommendations…</div></div>
 </main>
 </div>
@@ -639,6 +673,10 @@ function localList(key,label){
 }
 document.querySelectorAll(".navbtn[data-page]").forEach(b=>b.addEventListener("click",()=>{const p=b.dataset.page;if(p==="home")home();else if(p==="subscriptions"){page="subscriptions";setNav(page);chips.classList.add("hidden");const list=get("channels",[]);if(!list.length){content.innerHTML='<div class="empty">Subscribe to channels to build your feed.</div>';return}Promise.all(list.map(c=>request("/api/v1/channels/"+encodeURIComponent(c.id)).catch(()=>null))).then(cs=>renderVideos(cs.filter(Boolean).flatMap(c=>c.latestVideos||[]),"Your subscriptions"))}else if(p==="playlists"){page="playlists";setNav(page);chips.classList.add("hidden");renderUserPlaylists()}else localList(p,p==="history"?"Watch history":"Saved videos")}));
 $("searchForm").addEventListener("submit",e=>{e.preventDefault();const q=$("searchInput").value.trim();if(q){const id=playlistIdFromInput(q);if(id)playlist(id);else search(q)}});
+const sidebarToggle=$("sidebarToggle");
+function setSidebarCollapsed(collapsed){document.body.classList.toggle("sidebar-collapsed",collapsed);sidebarToggle?.setAttribute("aria-expanded",String(!collapsed));sidebarToggle?.setAttribute("aria-label",collapsed?"Expand sidebar":"Collapse sidebar");if(sidebarToggle)sidebarToggle.title=collapsed?"Expand sidebar":"Collapse sidebar";try{localStorage.setItem("msyt_sidebar_collapsed",collapsed?"1":"0")}catch(e){}}
+sidebarToggle?.addEventListener("click",()=>setSidebarCollapsed(!document.body.classList.contains("sidebar-collapsed")));
+try{setSidebarCollapsed(localStorage.getItem("msyt_sidebar_collapsed")==="1")}catch(e){setSidebarCollapsed(false)}
 const tvModeBtn=$("tvModeBtn");
 function setTVMode(enabled){
  document.body.classList.toggle("tv-mode",enabled);
