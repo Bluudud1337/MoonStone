@@ -1040,21 +1040,12 @@ body.dock-span-full.dock-bottom #app-body{padding-bottom:55px!important}
 
         async function loadUserProfile(userEmail) {
             const key = sanitizeEmailKey(userEmail);
-            // Use the cache immediately, but always refresh from the shared profile
-            // record so an incomplete/old cached entry cannot hide a user's avatar.
-            const cached = profileCache[key] || null;
+            if (profileCache[key]) return profileCache[key];
             try {
                 const snap = await window.get(window.ref(window.db, 'profiles/' + key));
-                if (snap.exists()) {
-                    const remote = snap.val() || {};
-                    const merged = { ...defaultProfile(), ...(cached || {}), ...remote };
-                    profileCache[key] = merged;
-                    return merged;
-                }
-            } catch (e) {
-                console.warn('Could not refresh user profile:', userEmail, e);
-            }
-            return cached;
+                if (snap.exists()) { profileCache[key] = { ...defaultProfile(), ...snap.val() }; return profileCache[key]; }
+            } catch (e) {}
+            return null;
         }
 
         function applyProfile() {
@@ -1855,9 +1846,8 @@ function appendMessage(user, text, time, type, key, email, isAdminMsg) {
     list.appendChild(msgDiv);
     list.scrollTop = list.scrollHeight;
 
-    // Refresh profile data for every message. A cached profile may be incomplete
-    // (for example, it may not contain the avatar that was uploaded later).
-    if (email) {
+    // FIX: Async load profile if not cached — now applies avatar too
+    if (!cachedProfile && email) {
         loadUserProfile(email).then(p => {
             if (!p) return;
             const nameEl = msgDiv.querySelector('.msg-user');
