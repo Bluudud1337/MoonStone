@@ -1363,7 +1363,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
         </section>
         <section class="settings-panel" data-settings-panel="browser">
           <p class="settings-kicker">BROWSING</p><h3>Browser</h3><p class="settings-intro">Control how the built-in browser opens websites and uses fullscreen.</p>
-          <div class="setting-row"><div class="setting-description"><strong>Disable browser sandbox</strong><span>Allows sites to redirect the main page and removes iframe sandbox restrictions. Only enable for sites you trust.</span></div><button class="toggle" id="settingsBrowserAllowRedirects" role="switch" aria-checked="false" aria-label="Disable browser sandbox"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Relax browser restrictions</strong><span>Allows additional iframe features while keeping popups and redirects to the main page blocked.</span></div><button class="toggle" id="settingsBrowserAllowRedirects" role="switch" aria-checked="false" aria-label="Relax browser restrictions"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Browser engine</strong><span>Choose how websites are opened in the built-in browser.</span></div><select id="tempBrowserEngine" aria-label="Browser engine" style="min-width:120px;padding:9px 10px;border-radius:9px;background:var(--surface,#171717);color:inherit;border:1px solid var(--border,#444);font:inherit"><option value="scramjet">Scramjet</option><option value="iframe">Iframe</option></select></div>
           <div class="setting-row"><div class="setting-description"><strong>Browser fullscreen</strong><span>Use the Fullscreen button in the browser toolbar to expand tabs and the page to the entire screen.</span></div><span class="settings-status">IN TOOLBAR</span></div>
           <div class="setting-row"><div class="setting-description"><strong>Open MoonStone as Blob</strong><span>Open a copy of this page through a temporary blob: URL. Some relative navigation and browser features may behave differently.</span></div><button class="settings-action" id="openMoonstoneBlob" type="button">Open as Blob</button></div>
@@ -2640,14 +2640,16 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   const active=()=>tabs.find(t=>t.id===activeId);
   function normalize(value){let raw=value.trim();if(!raw)return null;if(!/^https?:\/\//i.test(raw))raw="https://"+raw;try{const u=new URL(raw);return ["http:","https:"].includes(u.protocol)?u.href:null}catch{return null}}
   function sandbox(){
-    // Match the iframe permissions used by the Movies player.
-    // The setting removes sandbox restrictions only when the user explicitly enables it.
-    if(allowRedirects) frame.removeAttribute("sandbox");
-    else frame.setAttribute("sandbox","allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock");
+    // Keep popups and top-level redirects blocked in both modes.
+    // Relaxed mode adds useful iframe capabilities without removing the sandbox.
+    const permissions = allowRedirects
+      ? "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock allow-downloads allow-modals allow-orientation-lock"
+      : "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock";
+    frame.setAttribute("sandbox",permissions);
     frame.setAttribute("allow","autoplay; fullscreen; picture-in-picture");
     frame.setAttribute("allowfullscreen","");
     frame.setAttribute("referrerpolicy","origin");
-    return allowRedirects ? !frame.hasAttribute("sandbox") : frame.hasAttribute("sandbox");
+    return frame.hasAttribute("sandbox");
   }
   function frameUrl(url){return browserEngine==="scramjet"?"https://moonstone-scramjet-browser.onrender.com/?embed=1&url="+encodeURIComponent(url):url}
   function reloadActivePage(){const t=active();if(!t||!t.url)return;sandbox();frame.removeAttribute("srcdoc");frame.src=frameUrl(t.url);status.textContent="Loading "+t.title+" with "+(browserEngine==="scramjet"?"Scramjet":"iframe")+". "+(allowRedirects?"Sandbox disabled.":"Sandbox enabled.")}
