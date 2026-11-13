@@ -1363,7 +1363,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
         </section>
         <section class="settings-panel" data-settings-panel="browser">
           <p class="settings-kicker">BROWSING</p><h3>Browser</h3><p class="settings-intro">Control how the built-in browser opens websites and uses fullscreen.</p>
-          <div class="setting-row"><div class="setting-description"><strong>Relax browser restrictions</strong><span>Allows additional iframe features while keeping popups and redirects to the main page blocked.</span></div><button class="toggle" id="settingsBrowserAllowRedirects" role="switch" aria-checked="false" aria-label="Relax browser restrictions"></button></div>
+          <div class="setting-row"><div class="setting-description"><strong>Block redirects</strong><span>On: sandbox enabled to block popups and redirects out of the page. Off: sandbox disabled and redirects allowed.</span></div><button class="toggle" id="settingsBrowserAllowRedirects" role="switch" aria-checked="false" aria-label="Block redirects"></button></div>
           <div class="setting-row"><div class="setting-description"><strong>Browser engine</strong><span>Choose how websites are opened in the built-in browser.</span></div><select id="tempBrowserEngine" aria-label="Browser engine" style="min-width:120px;padding:9px 10px;border-radius:9px;background:var(--surface,#171717);color:inherit;border:1px solid var(--border,#444);font:inherit"><option value="scramjet">Scramjet</option><option value="iframe">Iframe</option></select></div>
           <div class="setting-row"><div class="setting-description"><strong>Browser fullscreen</strong><span>Use the Fullscreen button in the browser toolbar to expand tabs and the page to the entire screen.</span></div><span class="settings-status">IN TOOLBAR</span></div>
           <div class="setting-row"><div class="setting-description"><strong>Open MoonStone as Blob</strong><span>Open a copy of this page through a temporary blob: URL. Some relative navigation and browser features may behave differently.</span></div><button class="settings-action" id="openMoonstoneBlob" type="button">Open as Blob</button></div>
@@ -2630,16 +2630,16 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   let tabs=[],activeId=null,nextId=1;
   const redirectSetting=document.getElementById("settingsBrowserAllowRedirects");
   const engineSelect=document.getElementById("tempBrowserEngine");
-  let allowRedirects=false;
+  let blockRedirects=false;
   let browserEngine="scramjet";
-  try{const saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}");allowRedirects=saved.browserAllowRedirects===true;browserEngine=saved.browserEngine==="iframe"?"iframe":"scramjet"}catch{}
+  try{const saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}");blockRedirects=saved.browserBlockRedirects===true;browserEngine=saved.browserEngine==="iframe"?"iframe":"scramjet"}catch{}
   if(engineSelect){engineSelect.value=browserEngine;engineSelect.addEventListener("change",()=>{browserEngine=engineSelect.value==="iframe"?"iframe":"scramjet";saveBrowserOptions();reloadActivePage()})}
-  function saveBrowserOptions(){try{const saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}");saved.browserAllowRedirects=allowRedirects;saved.browserEngine=browserEngine;localStorage.setItem("moonstone-settings",JSON.stringify(saved))}catch{}}
+  function saveBrowserOptions(){try{const saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}");saved.browserBlockRedirects=blockRedirects;saved.browserEngine=browserEngine;localStorage.setItem("moonstone-settings",JSON.stringify(saved))}catch{}}
   if(redirectSetting){
-    redirectSetting.setAttribute("aria-checked",String(allowRedirects));
+    redirectSetting.setAttribute("aria-checked",String(blockRedirects));
     redirectSetting.addEventListener("click",()=>{
-      allowRedirects=!allowRedirects;
-      redirectSetting.setAttribute("aria-checked",String(allowRedirects));
+      blockRedirects=!blockRedirects;
+      redirectSetting.setAttribute("aria-checked",String(blockRedirects));
       saveBrowserOptions();
       reloadActivePage();
     });
@@ -2648,12 +2648,13 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   const active=()=>tabs.find(t=>t.id===activeId);
   function normalize(value){let raw=value.trim();if(!raw)return null;if(!/^https?:\/\//i.test(raw))raw="https://"+raw;try{const u=new URL(raw);return ["http:","https:"].includes(u.protocol)?u.href:null}catch{return null}}
   function sandbox(){
-    // Never grant popup or top-level navigation permissions.
-    // The toggle only controls additional iframe capabilities.
-    const permissions = allowRedirects
-      ? "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock allow-downloads allow-modals allow-orientation-lock"
-      : "allow-scripts allow-same-origin allow-forms";
-    frame.setAttribute("sandbox",permissions);
+    // Enabled means block popups and top-level redirects.
+    // Disabled means remove the sandbox and allow the embedded site to navigate normally.
+    if(blockRedirects){
+      frame.setAttribute("sandbox","allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock");
+    }else{
+      frame.removeAttribute("sandbox");
+    }
     frame.setAttribute("allow","autoplay; fullscreen; picture-in-picture");
     frame.setAttribute("allowfullscreen","");
     frame.setAttribute("referrerpolicy","origin");
@@ -2673,7 +2674,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     const t=active();
     if(!t||!t.url)return;
     loadBrowserUrl(t.url);
-    status.textContent="Loading "+t.title+" with "+(browserEngine==="scramjet"?"Scramjet":"Iframe")+". "+(allowRedirects?"Extra iframe features enabled; popups remain blocked.":"Sandbox enabled; popups remain blocked.");
+    status.textContent="Loading "+t.title+" with "+(browserEngine==="scramjet"?"Scramjet":"Iframe")+". "+(blockRedirects?"Redirect blocking is on; iframe sandbox enabled.":"Redirect blocking is off; iframe sandbox disabled.");
   }
   function render(){tabsEl.replaceChildren();tabs.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="temp-tab"+(t.id===activeId?" active":"");b.setAttribute("role","tab");b.setAttribute("aria-selected",String(t.id===activeId));const title=document.createElement("span");title.className="temp-tab-title";title.textContent=t.title;const close=document.createElement("span");close.className="temp-tab-close";close.textContent="×";close.setAttribute("aria-label","Close tab");b.append(title,close);b.addEventListener("click",e=>e.target===close?closeTab(t.id):switchTab(t.id));tabsEl.append(b)});const add=document.createElement("button");add.type="button";add.className="temp-tab-add";add.textContent="+";add.title="New tab";add.addEventListener("click",()=>createTab());tabsEl.append(add)}
   function setTitle(t,url){t.url=url;try{t.title=new URL(url).hostname.replace(/^www\./,"")||"New tab"}catch{t.title="New tab"}}
@@ -2733,7 +2734,7 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
 </html>`;
   }
   function closeTab(id){const i=tabs.findIndex(t=>t.id===id);if(i<0)return;const wasActive=activeId===id;tabs.splice(i,1);if(!tabs.length){activeId=null;frame.src="about:blank";modal.classList.remove("open");setFullscreen(false);urlInput.value=window.location.pathname+window.location.search+window.location.hash||"/";render();return}if(wasActive)activeId=tabs[Math.max(0,i-1)].id;switchTab(activeId)}
-  function navigate(value,addHistory=true){const entered=value.trim();if(!entered){status.textContent="Enter a search or website address.";return}let url;if(/^https?:\/\//i.test(entered)||/^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered))url=normalize(entered);else {const engine=document.getElementById("searchEngine")?.value||localStorage.getItem("moonstone-search-engine")||"google";const q=encodeURIComponent(entered);const searchUrls={google:"https://www.google.com/search?igu=1&q="+q,brave:"https://search.brave.com/search?q="+q,duckduckgo:"https://duckduckgo.com/?q="+q,bing:"https://www.bing.com/search?q="+q,ecosia:"https://www.ecosia.org/search?q="+q,startpage:"https://www.startpage.com/sp/search?query="+q,yahoo:"https://search.yahoo.com/search?p="+q};url=searchUrls[engine]||searchUrls.google;}if(!url){status.textContent="Enter a valid http:// or https:// address.";return}let t=active()||createTab();setTitle(t,url);if(browserAddress)browserAddress.value=entered;if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}loadBrowserUrl(url);urlInput.value=entered;modal.classList.add("open");status.textContent="Loading "+t.title+" with "+(browserEngine==="scramjet"?"Scramjet":"Iframe")+". "+(allowRedirects?"Extra iframe features enabled; popups remain blocked.":"Sandbox enabled; popups remain blocked.");render()}
+  function navigate(value,addHistory=true){const entered=value.trim();if(!entered){status.textContent="Enter a search or website address.";return}let url;if(/^https?:\/\//i.test(entered)||/^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered))url=normalize(entered);else {const engine=document.getElementById("searchEngine")?.value||localStorage.getItem("moonstone-search-engine")||"google";const q=encodeURIComponent(entered);const searchUrls={google:"https://www.google.com/search?igu=1&q="+q,brave:"https://search.brave.com/search?q="+q,duckduckgo:"https://duckduckgo.com/?q="+q,bing:"https://www.bing.com/search?q="+q,ecosia:"https://www.ecosia.org/search?q="+q,startpage:"https://www.startpage.com/sp/search?query="+q,yahoo:"https://search.yahoo.com/search?p="+q};url=searchUrls[engine]||searchUrls.google;}if(!url){status.textContent="Enter a valid http:// or https:// address.";return}let t=active()||createTab();setTitle(t,url);if(browserAddress)browserAddress.value=entered;if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}loadBrowserUrl(url);urlInput.value=entered;modal.classList.add("open");status.textContent="Loading "+t.title+" with "+(browserEngine==="scramjet"?"Scramjet":"Iframe")+". "+(blockRedirects?"Extra iframe features enabled; popups remain blocked.":"Sandbox enabled; popups remain blocked.");render()}
   document.getElementById("tempGo").addEventListener("click",()=>navigate(urlInput.value));
    if(browserAddress){browserAddress.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();urlInput.value=browserAddress.value;navigate(browserAddress.value)}});browserAddress.addEventListener("input",()=>{urlInput.value=browserAddress.value})}
   urlInput.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();navigate(urlInput.value)}});
