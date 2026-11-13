@@ -41,6 +41,14 @@ body[data-theme=frogies]{--bg:#080b09;--panel:#151a16;--text:#f0f3f0;--muted:#aa
   const frame=document.getElementById("frame");
   let loaded=false;
   frame.addEventListener("load",()=>{loaded=true});
+  function applyTheme(){
+    try{settings=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")}catch{settings={}}
+    document.body.dataset.theme=themes.includes(settings.theme)?settings.theme:"moonstone";
+    if(settings.siteFont)document.body.style.fontFamily='"'+String(settings.siteFont).replace(/["\\]/g,"")+'",system-ui,sans-serif';
+  }
+  applyTheme();
+  addEventListener("storage",e=>{if(e.key==="moonstone-settings")applyTheme()});
+  addEventListener("focus",applyTheme);
   setTimeout(()=>{if(!loaded)document.getElementById("fallback").style.display="flex"},7000);
 })();
 </script>
