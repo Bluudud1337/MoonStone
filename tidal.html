@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Music · MoonStone</title>
 <link rel="icon" href="YOUR_ICON_URL_HERE">
+<link rel="stylesheet" href="moonstone-dock.css">
 <style>
 :root{color-scheme:dark;--bg:#090909;--panel:#111110;--text:#fffb9e;--muted:#c9c57b;--border:#39371e;--accent:#fffb9e}
 *{box-sizing:border-box}
@@ -28,6 +29,7 @@ body[data-theme=frogies]{--bg:#080b09;--panel:#151a16;--text:#f0f3f0;--muted:#aa
 </style>
 </head>
 <body>
+<div id="moonstone-dock-root"></div>
 <iframe id="frame" src="https://racialequityleadership.com/music-app/" title="MoonStone Music" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
 <div id="fallback">Music app not loading inside MoonStone? <a href="https://racialequityleadership.com/music-app/" target="_blank" rel="noopener noreferrer">Open Music</a></div>
 <script>
@@ -42,5 +44,6 @@ body[data-theme=frogies]{--bg:#080b09;--panel:#151a16;--text:#f0f3f0;--muted:#aa
   setTimeout(()=>{if(!loaded)document.getElementById("fallback").style.display="flex"},7000);
 })();
 </script>
+<script src="moonstone-dock.js"></script>
 </body>
 </html>
