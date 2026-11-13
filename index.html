@@ -1731,6 +1731,7 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     // when any of the main settings are saved.
     const existing = loadJSON("moonstone-settings", {});
     settings.browserAllowRedirects = existing.browserAllowRedirects === true;
+    settings.browserEngine = existing.browserEngine === "iframe" ? "iframe" : "scramjet";
     settings.alwaysMoonstoneBlob = existing.alwaysMoonstoneBlob === true;
     localStorage.setItem("moonstone-settings", JSON.stringify(settings));
   }
@@ -2638,7 +2639,14 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   function setFullscreen(on){document.body.classList.toggle("browser-fullscreen",on);const b=document.getElementById("tempFullscreen");if(b){b.setAttribute("aria-pressed",String(on));b.title=on?"Exit fullscreen":"Toggle fullscreen";b.setAttribute("aria-label",b.title)}}
   const active=()=>tabs.find(t=>t.id===activeId);
   function normalize(value){let raw=value.trim();if(!raw)return null;if(!/^https?:\/\//i.test(raw))raw="https://"+raw;try{const u=new URL(raw);return ["http:","https:"].includes(u.protocol)?u.href:null}catch{return null}}
-  function sandbox(){if(allowRedirects){frame.removeAttribute("sandbox")}else{frame.setAttribute("sandbox","allow-scripts allow-forms allow-same-origin allow-popups")} frame.setAttribute("allow","fullscreen")}
+  function sandbox(){
+    // This is the actual iframe that receives the destination URL.
+    // In Scramjet mode this only affects its outer frame, not its internal iframe.
+    if(allowRedirects) frame.removeAttribute("sandbox");
+    else frame.setAttribute("sandbox","allow-scripts allow-forms allow-same-origin allow-popups");
+    frame.setAttribute("allow","fullscreen");
+    return allowRedirects ? !frame.hasAttribute("sandbox") : frame.hasAttribute("sandbox");
+  }
   function frameUrl(url){return browserEngine==="scramjet"?"https://moonstone-scramjet-browser.onrender.com/?embed=1&url="+encodeURIComponent(url):url}
   function reloadActivePage(){const t=active();if(!t||!t.url)return;sandbox();frame.removeAttribute("srcdoc");frame.src=frameUrl(t.url);status.textContent="Loading "+t.title+" with "+(browserEngine==="scramjet"?"Scramjet":"iframe")+". "+(allowRedirects?"Sandbox disabled.":"Sandbox enabled.")}
   function render(){tabsEl.replaceChildren();tabs.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="temp-tab"+(t.id===activeId?" active":"");b.setAttribute("role","tab");b.setAttribute("aria-selected",String(t.id===activeId));const title=document.createElement("span");title.className="temp-tab-title";title.textContent=t.title;const close=document.createElement("span");close.className="temp-tab-close";close.textContent="×";close.setAttribute("aria-label","Close tab");b.append(title,close);b.addEventListener("click",e=>e.target===close?closeTab(t.id):switchTab(t.id));tabsEl.append(b)});const add=document.createElement("button");add.type="button";add.className="temp-tab-add";add.textContent="+";add.title="New tab";add.addEventListener("click",()=>createTab());tabsEl.append(add)}
