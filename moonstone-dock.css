@@ -42,3 +42,27 @@ body.dock-span-full.dock-right.sidebar-pushed .ms-dock.sidebar{left:auto!importa
  .ms-dock.sidebar{gap:2px;padding:6px}
  .ms-dock .side-link,.ms-dock .side-button{width:38px;height:38px}
 }
+
+
+/* Theme-aware dock and hide/show control */
+.ms-dock.sidebar{background:var(--dock-bg,color-mix(in srgb,var(--panel,var(--bg,#17171c)) 84%,transparent));color:var(--text);border-color:var(--border);box-shadow:0 8px 30px #0003}
+.ms-dock .side-link,.ms-dock .side-button{color:var(--muted)}
+.ms-dock .side-link:hover,.ms-dock .side-button:hover,.ms-dock .side-link.active{color:var(--text);background:var(--hover)}
+.ms-dock .side-divider{background:var(--border)}
+.ms-dock-toggle{position:fixed;z-index:10011;width:29px;height:25px;display:grid;place-items:center;padding:0;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--accent);cursor:pointer;box-shadow:0 4px 14px #0004;transition:background .2s,color .2s,transform .2s}
+.ms-dock-toggle:hover{background:var(--hover);color:var(--text)}
+.ms-dock-toggle svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+body.dock-left .ms-dock-toggle{left:23px;top:calc(50% - 145px)}
+body.dock-right .ms-dock-toggle{right:23px;left:auto;top:calc(50% - 145px)}
+body.dock-bottom .ms-dock-toggle{left:50%;right:auto;bottom:77px;top:auto;transform:translateX(-50%)}
+body.dock-left.sidebar-pushed .ms-dock.sidebar{left:-150px!important;right:auto!important;transform:translateY(-50%)!important;pointer-events:none}
+body.dock-right.sidebar-pushed .ms-dock.sidebar{right:-150px!important;left:auto!important;transform:translateY(-50%)!important;pointer-events:none}
+body.dock-bottom.sidebar-pushed .ms-dock.sidebar{bottom:-100px!important;top:auto!important;transform:translateX(-50%)!important;pointer-events:none}
+body.dock-span-full.dock-left .ms-dock-toggle{left:7px;top:12px}
+body.dock-span-full.dock-right .ms-dock-toggle{right:7px;left:auto;top:12px}
+body.dock-span-full.dock-bottom .ms-dock-toggle{bottom:calc(100% - 29px);top:auto;left:50%;transform:translateX(-50%)}
+body.dock-span-full.sidebar-pushed.dock-left .ms-dock.sidebar{left:-150px!important}
+body.dock-span-full.sidebar-pushed.dock-right .ms-dock.sidebar{right:-150px!important;left:auto!important}
+body.dock-span-full.sidebar-pushed.dock-bottom .ms-dock.sidebar{bottom:-100px!important;left:0!important;right:0!important;transform:translateY(100%)!important}
+body.sidebar-pushed .ms-dock-toggle{color:var(--accent)}
+@media(max-width:520px){body.dock-left .ms-dock-toggle{top:calc(50% - 145px)}body.dock-right .ms-dock-toggle{top:calc(50% - 145px)}body.dock-bottom .ms-dock-toggle{bottom:77px}}
