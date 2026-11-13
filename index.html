@@ -2632,9 +2632,9 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   const engineSelect=document.getElementById("tempBrowserEngine");
   let blockRedirects=false;
   let browserEngine="scramjet";
-  try{const saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}");blockRedirects=saved.browserBlockRedirects===true;browserEngine=saved.browserEngine==="iframe"?"iframe":"scramjet"}catch{}
+  try{const saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}");blockRedirects=saved.browserAllowRedirects===true;browserEngine=saved.browserEngine==="iframe"?"iframe":"scramjet"}catch{}
   if(engineSelect){engineSelect.value=browserEngine;engineSelect.addEventListener("change",()=>{browserEngine=engineSelect.value==="iframe"?"iframe":"scramjet";saveBrowserOptions();reloadActivePage()})}
-  function saveBrowserOptions(){try{const saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}");saved.browserBlockRedirects=blockRedirects;saved.browserEngine=browserEngine;localStorage.setItem("moonstone-settings",JSON.stringify(saved))}catch{}}
+  function saveBrowserOptions(){try{const saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}");saved.browserAllowRedirects=blockRedirects;saved.browserEngine=browserEngine;localStorage.setItem("moonstone-settings",JSON.stringify(saved))}catch{}}
   if(redirectSetting){
     redirectSetting.setAttribute("aria-checked",String(blockRedirects));
     redirectSetting.addEventListener("click",()=>{
