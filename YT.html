@@ -413,6 +413,23 @@ body.sidebar-collapsed .navico{font-size:19px}
 .searchsuggestionlabel{padding:7px 11px 5px;color:var(--muted);font-size:10px;letter-spacing:1px;text-transform:uppercase}
 @media(max-width:580px){.searchsuggestions{top:calc(100% + 7px);max-height:260px}}
 
+
+/* Chunk 5: Moonstube search filters and comment channel links */
+.searchfilters{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:4px 0 24px;padding:12px 0;border-bottom:1px solid var(--border)}
+.searchfiltertabs{display:flex;gap:7px;flex-wrap:wrap}
+.searchfilter{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:20px;padding:8px 14px;font-size:12px;font-weight:650}
+.searchfilter:hover{background:var(--hover)}
+.searchfilter.active{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.searchsortlabel{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+.searchsortlabel select{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:8px 10px;max-width:160px}
+.searchresultheading{font-size:16px;margin:22px 0 13px}
+.searchchannelgrid{margin-bottom:26px}
+.commentavatarlink{display:block;flex:none;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer}
+.commentavatarlink .commentavatarwrap{display:block}
+.commentavatarlink:hover{outline:2px solid var(--accent);outline-offset:3px}
+.commentavatarlink:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:700px){.searchfilters{align-items:flex-start}.searchsortlabel{width:100%;justify-content:flex-end}.commentavatarlink{width:35px;height:35px}}
+
 </style>
 </head>
 <body>
@@ -579,14 +596,30 @@ async function playlist(id){
  }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div><button class="pill" id="playlistRetry">Retry</button>'; $("playlistRetry").onclick=()=>playlist(id)}
 }
 async function search(q){
- page="search";searchTerm=q;if($("searchInput"))$("searchInput").value=q;hideSearchSuggestions();setNav("");chips.classList.add("hidden");content.innerHTML='<div class="loading">Searching YouTube…</div>';
+ page="search";searchTerm=q;if($("searchInput"))$("searchInput").value=q;hideSearchSuggestions();setNav("");chips.classList.add("hidden");content.innerHTML='<div class="loading">Searching Moonstube…</div>';
  const searches=get("searches",[]);
  put("searches",[{query:q,time:Date.now()},...searches.filter(x=>(typeof x==="string"?x:x?.query||"").toLowerCase()!==q.toLowerCase())].slice(0,20));
- try{const data=await request("/api/v1/search?q="+encodeURIComponent(q)+"&type=all&page=1&region=US");
- const videos=data.filter(x=>x.type==="video"||x.type==="stream"||x.type==="livestream"||isLive(x)),channels=data.filter(x=>x.type==="channel");
- content.innerHTML='<div class="sectionhead"><h1>Search results</h1><span class="muted">'+esc(q)+'</span></div>'+
- (channels.length?'<h3>Channels</h3><div class="grid" style="margin-bottom:28px">'+channels.map(c=>`<article class="channelcard" data-channel="${esc(c.authorId)}"><img src="${esc(avatar(c))}" alt=""><div><strong>${esc(c.author)}</strong><span class="muted">${fmt(c.subCount)} subscribers · ${fmt(c.videoCount)} videos</span></div></article>`).join("")+'</div>':'')+
- '<h3>Videos</h3><div class="grid">'+(videos.length?videos.map(videoCard).join(""):'<div class="empty">No matching videos.</div>')+'</div>';
+ try{
+  const data=await request("/api/v1/search?q="+encodeURIComponent(q)+"&type=all&page=1&region=US");
+  const videos=data.filter(x=>x.type==="video"||x.type==="stream"||x.type==="livestream"||isLive(x));
+  const channels=data.filter(x=>x.type==="channel");
+  let filter="all",sort="relevance";
+  const isLiveResult=v=>v.type==="stream"||v.type==="livestream"||isLive(v);
+  const render=()=>{
+   const shownVideos=videos.filter(v=>filter!=="channels"&&(filter!=="live"||isLiveResult(v)));
+   const shownChannels=filter==="all"||filter==="channels"?channels:[];
+   if(sort==="views")shownVideos.sort((a,b)=>(Number(b.viewCount)||0)-(Number(a.viewCount)||0));
+   if(sort==="newest")shownVideos.sort((a,b)=>{const date=v=>{const n=Number(v.published);if(Number.isFinite(n)&&n>0)return n>1e12?n:n*1000;const parsed=Date.parse(v.publishedAt||"");return Number.isFinite(parsed)?parsed:0};return date(b)-date(a)});
+   content.innerHTML='<div class="sectionhead"><div><h1>Search results</h1><span class="muted">For “'+esc(q)+'” · '+(shownVideos.length+shownChannels.length)+' results</span></div></div>'+
+    '<div class="searchfilters"><div class="searchfiltertabs" role="group" aria-label="Filter search results">'+
+    ['all','videos','channels','live'].map(k=>'<button type="button" class="searchfilter '+(filter===k?'active':'')+'" data-search-filter="'+k+'">'+({all:"All",videos:"Videos",channels:"Channels",live:"Live"})[k]+'</button>').join("")+
+    '</div><label class="searchsortlabel">Sort <select id="searchSort"><option value="relevance">Relevance</option><option value="views" '+(sort==="views"?'selected':'')+'>Most viewed</option><option value="newest" '+(sort==="newest"?'selected':'')+'>Newest</option></select></label></div>'+
+    (shownChannels.length?'<h3 class="searchresultheading">Channels</h3><div class="grid searchchannelgrid">'+shownChannels.map(ch=>`<article class="channelcard" data-channel="${esc(ch.authorId||ch.authorIdText||"")}"><img src="${esc(avatar(ch))}" alt=""><div><strong>${esc(ch.author||"Channel")}</strong><span class="muted">${fmt(ch.subCount)} subscribers · ${fmt(ch.videoCount)} videos</span></div></article>`).join("")+'</div>':'')+
+    (filter!=="channels"?'<h3 class="searchresultheading">Videos</h3><div class="grid">'+(shownVideos.length?shownVideos.map(videoCard).join(""):'<div class="empty">No matching videos in this filter.</div>')+'</div>':'');
+   content.querySelectorAll("[data-search-filter]").forEach(btn=>btn.addEventListener("click",()=>{filter=btn.dataset.searchFilter;render()}));
+   const sortSelect=$("searchSort");if(sortSelect)sortSelect.addEventListener("change",()=>{sort=sortSelect.value;render()});
+  };
+  render();
  }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div>'}
 }
 async function channel(id){
@@ -758,7 +791,9 @@ async function loadComments(id){
    const authorName=c.author||"Unknown user";
    const initials=authorName.trim().split(/\\s+/).slice(0,2).map(x=>x[0]||"").join("").toUpperCase()||"?";
    const text=plainCommentText(c.content||c.commentText||c.text);
-   const avatarMarkup='<span class="commentavatarwrap"><span class="commentavatarfallback" aria-hidden="true">'+esc(initials)+'</span>'+(avatarUrl?'<img class="commentavatar" loading="lazy" src="'+esc(avatarUrl)+'" alt="" onerror="this.hidden=true">':'')+'</span>';
+   const authorChannelId=c.authorId||c.authorChannelId||c.channelId||c.author?.id||c.author?.channelId||"";
+   const avatarContent='<span class="commentavatarwrap"><span class="commentavatarfallback" aria-hidden="true">'+esc(initials)+'</span>'+(avatarUrl?'<img class="commentavatar" loading="lazy" src="'+esc(avatarUrl)+'" alt="" onerror="this.hidden=true">':'')+'</span>';
+   const avatarMarkup=authorChannelId?'<button class="commentavatarlink" type="button" data-channel="'+esc(authorChannelId)+'" aria-label="View '+esc(authorName)+' channel" title="View channel">'+avatarContent+'</button>':avatarContent;
    return '<article class="comment">'+avatarMarkup+'<div class="commentbody"><div class="commentbyline"><span class="commentauthor">'+esc(authorName)+'</span><span class="commentdate">'+esc(c.publishedText||"")+'</span>'+(c.authorIsChannelOwner?'<span class="commentbadge">Creator</span>':'')+(c.pinned?'<span class="commentbadge">Pinned</span>':'')+'</div><div class="commenttext">'+esc(text)+'</div>'+(Number(c.likeCount)>0?'<div class="commentlikes">♥ '+fmt(c.likeCount)+'</div>':'')+'</div></article>';
   }).join("")+'</div>';
  }catch(e){const state=target.querySelector(".commentstate");if(state)state.textContent="Comments could not be loaded right now."}
