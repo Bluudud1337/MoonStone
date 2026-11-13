@@ -586,11 +586,29 @@ function plainCommentText(value){
   .replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").trim();
 }
 function commentAvatarUrl(c){
- const raw=c?.authorThumbnails?.slice?.(-1)?.[0]?.url||"";
- if(!raw)return "";
- if(raw.startsWith("//"))return "https:"+raw;
- if(raw.startsWith("/"))return api+raw;
- return raw;
+ const rawList=[];
+ const add=value=>{
+  if(!value)return;
+  if(Array.isArray(value)){value.forEach(add);return}
+  if(typeof value==="string"){rawList.push({url:value,width:0,height:0});return}
+  if(typeof value==="object"){
+   const url=value.url||value.src||value.thumbnail||value.avatarUrl;
+   if(url)rawList.push({url:String(url),width:Number(value.width)||0,height:Number(value.height)||0});
+  }
+ };
+ add(c?.authorThumbnails);
+ add(c?.authorThumbnail);
+ add(c?.authorThumbnailUrl);
+ add(c?.authorThumbnailURL);
+ add(c?.author?.thumbnails);
+ rawList.sort((a,b)=>(b.width*b.height)-(a.width*a.height));
+ for(const item of rawList){
+  try{
+   const url=new URL(item.url,api);
+   if(url.protocol==="https:"||url.protocol==="http:")return url.href;
+  }catch{}
+ }
+ return "";
 }
 async function loadComments(id){
  const target=$("commentsSection");if(!target)return;
@@ -606,7 +624,7 @@ async function loadComments(id){
    const authorName=c.author||"Unknown user";
    const initials=authorName.trim().split(/\\s+/).slice(0,2).map(x=>x[0]||"").join("").toUpperCase()||"?";
    const text=plainCommentText(c.content||c.commentText||c.text);
-   const avatarMarkup='<span class="commentavatarwrap"><span class="commentavatarfallback" aria-hidden="true">'+esc(initials)+'</span>'+(avatarUrl?'<img class="commentavatar" loading="lazy" referrerpolicy="no-referrer" src="'+esc(avatarUrl)+'" alt="" onerror="this.hidden=true">':'')+'</span>';
+   const avatarMarkup='<span class="commentavatarwrap"><span class="commentavatarfallback" aria-hidden="true">'+esc(initials)+'</span>'+(avatarUrl?'<img class="commentavatar" loading="lazy" src="'+esc(avatarUrl)+'" alt="" onerror="this.hidden=true">':'')+'</span>';
    return '<article class="comment">'+avatarMarkup+'<div class="commentbody"><div class="commentbyline"><span class="commentauthor">'+esc(authorName)+'</span><span class="commentdate">'+esc(c.publishedText||"")+'</span>'+(c.authorIsChannelOwner?'<span class="commentbadge">Creator</span>':'')+(c.pinned?'<span class="commentbadge">Pinned</span>':'')+'</div><div class="commenttext">'+esc(text)+'</div>'+(Number(c.likeCount)>0?'<div class="commentlikes">♥ '+fmt(c.likeCount)+'</div>':'')+'</div></article>';
   }).join("")+'</div>';
  }catch(e){const state=target.querySelector(".commentstate");if(state)state.textContent="Comments could not be loaded right now."}
