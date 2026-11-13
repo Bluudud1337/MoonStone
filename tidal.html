@@ -1,96 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TIDAL · MoonStone</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Music · MoonStone</title>
 <link rel="icon" href="YOUR_ICON_URL_HERE">
 <style>
-:root{--bg:#090909;--panel:#111110;--hover:#1b1b19;--text:#fffb9e;--muted:#c9c57b;--border:#39371e;--accent:#fffb9e;--site-font:Inter,system-ui,sans-serif}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--site-font);background-image:var(--wallpaper,none);background-size:cover;background-attachment:fixed}
-body[data-theme=moonlight]{--bg:#0c0e15;--panel:#131621;--hover:#202435;--text:#e4e9f5;--muted:#8c94a8;--border:#292e40;--accent:#c5d2f3}
-body[data-theme=midnight]{--bg:#080808;--panel:#101010;--hover:#1b1b1b;--text:#e8e8e8;--muted:#858585;--border:#292929;--accent:#bdbdbd}
-body[data-theme=terminal]{--bg:#000;--panel:#050805;--hover:#0a190a;--text:#39ff14;--muted:#18b80b;--border:#14520b;--accent:#39ff14}
-body[data-theme=cherry]{--bg:#0d0307;--panel:#17080d;--hover:#2a0d18;--text:#ffe8ef;--muted:#a66b7b;--border:#3d1725;--accent:#ff4f83}
-body[data-theme=garnet]{--bg:#100709;--panel:#1a0d12;--hover:#2b121b;--text:#f5e8eb;--muted:#b28b96;--border:#47202d;--accent:#e16b88}
-body[data-theme=paper]{--bg:#eeeade;--panel:#e4e0d2;--hover:#d9d4c4;--text:#171714;--muted:#777469;--border:#d0cbbb;--accent:#24241f}
-body[data-theme=astralsync]{--bg:#070b18;--panel:#0d1428;--hover:#172342;--text:#e8edff;--muted:#8f9bc4;--border:#26365f;--accent:#7897ff}
-body[data-theme=eclipse]{--bg:#080808;--panel:#140b05;--hover:#2a1407;--text:#fff0e3;--muted:#d18a59;--border:#66300f;--accent:#ff6a00}
-body[data-theme=void-purple]{--bg:#000;--panel:#08000d;--hover:#190022;--text:#f8eaff;--muted:#b68bc9;--border:#42105b;--accent:#c026ff}
-body[data-theme=void-white]{--bg:#000;--panel:#080808;--hover:#1b1b1b;--text:#fff;--muted:#a6a6a6;--border:#3a3a3a;--accent:#fff}
-body[data-theme=flowery]{--bg:#17120d;--panel:#211a13;--hover:#33271a;--text:#fff3d3;--muted:#d5b99a;--border:#675033;--accent:#f4d34e;--wallpaper:linear-gradient(#170f0bb0,#170f0bcc),url("https://i.redd.it/sarn4u1tl3ah1.png")}
-body[data-theme=halloween]{--bg:#120a08;--panel:#21120d;--hover:#352016;--text:#fff0dc;--muted:#d0a17d;--border:#59301b;--accent:#ff8a24}
-body[data-theme=frogies]{--bg:#080b09;--panel:#151a16;--hover:#242b25;--text:#f0f3f0;--muted:#aab4aa;--border:#343d35;--accent:#38e65d}
-button,input{font:inherit}button{cursor:pointer;color:inherit}
-.sidebar{position:fixed;left:16px;top:50%;transform:translateY(-50%);z-index:5;display:flex;flex-direction:column;gap:7px;padding:9px;border:1px solid var(--border);border-radius:16px;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(14px)}
-.sidebar a{width:40px;height:40px;display:grid;place-items:center;border-radius:10px;color:var(--muted);text-decoration:none;font-size:18px}.sidebar a:hover,.sidebar a.active{background:var(--hover);color:var(--text)}
-main{max-width:1040px;margin:auto;padding:42px 28px 60px 90px}
-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:28px}h1{font-size:clamp(24px,4vw,38px);margin:0;font-weight:600;letter-spacing:.02em}header p{color:var(--muted);margin:8px 0 0;font-size:14px}
-.tidal-mark{font-size:12px;letter-spacing:.18em;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:18px}
-h2{font-size:17px;margin:0 0 14px}p{line-height:1.55}
-.searchrow{display:flex;gap:9px;flex-wrap:wrap}.searchrow input,.link-input{flex:1;min-width:180px;padding:13px 15px;background:var(--bg);border:1px solid var(--border);border-radius:11px;color:var(--text);outline:none}.searchrow input:focus,.link-input:focus{border-color:var(--accent)}
-.btn{padding:12px 15px;border:1px solid var(--border);border-radius:11px;background:var(--hover);color:var(--text)}.btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
-.helper{color:var(--muted);font-size:13px;margin:12px 0 0}.embed-wrap{min-height:250px;display:grid;place-items:center;border:1px dashed var(--border);border-radius:14px;padding:18px;text-align:center}.embed-wrap iframe{width:100%;border:0;border-radius:12px}.empty h3{margin:0 0 8px}.empty p{max-width:490px;color:var(--muted);font-size:14px;margin:0}
-.quicklinks{display:flex;gap:9px;flex-wrap:wrap}.quicklinks a{color:var(--text);text-decoration:none;border:1px solid var(--border);padding:10px 13px;border-radius:10px}.quicklinks a:hover{background:var(--hover)}
-footer{color:var(--muted);font-size:12px;text-align:center;padding:12px}
-@media(max-width:650px){.sidebar{left:8px;top:auto;bottom:8px;transform:none;flex-direction:row;padding:6px;gap:3px}.sidebar a{width:37px;height:37px}main{padding:25px 14px 90px}header{align-items:flex-start;flex-direction:column}.panel{padding:16px}.searchrow .btn{flex:1}}
+:root{color-scheme:dark;--bg:#090909;--panel:#111110;--text:#fffb9e;--muted:#c9c57b;--border:#39371e;--accent:#fffb9e}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}
+body[data-theme=moonlight]{--bg:#0c0e15;--panel:#131621;--text:#e4e9f5;--muted:#8c94a8;--border:#292e40;--accent:#c5d2f3}
+body[data-theme=midnight]{--bg:#080808;--panel:#101010;--text:#e8e8e8;--muted:#858585;--border:#292929;--accent:#bdbdbd}
+body[data-theme=terminal]{--bg:#000;--panel:#050805;--text:#39ff14;--muted:#18b80b;--border:#14520b;--accent:#39ff14}
+body[data-theme=cherry]{--bg:#0d0307;--panel:#17080d;--text:#ffe8ef;--muted:#a66b7b;--border:#3d1725;--accent:#ff4f83}
+body[data-theme=garnet]{--bg:#100709;--panel:#1a0d12;--text:#f5e8eb;--muted:#b28b96;--border:#47202d;--accent:#e16b88}
+body[data-theme=paper]{--bg:#eeeade;--panel:#e4e0d2;--text:#171714;--muted:#777469;--border:#d0cbbb;--accent:#24241f}
+body[data-theme=astralsync]{--bg:#070b18;--panel:#0d1428;--text:#e8edff;--muted:#8f9bc4;--border:#26365f;--accent:#7897ff}
+body[data-theme=eclipse]{--bg:#080808;--panel:#140b05;--text:#fff0e3;--muted:#d18a59;--border:#66300f;--accent:#ff6a00}
+body[data-theme=void-purple]{--bg:#000;--panel:#08000d;--text:#f8eaff;--muted:#b68bc9;--border:#42105b;--accent:#c026ff}
+body[data-theme=void-white]{--bg:#000;--panel:#080808;--text:#fff;--muted:#a6a6a6;--border:#3a3a3a;--accent:#fff}
+body[data-theme=flowery]{--bg:#17120d;--panel:#211a13;--text:#fff3d3;--muted:#d5b99a;--border:#675033;--accent:#f4d34e}
+body[data-theme=halloween]{--bg:#120a08;--panel:#21120d;--text:#fff0dc;--muted:#d0a17d;--border:#59301b;--accent:#ff8a24}
+body[data-theme=frogies]{--bg:#080b09;--panel:#151a16;--text:#f0f3f0;--muted:#aab4aa;--border:#343d35;--accent:#38e65d}
+#frame{position:fixed;inset:0;width:100%;height:100%;border:0;background:var(--bg)}
+#fallback{position:fixed;z-index:2;left:50%;top:16px;transform:translateX(-50%);display:none;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:12px;background:var(--panel);color:var(--text);font-size:13px;box-shadow:0 8px 28px #0005}
+#fallback a{color:var(--accent);font-weight:650;text-decoration:none}
 </style>
 </head>
 <body>
-<nav class="sidebar" aria-label="MoonStone navigation">
-<a href="index.html" title="Home">⌂</a><a href="games.html" title="Games">▦</a><a href="movies.html" title="Movies">▣</a><a href="apps.html" title="Apps">◇</a><a href="tidal.html" class="active" title="Music">♫</a><a href="settings.html" title="Settings">⚙</a>
-</nav>
-<main>
-<header><div><h1>MoonStone Music</h1><p>TIDAL playback, inside MoonStone.</p></div><div class="tidal-mark">POWERED BY TIDAL</div></header>
-<section class="panel">
-<h2>Find music on TIDAL</h2>
-<div class="searchrow"><input id="search" placeholder="Search artists, albums, or songs…" aria-label="Search TIDAL"><button class="btn primary" id="searchBtn">Search TIDAL</button></div>
-<p class="helper">Search opens TIDAL’s own catalog. Choose a song, album, or playlist there, then use its Share → Copy embed code/link to load it below.</p>
-</section>
-<section class="panel">
-<h2>Play something</h2>
-<div class="searchrow"><input class="link-input" id="tidalLink" placeholder="Paste a TIDAL share link or embed URL…" aria-label="TIDAL content link"><button class="btn primary" id="loadBtn">Load player</button></div>
-<p class="helper">Supports TIDAL track, album, and playlist links. Playback and subscription access are handled by TIDAL.</p>
-</section>
-<section class="panel">
-<h2>Player</h2>
-<div id="player" class="embed-wrap"><div class="empty"><h3>Your player is waiting</h3><p>Paste a TIDAL share link above. The official TIDAL embed will appear here.</p></div></div>
-</section>
-<section class="panel">
-<h2>Open TIDAL</h2><div class="quicklinks"><a href="https://listen.tidal.com/" target="_blank" rel="noopener">TIDAL Web Player ↗</a><a href="https://tidal.com/" target="_blank" rel="noopener">TIDAL Website ↗</a></div>
-<p class="helper">TIDAL subscribers can access full-length playback in supported embeds; listeners without a subscription may receive previews. <a href="https://developer.tidal.com/documentation/embeds/embeds-overview" target="_blank" rel="noopener" style="color:var(--text)">TIDAL embed documentation</a>.</p>
-</section>
-<footer>MoonStone Music · TIDAL is a separate service. Sign-in and playback remain managed by TIDAL.</footer>
-</main>
+<iframe id="frame" src="https://racialequityleadership.com/music-app/" title="MoonStone Music" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+<div id="fallback">Music app not loading inside MoonStone? <a href="https://racialequityleadership.com/music-app/" target="_blank" rel="noopener noreferrer">Open Music</a></div>
 <script>
 (()=> {
-let settings={};try{settings=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")}catch{}
-const themes=["moonstone","moonlight","midnight","terminal","garnet","cherry","paper","astralsync","eclipse","void-purple","void-white","flowery","halloween","frogies"];
-document.body.dataset.theme=themes.includes(settings.theme)?settings.theme:"moonstone";
-if(settings.siteFont)document.body.style.fontFamily='"'+String(settings.siteFont).replace(/["\\]/g,"")+'",system-ui,sans-serif';
-if(settings.dockPosition==="bottom")document.querySelector(".sidebar").style.cssText+=";left:50%;top:auto;bottom:10px;transform:translateX(-50%);flex-direction:row";
-if(settings.dockPosition==="right")document.querySelector(".sidebar").style.cssText+=";left:auto;right:16px";
-const input=document.getElementById("search");
-document.getElementById("searchBtn").onclick=()=>{const q=input.value.trim();if(!q){input.focus();return}window.open("https://listen.tidal.com/search?q="+encodeURIComponent(q),"_blank","noopener")};
-input.addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("searchBtn").click()});
-function loadTidal(){
-const raw=document.getElementById("tidalLink").value.trim();if(!raw)return;
-let url;try{url=new URL(raw.startsWith("http")?raw:"https://"+raw)}catch{return alert("That doesn’t look like a valid TIDAL link.")};
-if(!/(^|\.)tidal\.com$/i.test(url.hostname)&&!/(^|\.)listen\.tidal\.com$/i.test(url.hostname)&&!/(^|\.)embed\.tidal\.com$/i.test(url.hostname)){return alert("Please paste a link from tidal.com or listen.tidal.com.")}
-// Official embed links commonly include /tracks/, /albums/, or /playlists/. Also accept TIDAL browse/share URLs and extract the ID.
-let type="",id="";
-const parts=url.pathname.split("/").filter(Boolean);
-const types={track:"tracks",tracks:"tracks",album:"albums",albums:"albums",playlist:"playlists",playlists:"playlists",video:"videos",videos:"videos"};
-for(let n=0;n<parts.length;n++){if(types[parts[n].toLowerCase()]){type=types[parts[n].toLowerCase()];id=parts[n+1]||"";break}}
-if(!id){const match=url.pathname.match(/\/(track|album|playlist|video)\/([^/?]+)/i);if(match){type=types[match[1].toLowerCase()];id=match[2]}}
-if(!id){return alert("Couldn’t find a track, album, or playlist ID in that link. Try copying TIDAL’s official embed link.")}
-// Keep IDs conservative; playlist IDs can be UUIDs.
-if(!/^[a-zA-Z0-9-]+$/.test(id))return alert("That TIDAL content ID looks invalid.");
-const embedUrl="https://embed.tidal.com/"+type+"/"+encodeURIComponent(id);
-const iframe=document.createElement("iframe");iframe.src=embedUrl;iframe.title="TIDAL music player";iframe.height="350";iframe.allow="encrypted-media; autoplay; fullscreen";iframe.allowFullscreen=true;iframe.loading="lazy";
-const host=document.getElementById("player");host.replaceChildren(iframe);host.style.display="block";host.style.minHeight="350px";
-}
-document.getElementById("loadBtn").onclick=loadTidal;document.getElementById("tidalLink").addEventListener("keydown",e=>{if(e.key==="Enter")loadTidal()});
+  let settings={};try{settings=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")}catch{}
+  const themes=["moonstone","moonlight","midnight","terminal","garnet","cherry","paper","astralsync","eclipse","void-purple","void-white","flowery","halloween","frogies"];
+  document.body.dataset.theme=themes.includes(settings.theme)?settings.theme:"moonstone";
+  if(settings.siteFont)document.body.style.fontFamily='"'+String(settings.siteFont).replace(/["\\]/g,"")+'",system-ui,sans-serif';
+  const frame=document.getElementById("frame");
+  let loaded=false;
+  frame.addEventListener("load",()=>{loaded=true});
+  setTimeout(()=>{if(!loaded)document.getElementById("fallback").style.display="flex"},7000);
 })();
 </script>
-</body></html>
+</body>
+</html>
