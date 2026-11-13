@@ -400,13 +400,26 @@ body.sidebar-collapsed .navico{font-size:19px}
  .commentshead h3{font-size:17px}
 }
 
+
+/* Chunk 4: Moonstube search polish */
+.search{position:relative;z-index:25}
+.searchsuggestions{position:absolute;top:calc(100% + 9px);left:0;right:0;padding:7px;background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 14px 38px rgba(0,0,0,.24);max-height:320px;overflow:auto}
+.searchsuggestions.hidden{display:none}
+.searchsuggestions:empty{display:none}
+.searchsuggestion{width:100%;display:flex;align-items:center;gap:11px;text-align:left;padding:10px 12px;border:0;border-radius:9px;background:transparent;color:var(--text);font-size:13px}
+.searchsuggestion:hover,.searchsuggestion:focus-visible{background:var(--hover);outline:0}
+.searchsuggestion span:first-child{color:var(--muted);font-size:15px;width:18px;text-align:center}
+.searchsuggestion span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.searchsuggestionlabel{padding:7px 11px 5px;color:var(--muted);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+@media(max-width:580px){.searchsuggestions{top:calc(100% + 7px);max-height:260px}}
+
 </style>
 </head>
 <body>
 <header class="top">
  <button class="iconbtn sidebarToggle" id="sidebarToggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar">☰</button>
  <a class="brand" href="YT.html" style="text-decoration:none"><span class="brandmark">▶</span><span>Moonstube <small>BY MOONSTONE</small></span></a>
- <form class="search" id="searchForm"><input id="searchInput" placeholder="Search videos, channels..." autocomplete="off"><button aria-label="Search">⌕</button></form>
+ <form class="search" id="searchForm"><input id="searchInput" placeholder="Search videos, channels..." autocomplete="off" aria-label="Search videos and channels"><button aria-label="Search">⌕</button><div class="searchsuggestions hidden" id="searchSuggestions" role="listbox" aria-label="Recent searches"></div></form>
  <div class="topright"><button class="iconbtn" id="tvModeBtn" type="button" aria-pressed="false" title="Switch to TV layout">TV layout</button><button class="iconbtn" id="refreshBtn" title="Refresh feed">↻</button><button class="iconbtn" id="homeBtn">MoonStone ↗</button></div>
 </header>
 <div class="layout">
@@ -566,7 +579,7 @@ async function playlist(id){
  }catch(e){content.innerHTML='<div class="errorbox">'+esc(e.message)+'</div><button class="pill" id="playlistRetry">Retry</button>'; $("playlistRetry").onclick=()=>playlist(id)}
 }
 async function search(q){
- page="search";searchTerm=q;setNav("");chips.classList.add("hidden");content.innerHTML='<div class="loading">Searching YouTube…</div>';
+ page="search";searchTerm=q;if($("searchInput"))$("searchInput").value=q;hideSearchSuggestions();setNav("");chips.classList.add("hidden");content.innerHTML='<div class="loading">Searching YouTube…</div>';
  const searches=get("searches",[]);
  put("searches",[{query:q,time:Date.now()},...searches.filter(x=>(typeof x==="string"?x:x?.query||"").toLowerCase()!==q.toLowerCase())].slice(0,20));
  try{const data=await request("/api/v1/search?q="+encodeURIComponent(q)+"&type=all&page=1&region=US");
@@ -759,7 +772,23 @@ function localList(key,label){
  content.innerHTML='<div class="sectionhead"><h1>'+label+'</h1><span class="muted">'+list.length+' videos</span></div><div class="grid">'+(list.length?list.map(v=>'<article class="video" data-video="'+esc(v.id)+'"><div class="thumbwrap"><img class="thumb" src="'+esc(v.thumb)+'"><span class="duration">'+duration(v.lengthSeconds)+'</span></div><div class="vrow"><div><div class="vtitle">'+esc(v.title)+'</div><div class="vmeta">'+esc(v.author)+'</div></div></div></article>').join(""):'<div class="empty">Nothing here yet.</div>')+'</div>';
 }
 document.querySelectorAll(".navbtn[data-page]").forEach(b=>b.addEventListener("click",()=>{const p=b.dataset.page;if(p==="home")home();else if(p==="subscriptions"){page="subscriptions";setNav(page);chips.classList.add("hidden");const list=get("channels",[]);if(!list.length){content.innerHTML='<div class="empty">Subscribe to channels to build your feed.</div>';return}Promise.all(list.map(c=>request("/api/v1/channels/"+encodeURIComponent(c.id)).catch(()=>null))).then(cs=>renderVideos(cs.filter(Boolean).flatMap(c=>c.latestVideos||[]),"Your subscriptions"))}else if(p==="playlists"){page="playlists";setNav(page);chips.classList.add("hidden");renderUserPlaylists()}else localList(p,p==="history"?"Watch history":"Saved videos")}));
-$("searchForm").addEventListener("submit",e=>{e.preventDefault();const q=$("searchInput").value.trim();if(q){const id=playlistIdFromInput(q);if(id)playlist(id);else search(q)}});
+$("searchForm").addEventListener("submit",e=>{e.preventDefault();const q=$("searchInput").value.trim();if(q){hideSearchSuggestions();const id=playlistIdFromInput(q);if(id)playlist(id);else search(q)}});
+const searchInput=$("searchInput"),searchSuggestions=$("searchSuggestions");
+function hideSearchSuggestions(){searchSuggestions?.classList.add("hidden");if(searchInput)searchInput.setAttribute("aria-expanded","false")}
+function renderSearchSuggestions(){
+ if(!searchInput||!searchSuggestions)return;
+ const typed=searchInput.value.trim().toLowerCase();
+ const recent=get("searches",[]).map(x=>typeof x==="string"?x:x?.query||"").filter(Boolean);
+ const matches=recent.filter((q,i)=>recent.findIndex(x=>x.toLowerCase()===q.toLowerCase())===i&&(!typed||q.toLowerCase().includes(typed))).slice(0,6);
+ if(!matches.length){hideSearchSuggestions();searchSuggestions.innerHTML="";return}
+ searchSuggestions.innerHTML='<div class="searchsuggestionlabel">'+(typed?"Matching recent searches":"Recent searches")+'</div>'+matches.map(q=>'<button class="searchsuggestion" type="button" role="option" data-search-query="'+esc(q)+'"><span>↻</span><span>'+esc(q)+'</span></button>').join("");
+ searchSuggestions.classList.remove("hidden");searchInput.setAttribute("aria-expanded","true");
+}
+searchInput?.addEventListener("focus",renderSearchSuggestions);
+searchInput?.addEventListener("input",renderSearchSuggestions);
+searchSuggestions?.addEventListener("click",e=>{const b=e.target.closest("[data-search-query]");if(!b)return;const q=b.dataset.searchQuery;searchInput.value=q;hideSearchSuggestions();search(q)});
+searchInput?.addEventListener("keydown",e=>{if(e.key==="Escape")hideSearchSuggestions()});
+document.addEventListener("click",e=>{if(!e.target.closest("#searchForm"))hideSearchSuggestions()});
 const sidebarToggle=$("sidebarToggle");
 function setSidebarCollapsed(collapsed){document.body.classList.toggle("sidebar-collapsed",collapsed);sidebarToggle?.setAttribute("aria-expanded",String(!collapsed));sidebarToggle?.setAttribute("aria-label",collapsed?"Expand sidebar":"Collapse sidebar");if(sidebarToggle)sidebarToggle.title=collapsed?"Expand sidebar":"Collapse sidebar";try{localStorage.setItem("msyt_sidebar_collapsed",collapsed?"1":"0")}catch(e){}}
 sidebarToggle?.addEventListener("click",()=>setSidebarCollapsed(!document.body.classList.contains("sidebar-collapsed")));
