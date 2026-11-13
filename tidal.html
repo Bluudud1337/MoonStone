@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Music · MoonStone</title>
 <link rel="icon" href="YOUR_ICON_URL_HERE">
-<link rel="stylesheet" href="moonstone-dock.css">
+<link rel="stylesheet" href="moonstone-dock.css?v=theme-fix-2">
 <style>
 :root{color-scheme:dark;--bg:#090909;--panel:#111110;--text:#fffb9e;--muted:#c9c57b;--border:#39371e;--accent:#fffb9e}
 *{box-sizing:border-box}
@@ -34,24 +34,46 @@ body[data-theme=frogies]{--bg:#080b09;--panel:#151a16;--text:#f0f3f0;--muted:#aa
 <div id="fallback">Music app not loading inside MoonStone? <a href="https://racialequityleadership.com/music-app/" target="_blank" rel="noopener noreferrer">Open Music</a></div>
 <script>
 (()=> {
-  let settings={};try{settings=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")}catch{}
-  const themes=["moonstone","moonlight","midnight","terminal","garnet","cherry","paper","astralsync","eclipse","void-purple","void-white","flowery","halloween","frogies"];
-  document.body.dataset.theme=themes.includes(settings.theme)?settings.theme:"moonstone";
-  if(settings.siteFont)document.body.style.fontFamily='"'+String(settings.siteFont).replace(/["\\]/g,"")+'",system-ui,sans-serif';
+  const palettes={
+    moonstone:["#090909","#111110","#1b1b19","#fffb9e","#c9c57b","#39371e"],
+    youtube:["#0b0b0b","#171717","#292929","#f5f5f5","#b3b3b3","#383838"],
+    nightmare:["#080000","#160303","#2b0808","#ffe5e5","#c17b7b","#571515"],
+    moonlight:["#0c0e15","#131621","#202435","#e4e9f5","#8c94a8","#292e40"],
+    midnight:["#080808","#101010","#1b1b1b","#e8e8e8","#858585","#292929"],
+    terminal:["#000000","#050805","#0a190a","#39ff14","#18b80b","#14520b"],
+    cherry:["#0d0307","#17080d","#2a0d18","#ffe8ef","#a66b7b","#3d1725"],
+    garnet:["#100709","#1a0d12","#2b121b","#f5e8eb","#b28b96","#47202d"],
+    paper:["#eeeade","#e4e0d2","#d9d4c4","#171714","#777469","#d0cbbb"],
+    flowery:["#17120d","#211a13","#33271a","#fff3d3","#d5b99a","#675033"],
+    astralsync:["#070b18","#0d1428","#172342","#e8edff","#8f9bc4","#26365f"],
+    halloween:["#120a08","#21120d","#352016","#fff0dc","#d0a17d","#59301b"],
+    frogies:["#080b09","#151a16","#242b25","#f0f3f0","#aab4aa","#343d35"],
+    eclipse:["#080808","#140b05","#2a1407","#fff0e3","#d18a59","#66300f"],
+    "void-purple":["#000000","#08000d","#190022","#f8eaff","#b68bc9","#42105b"],
+    "void-white":["#000000","#080808","#1b1b1b","#ffffff","#a6a6a6","#3a3a3a"]
+  };
+  let settings={};
+  function applyTheme(){
+    try{settings=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")}catch{settings={}}
+    const id=Object.prototype.hasOwnProperty.call(palettes,settings.theme)?settings.theme:"moonstone";
+    const [bg,panel,hover,fg,muted,border]=palettes[id];
+    document.body.dataset.theme=id;
+    const vars={"--bg":bg,"--panel":panel,"--hover":hover,"--text":fg,"--muted":muted,"--border":border,"--accent":fg,"--dock-bg":"color-mix(in srgb, "+panel+" 90%, transparent)"};
+    for(const [name,value] of Object.entries(vars))document.body.style.setProperty(name,value);
+    if(settings.siteFont)document.body.style.fontFamily='"'+String(settings.siteFont).replace(/["\\]/g,"")+'",system-ui,sans-serif';
+    else document.body.style.fontFamily="";
+    document.documentElement.style.colorScheme=id==="paper"?"light":"dark";
+  }
   const frame=document.getElementById("frame");
   let loaded=false;
   frame.addEventListener("load",()=>{loaded=true});
-  function applyTheme(){
-    try{settings=JSON.parse(localStorage.getItem("moonstone-settings")||"{}")}catch{settings={}}
-    document.body.dataset.theme=themes.includes(settings.theme)?settings.theme:"moonstone";
-    if(settings.siteFont)document.body.style.fontFamily='"'+String(settings.siteFont).replace(/["\\]/g,"")+'",system-ui,sans-serif';
-  }
   applyTheme();
   addEventListener("storage",e=>{if(e.key==="moonstone-settings")applyTheme()});
   addEventListener("focus",applyTheme);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyTheme()});
   setTimeout(()=>{if(!loaded)document.getElementById("fallback").style.display="flex"},7000);
 })();
 </script>
-<script src="moonstone-dock.js"></script>
+<script src="moonstone-dock.js?v=theme-fix-2"></script>
 </body>
 </html>
