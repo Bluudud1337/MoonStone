@@ -2635,16 +2635,24 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
   try{const saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}");allowRedirects=saved.browserAllowRedirects===true;browserEngine=saved.browserEngine==="iframe"?"iframe":"scramjet"}catch{}
   if(engineSelect){engineSelect.value=browserEngine;engineSelect.addEventListener("change",()=>{browserEngine=engineSelect.value==="iframe"?"iframe":"scramjet";saveBrowserOptions();reloadActivePage()})}
   function saveBrowserOptions(){try{const saved=JSON.parse(localStorage.getItem("moonstone-settings")||"{}");saved.browserAllowRedirects=allowRedirects;saved.browserEngine=browserEngine;localStorage.setItem("moonstone-settings",JSON.stringify(saved))}catch{}}
-  if(redirectSetting){redirectSetting.setAttribute("aria-checked",String(allowRedirects));redirectSetting.addEventListener("click",()=>{allowRedirects=!allowRedirects;redirectSetting.setAttribute("aria-checked",String(allowRedirects));saveBrowserOptions();sandbox();reloadActivePage()})}
+  if(redirectSetting){
+    redirectSetting.setAttribute("aria-checked",String(allowRedirects));
+    redirectSetting.addEventListener("click",()=>{
+      allowRedirects=!allowRedirects;
+      redirectSetting.setAttribute("aria-checked",String(allowRedirects));
+      saveBrowserOptions();
+      reloadActivePage();
+    });
+  }
   function setFullscreen(on){document.body.classList.toggle("browser-fullscreen",on);const b=document.getElementById("tempFullscreen");if(b){b.setAttribute("aria-pressed",String(on));b.title=on?"Exit fullscreen":"Toggle fullscreen";b.setAttribute("aria-label",b.title)}}
   const active=()=>tabs.find(t=>t.id===activeId);
   function normalize(value){let raw=value.trim();if(!raw)return null;if(!/^https?:\/\//i.test(raw))raw="https://"+raw;try{const u=new URL(raw);return ["http:","https:"].includes(u.protocol)?u.href:null}catch{return null}}
   function sandbox(){
-    // Keep popups and top-level redirects blocked in both modes.
-    // Relaxed mode adds useful iframe capabilities without removing the sandbox.
+    // Never grant popup or top-level navigation permissions.
+    // The toggle only controls additional iframe capabilities.
     const permissions = allowRedirects
       ? "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock allow-downloads allow-modals allow-orientation-lock"
-      : "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock";
+      : "allow-scripts allow-same-origin allow-forms";
     frame.setAttribute("sandbox",permissions);
     frame.setAttribute("allow","autoplay; fullscreen; picture-in-picture");
     frame.setAttribute("allowfullscreen","");
@@ -2652,10 +2660,24 @@ body.compact-bookmarks .bookmark{min-height:58px;padding:8px 6px;gap:6px}body.co
     return frame.hasAttribute("sandbox");
   }
   function frameUrl(url){return browserEngine==="scramjet"?"https://moonstone-scramjet-browser.onrender.com/?embed=1&url="+encodeURIComponent(url):url}
-  function reloadActivePage(){const t=active();if(!t||!t.url)return;sandbox();frame.removeAttribute("srcdoc");frame.src=frameUrl(t.url);status.textContent="Loading "+t.title+" with "+(browserEngine==="scramjet"?"Scramjet":"iframe")+". "+(allowRedirects?"Sandbox disabled.":"Sandbox enabled.")}
+  function loadBrowserUrl(url){
+    sandbox();
+    frame.removeAttribute("srcdoc");
+    frame.src="about:blank";
+    requestAnimationFrame(()=>{
+      sandbox();
+      frame.src=frameUrl(url);
+    });
+  }
+  function reloadActivePage(){
+    const t=active();
+    if(!t||!t.url)return;
+    loadBrowserUrl(t.url);
+    status.textContent="Loading "+t.title+" with "+(browserEngine==="scramjet"?"Scramjet":"Iframe")+". "+(allowRedirects?"Extra iframe features enabled; popups remain blocked.":"Sandbox enabled; popups remain blocked.");
+  }
   function render(){tabsEl.replaceChildren();tabs.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="temp-tab"+(t.id===activeId?" active":"");b.setAttribute("role","tab");b.setAttribute("aria-selected",String(t.id===activeId));const title=document.createElement("span");title.className="temp-tab-title";title.textContent=t.title;const close=document.createElement("span");close.className="temp-tab-close";close.textContent="×";close.setAttribute("aria-label","Close tab");b.append(title,close);b.addEventListener("click",e=>e.target===close?closeTab(t.id):switchTab(t.id));tabsEl.append(b)});const add=document.createElement("button");add.type="button";add.className="temp-tab-add";add.textContent="+";add.title="New tab";add.addEventListener("click",()=>createTab());tabsEl.append(add)}
   function setTitle(t,url){t.url=url;try{t.title=new URL(url).hostname.replace(/^www\./,"")||"New tab"}catch{t.title="New tab"}}
-  function switchTab(id){const t=tabs.find(x=>x.id===id);if(!t)return;activeId=id;modal.classList.add("open");urlInput.value=t.url||"";if(browserAddress)browserAddress.value=t.url||"";if(t.url){sandbox();frame.removeAttribute("srcdoc");frame.src=frameUrl(t.url)}else showNewTabPage();render();status.textContent=t.url?"Loading "+t.title+". Some websites block embedded viewing.":"New tab: search the web or enter a website address."}
+  function switchTab(id){const t=tabs.find(x=>x.id===id);if(!t)return;activeId=id;modal.classList.add("open");urlInput.value=t.url||"";if(browserAddress)browserAddress.value=t.url||"";if(t.url){loadBrowserUrl(t.url)}else showNewTabPage();render();status.textContent=t.url?"Loading "+t.title+". Some websites block embedded viewing.":"New tab: search the web or enter a website address."}
   function createTab(){const t={id:nextId++,url:"",title:"New tab",history:[],index:-1};tabs.push(t);activeId=t.id;modal.classList.add("open");urlInput.value="";render();showNewTabPage();status.textContent="New tab: type a search or website address in the address bar.";requestAnimationFrame(()=>urlInput.focus());return t}
   function showNewTabPage(){
     sandbox();
@@ -2711,7 +2733,7 @@ p{margin:0;padding:24px;text-align:center;font-size:clamp(18px,3vw,26px);font-we
 </html>`;
   }
   function closeTab(id){const i=tabs.findIndex(t=>t.id===id);if(i<0)return;const wasActive=activeId===id;tabs.splice(i,1);if(!tabs.length){activeId=null;frame.src="about:blank";modal.classList.remove("open");setFullscreen(false);urlInput.value=window.location.pathname+window.location.search+window.location.hash||"/";render();return}if(wasActive)activeId=tabs[Math.max(0,i-1)].id;switchTab(activeId)}
-  function navigate(value,addHistory=true){const entered=value.trim();if(!entered){status.textContent="Enter a search or website address.";return}let url;if(/^https?:\/\//i.test(entered)||/^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered))url=normalize(entered);else {const engine=document.getElementById("searchEngine")?.value||localStorage.getItem("moonstone-search-engine")||"google";const q=encodeURIComponent(entered);const searchUrls={google:"https://www.google.com/search?igu=1&q="+q,brave:"https://search.brave.com/search?q="+q,duckduckgo:"https://duckduckgo.com/?q="+q,bing:"https://www.bing.com/search?q="+q,ecosia:"https://www.ecosia.org/search?q="+q,startpage:"https://www.startpage.com/sp/search?query="+q,yahoo:"https://search.yahoo.com/search?p="+q};url=searchUrls[engine]||searchUrls.google;}if(!url){status.textContent="Enter a valid http:// or https:// address.";return}let t=active()||createTab();setTitle(t,url);if(browserAddress)browserAddress.value=entered;if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}sandbox();frame.removeAttribute("srcdoc");frame.src=frameUrl(url);urlInput.value=entered;modal.classList.add("open");status.textContent="Loading "+t.title+" with "+(browserEngine==="scramjet"?"Scramjet":"iframe")+". "+(allowRedirects?"Sandbox disabled.":"Sandbox enabled.");render()}
+  function navigate(value,addHistory=true){const entered=value.trim();if(!entered){status.textContent="Enter a search or website address.";return}let url;if(/^https?:\/\//i.test(entered)||/^[\w-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(entered))url=normalize(entered);else {const engine=document.getElementById("searchEngine")?.value||localStorage.getItem("moonstone-search-engine")||"google";const q=encodeURIComponent(entered);const searchUrls={google:"https://www.google.com/search?igu=1&q="+q,brave:"https://search.brave.com/search?q="+q,duckduckgo:"https://duckduckgo.com/?q="+q,bing:"https://www.bing.com/search?q="+q,ecosia:"https://www.ecosia.org/search?q="+q,startpage:"https://www.startpage.com/sp/search?query="+q,yahoo:"https://search.yahoo.com/search?p="+q};url=searchUrls[engine]||searchUrls.google;}if(!url){status.textContent="Enter a valid http:// or https:// address.";return}let t=active()||createTab();setTitle(t,url);if(browserAddress)browserAddress.value=entered;if(addHistory){t.history=t.history.slice(0,t.index+1);t.history.push(url);t.index=t.history.length-1}loadBrowserUrl(url);urlInput.value=entered;modal.classList.add("open");status.textContent="Loading "+t.title+" with "+(browserEngine==="scramjet"?"Scramjet":"Iframe")+". "+(allowRedirects?"Extra iframe features enabled; popups remain blocked.":"Sandbox enabled; popups remain blocked.");render()}
   document.getElementById("tempGo").addEventListener("click",()=>navigate(urlInput.value));
    if(browserAddress){browserAddress.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();urlInput.value=browserAddress.value;navigate(browserAddress.value)}});browserAddress.addEventListener("input",()=>{urlInput.value=browserAddress.value})}
   urlInput.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();navigate(urlInput.value)}});
