@@ -800,7 +800,20 @@ function videoDescription(v){
 }
 async function watch(id,playlistIndex){
  if(playlistIndex===undefined){const found=currentPlaylist?.videos?.findIndex(v=>v.videoId===id)??-1;if(found<0)currentPlaylist=null;else playlistIndex=found}
- page="watch";chips.classList.add("hidden");content.innerHTML='<div class="loading">Loading video…</div>';
+ page="watch";chips.classList.add("hidden");
+ // Create the player immediately inside the click handler. Waiting for video metadata
+ // first can discard Chrome's temporary user activation and block audible autoplay.
+ const earlyPlayer=document.createElement("iframe");
+ earlyPlayer.className="player";earlyPlayer.id="ytPlayer";
+ earlyPlayer.allow="autoplay; encrypted-media; picture-in-picture; fullscreen";
+ earlyPlayer.allowFullscreen=true;earlyPlayer.referrerPolicy="strict-origin-when-cross-origin";
+ earlyPlayer.title="Video player";
+ const queuedIds=currentPlaylist?.videos?.slice(Number.isInteger(playlistIndex)?playlistIndex+1:0).map(x=>x.videoId||x.id).filter(Boolean)||[];
+ const playerParams=new URLSearchParams({v:id,autoplay:"1",mute:"0",playsinline:"1"});
+ if(queuedIds.length)playerParams.set("playlist",queuedIds.join(","));
+ earlyPlayer.src="https://www.yout-ube.com/watch?"+playerParams.toString();
+ content.innerHTML='<div class="playerShell" id="earlyPlayerShell"></div><div class="loading">Loading video details…</div>';
+ $("earlyPlayerShell").appendChild(earlyPlayer);
  try{
   const v=await request("/api/v1/videos/"+encodeURIComponent(id));currentVideo=v;
   const rec=v.recommendedVideos||[];
@@ -809,7 +822,9 @@ async function watch(id,playlistIndex){
   const previous=inPlaylist&&playlistIndex>0?currentPlaylist.videos[playlistIndex-1]:null;
   const next=inPlaylist&&playlistIndex<currentPlaylist.videos.length-1?currentPlaylist.videos[playlistIndex+1]:null;
   put("history",[{id,title:videoTitle(v),author:v.author,thumb:thumb(v),lengthSeconds:v.lengthSeconds},...get("history",[]).filter(x=>x.id!==id)].slice(0,80));
-  content.innerHTML='<button class="pill back" id="backBtn">← Back</button><div class="watchlayout"><div class="watchprimary"><div class="playerShell" id="playerShell"><iframe class="player" id="ytPlayer" src="https://www.yout-ube.com/watch?v='+encodeURIComponent(id)+'&autoplay=1&mute=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><button class="videoFullscreenBtn" id="fullscreenBtn" type="button" title="Fullscreen">⛶</button></div><div class="playercontrols">'+(inPlaylist?'<button id="prevPlaylistBtn" type="button" '+(previous?'':'disabled')+'>← Previous</button><button id="nextPlaylistBtn" type="button" '+(next?'':'disabled')+'>Next →</button>':'')+'</div><h2 class="watchtitle">'+esc(videoTitle(v))+'</h2><div class="watchmeta"><div class="channelline"><img class="channelavatar" src="'+esc(avatar(v))+'" alt=""><div class="channelidentity"><strong>'+esc(v.author)+'</strong><small>'+fmt(v.subCount)+' subscribers</small></div><button class="pill" id="watchChannel">View channel</button></div><div class="actions"><button class="pill" id="saveVideo">＋ Save</button><button class="pill" id="addToPlaylist">＋ Playlist</button><button class="pill" id="openNative">Open player ↗</button></div></div><div class="description"><div class="descriptionstats"><strong>'+views(v)+' views</strong><span>'+esc(v.publishedText||"") +'</span></div><div class="descriptiontext">'+esc(videoDescription(v))+'</div></div><section class="comments" id="commentsSection"><div class="commentshead"><h3>Comments</h3><span class="muted">Read-only</span></div><div class="commentstate">Loading comments…</div></section></div><aside class="related"><h3>Up next</h3>'+(rec.length?rec.map(videoCard).join(""):'<p class="muted">No related videos available.</p>')+'</aside></div>';
+  content.innerHTML='<button class="pill back" id="backBtn">← Back</button><div class="watchlayout"><div class="watchprimary"><div class="playerShell" id="playerShell"></div><div class="playercontrols">'+(inPlaylist?'<button id="prevPlaylistBtn" type="button" '+(previous?'':'disabled')+'>← Previous</button><button id="nextPlaylistBtn" type="button" '+(next?'':'disabled')+'>Next →</button>':'')+'</div><h2 class="watchtitle">'+esc(videoTitle(v))+'</h2><div class="watchmeta"><div class="channelline"><img class="channelavatar" src="'+esc(avatar(v))+'" alt=""><div class="channelidentity"><strong>'+esc(v.author)+'</strong><small>'+fmt(v.subCount)+' subscribers</small></div><button class="pill" id="watchChannel">View channel</button></div><div class="actions"><button class="pill" id="saveVideo">＋ Save</button><button class="pill" id="addToPlaylist">＋ Playlist</button><button class="pill" id="openNative">Open player ↗</button></div></div><div class="description"><div class="descriptionstats"><strong>'+views(v)+' views</strong><span>'+esc(v.publishedText||"") +'</span></div><div class="descriptiontext">'+esc(videoDescription(v))+'</div></div><section class="comments" id="commentsSection"><div class="commentshead"><h3>Comments</h3><span class="muted">Read-only</span></div><div class="commentstate">Loading comments…</div></section></div><aside class="related"><h3>Up next</h3>'+(rec.length?rec.map(videoCard).join(""):'<p class="muted">No related videos available.</p>')+'</aside></div>';
+  $("playerShell").appendChild(earlyPlayer);
+  $("playerShell").insertAdjacentHTML("beforeend", '<button class="videoFullscreenBtn" id="fullscreenBtn" type="button" title="Fullscreen">⛶</button>');
   $("backBtn").onclick=()=>{if(currentPlaylist?.kind==="user")openUserPlaylist(currentPlaylist.id);else if(currentPlaylist)playlist(currentPlaylist.id);else home()};
   if(inPlaylist){$("prevPlaylistBtn").onclick=()=>{if(previous)watch(previous.videoId||previous.id,playlistIndex-1)};$("nextPlaylistBtn").onclick=()=>{if(next)watch(next.videoId||next.id,playlistIndex+1)}}
   $("fullscreenBtn").onclick=async()=>{const player=$("playerShell");try{if(document.fullscreenElement)await document.exitFullscreen();else if(player.requestFullscreen)await player.requestFullscreen();else throw Error("Unsupported")}catch(e){toast("Fullscreen is not available in this browser")}};
