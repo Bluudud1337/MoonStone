@@ -815,7 +815,7 @@ async function watch(id,playlistIndex){
  const queuedIds=currentPlaylist?.videos
   ?.slice(Number.isInteger(playlistIndex)?playlistIndex+1:0)
   .map(x=>x.videoId||x.id).filter(Boolean)||[];
- const playerParams=new URLSearchParams({v:id,autoplay:"1",mute:"0",playsinline:"1"});
+ const playerParams=new URLSearchParams({v:id,autoplay:"1",mute:"1",playsinline:"1"});
  if(queuedIds.length)playerParams.set("playlist",queuedIds.join(","));
  earlyPlayer.src="https://www.yout-ube.com/watch?"+playerParams.toString();
  content.innerHTML='<button class="pill back" id="backBtn">← Back</button><div class="watchlayout"><div class="watchprimary"><div class="playerShell" id="playerShell"></div><div id="watchDetailsLoading" class="loading">Loading video details…</div></div><aside class="related" id="watchRelated"><h3>Up next</h3></aside></div>';
