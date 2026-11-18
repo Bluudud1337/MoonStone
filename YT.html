@@ -820,6 +820,21 @@ async function watch(id,playlistIndex){
  earlyPlayer.src="https://www.youtube-nocookie.com/embed/"+encodeURIComponent(id)+"?"+playerParams.toString();
  content.innerHTML='<button class="pill back" id="backBtn">← Back</button><div class="watchlayout"><div class="watchprimary"><div class="playerShell" id="playerShell"></div><div id="watchDetailsLoading" class="loading">Loading video details…</div></div><aside class="related" id="watchRelated"><h3>Up next</h3></aside></div>';
  $("playerShell").appendChild(earlyPlayer);
+ const soundButton=document.createElement("button");
+ soundButton.type="button";
+ soundButton.className="videoFullscreenBtn";
+ soundButton.style.left="12px";
+ soundButton.style.right="auto";
+ soundButton.style.bottom="12px";
+ soundButton.textContent="Enable sound";
+ soundButton.title="Restart this video with audio";
+ soundButton.addEventListener("click",()=>{
+  playerParams.set("mute","0");
+  playerParams.set("autoplay","1");
+  earlyPlayer.src="https://www.youtube-nocookie.com/embed/"+encodeURIComponent(id)+"?"+playerParams.toString();
+  soundButton.remove();
+ });
+ $("playerShell").appendChild(soundButton);
  try{
   const v=await request("/api/v1/videos/"+encodeURIComponent(id));currentVideo=v;
   const rec=v.recommendedVideos||[];
